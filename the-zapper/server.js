@@ -7,7 +7,14 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+
+// This tells the server to look inside the "public" folder for your files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// This specifically points the home page to index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.post('/api/audit', async (req, res) => {
     const { input } = req.body;
