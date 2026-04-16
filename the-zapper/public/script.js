@@ -1,5 +1,5 @@
 const terminal = document.getElementById('terminal');
-const input = document.getElementById('input');
+const input = document.getElementById('commandInput'); // Changed 'input' to 'commandInput'
 
 async function handleCommand(val) {
     const line = document.createElement('div');
