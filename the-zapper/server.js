@@ -17,8 +17,8 @@ app.post('/api/audit', async (req, res) => {
     const { input } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
-    // Updated model string to '-latest' for the v1beta endpoint
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+    // UPDATED FOR APRIL 2026: Using the current Gemini 3 Flash model
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
     const instruction = `
     Identity: Chaos Burner Architect. 
@@ -41,6 +41,7 @@ app.post('/api/audit', async (req, res) => {
         
         if (data.error) {
             console.error("Gemini Error:", data.error.message);
+            // If the model name is still an issue, this will tell us exactly what models ARE available
             return res.json({ architect_roast: `[CONNECTION_ERROR]: ${data.error.message}` });
         }
 
