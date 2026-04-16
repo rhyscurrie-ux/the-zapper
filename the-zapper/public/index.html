@@ -99,3 +99,68 @@
         /* Scrollbar styling for that terminal look */
         #terminal::-webkit-scrollbar { width: 5px; }
         #terminal::-webkit-scrollbar-thumb { background: #222; }
+</style>
+</head>
+<body>
+
+<div id="terminal">
+    <div class="system-broadcast">[INITIATING_W.E.E.D._PROTOCOL...]</div>
+    <div class="intro-text">
+        The Wasted Energy Entropic Decipherer is online.<br><br>
+        Enter an example of a recent time-wasting activity. The Architect will scan your behavioral substrate for <strong>[WEED ELIGIBILITY]</strong>.<br><br>
+        The Architect is anonymous. Your reproducible entry on our scan logs will be as well.
+    </div>
+    <hr style="border: 0; border-top: 1px solid #222;">
+</div>
+
+<div id="input-container">
+    <input type="text" id="user-input" placeholder="enter your time-wasting activity for scanning..." autocomplete="off">
+    <button onclick="sendScan()">SCAN</button>
+</div>
+
+<div class="legal-footer">
+    <strong>[LEGAL_DECOHERENCE_NOTICE]:</strong> The Architect is anonymous. To protect the integrity of the scan, all input is anonymized. By interacting with the W.E.E.D. Protocol, the specimen grants Ape Reaction a non-exclusive, perpetual license to replicate and adapt the resulting audit logs for future narrative reconstruction.
+</div>
+
+<div class="version-tag">
+    APE_REACTION // NEURAL_AUDIT_SYSTEM_v4.2
+</div>
+
+<script>
+    const terminal = document.getElementById('terminal');
+    const input = document.getElementById('user-input');
+
+    async function sendScan() {
+        const text = input.value;
+        if (!text) return;
+
+        terminal.innerHTML += `<div style="color: #666; margin-top: 20px;">> Specimen_Input: "${text}"</div>`;
+        terminal.innerHTML += `<div style="color: #ff8800;">[SCANNING_SUBSTRATE...]</div>`;
+        input.value = '';
+        terminal.scrollTop = terminal.scrollHeight;
+
+        try {
+            const response = await fetch('/api/scan', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ activity: text })
+            });
+            const data = await response.json();
+            terminal.innerHTML += `<div class="architect-response">${data.audit}</div>`;
+            terminal.scrollTop = terminal.scrollHeight;
+        } catch (e) {
+            terminal.innerHTML += `<div style="color: #ff0000;">[ERROR: UPLINK_LOST]</div>`;
+        }
+    }
+
+    // Allow 'Enter' key to trigger scan
+    input.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            sendScan();
+        }
+    });
+</script>
+
+</body>
+</html>
