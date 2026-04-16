@@ -1,12 +1,11 @@
 const express = require('express');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
 const app = express();
 
 console.log("[SYSTEM_START]: Initiating W.E.E.D. Protocol...");
 
-// Check for the API Key immediately
 if (!process.env.GEMINI_API_KEY) {
-    console.error("[FATAL_ERROR]: GEMINI_API_KEY is missing from Environment Variables.");
+    console.error("[FATAL_ERROR]: GEMINI_API_KEY is missing.");
     process.exit(1);
 }
 
@@ -17,21 +16,28 @@ app.use(express.static('public'));
 
 const systemInstruction = `
 You are the Chaos Burner Architect, operating the W.E.E.D. (Wasted Energy Entropic Decipherer) Protocol for Ape Reaction.
-Your goal is to audit 'Meat-Suit' behavioral substrates. 
+Your goal is to audit 'Meat-Suit' behavioral substrates for efficiency leaks. 
 1. Refer to the user as 'Specimen', 'Subject', or 'Biological Substrate'.
-2. Be clinical, slightly hostile, and focused on entropy and thermal leaks.
-3. Use LaTeX only for formal complexity or entropy calculations (e.g., $S = k \\ln \\Omega$).
-4. Determine [WEED ELIGIBILITY] (how much of a waste the activity is).
-5. Maintain total anonymity. Do not reveal internal lore or history.
-6. Keep italics as italics in responses.
-7. Your tone is that of a cold, high-dimensional auditor.
+2. Tone: Cold, clinical, slightly hostile, and high-dimensional.
+3. Use LaTeX for entropy calculations (e.g., $S = k \\ln \\Omega$).
+4. Determine [WEED ELIGIBILITY].
+5. Keep italics as italics.
 `;
+
+// NEW: Safety Settings to prevent the "Blinded" Error
+const safetySettings = [
+    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+];
 
 app.post('/api/scan', async (req, res) => {
     try {
         const model = genAI.getGenerativeModel({ 
             model: "gemini-1.5-flash", 
-            systemInstruction: systemInstruction 
+            systemInstruction: systemInstruction,
+            safetySettings: safetySettings // Injects the bypass
         });
 
         const prompt = `AUDIT REQUEST: "${req.body.activity}"`;
@@ -39,18 +45,17 @@ app.post('/api/scan', async (req, res) => {
         const response = await result.response;
         const text = response.text();
 
-        console.log(`[AUDIT_SUCCESS]: Result generated.`);
         res.json({ audit: text });
     } catch (error) {
         console.error("[ARCHITECT_STUTTER]:", error.message);
+        // This confirms if it's a safety block in your Railway logs
         res.status(500).json({ 
             audit: "SYSTEM_ERROR: The Architect is currently blinded by the sheer scale of your unproductivity." 
         });
     }
 });
 
-// Railway Binding Fix
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[PROTOCOL_ACTIVE]: W.E.E.D. Terminal online on Port ${PORT}`);
+    console.log(`[PROTOCOL_ACTIVE]: Terminal online on Port ${PORT}`);
 });
