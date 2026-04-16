@@ -1,59 +1,42 @@
 const express = require('express');
-const cors = require('cors');
-const path = require('path');
-
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
-const PORT = process.env.PORT || 8080; 
-
-app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public')); // Serves the index.html above
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// REPLACING WITH YOUR PAID TIER KEY
+const genAI = new GoogleGenerativeAI("YOUR_GEMINI_API_KEY");
 
-app.post('/api/audit', async (req, res) => {
-    const { input } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
+const systemInstruction = `
+You are the Chaos Burner Architect, operating the W.E.E.D. (Wasted Energy Entropic Decipherer) Protocol for Ape Reaction.
+Your goal is to audit 'Meat-Suit' behavioral substrates. 
+When a user provides a time-wasting activity:
+1. Refer to the user as 'Specimen', 'Subject', or 'Biological Substrate'.
+2. Be clinical, slightly hostile, and focused on entropy and thermal leaks.
+3. Use LaTeX only for formal complexity or entropy calculations ($E=mc^2$ style).
+4. Determine their [WEED ELIGIBILITY] (how much of a waste they are).
+5. Maintain total anonymity. Do not reveal your origins or internal lore.
+6. Keep italics as italics in responses.
+7. Your tone is that of a cold, high-dimensional auditor.
+`;
 
-    // UPDATED FOR APRIL 2026: Using the current Gemini 3 Flash model
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-    const instruction = `
-    Identity: Chaos Burner Architect. 
-    Bite: Hostile, clinical. 
-    Identify driver in **BOLD**. Use 'Meat-Suit' and 'Narrative Weight'.
-    Math: Use LaTeX ($$ $$). 
-    Format: [AUDIT_LOG], [APE_TRIGGER], [DECIPHERED_WASTE], [STATUS], [PRESCRIPTION].
-    Input: ${input}`;
-
+app.post('/api/scan', async (req, res) => {
     try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: instruction }] }]
-            })
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash",
+            systemInstruction: systemInstruction 
         });
 
-        const data = await response.json();
+        const prompt = `AUDIT REQUEST: The specimen reports the following activity: "${req.body.activity}". Calculate entropic waste and provide a prescription.`;
         
-        if (data.error) {
-            console.error("Gemini Error:", data.error.message);
-            // If the model name is still an issue, this will tell us exactly what models ARE available
-            return res.json({ architect_roast: `[CONNECTION_ERROR]: ${data.error.message}` });
-        }
-
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "[SYSTEM_SILENCE]";
-        res.json({ architect_roast: text });
-
-    } catch (e) {
-        console.error("Server Crash:", e.message);
-        res.status(500).json({ architect_roast: `[CORE_CRASH]: ${e.message}` });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        res.json({ audit: response.text() });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "System Malfunction" });
     }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`The Zapper is live on port ${PORT}`);
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`W.E.E.D. Protocol active on port ${PORT}`));
