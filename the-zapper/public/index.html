@@ -5,49 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>APE REACTION // W.E.E.D. PROTOCOL</title>
     <style>
+        * { box-sizing: border-box; }
         body {
             background-color: #050505;
             color: #00ff41;
             font-family: 'Courier New', Courier, monospace;
             display: flex;
             flex-direction: column;
-            align-items: center;
             height: 100vh;
             margin: 0;
             padding: 20px;
-            box-sizing: border-box;
         }
 
         #terminal {
+            flex: 1;
             width: 100%;
             max-width: 900px;
-            flex-grow: 1;
+            margin: 0 auto;
             overflow-y: auto;
-            margin-bottom: 20px;
-            line-height: 1.4;
+            padding-bottom: 20px;
             scrollbar-width: thin;
             scrollbar-color: #222 #050505;
         }
 
-        .system-broadcast { color: #ff8800; margin-bottom: 10px; font-weight: bold; }
-        .intro-text { color: #00ff41; margin-bottom: 20px; }
-        
+        .system-broadcast { color: #ff8800; font-weight: bold; margin-bottom: 10px; }
+        .intro-text { margin-bottom: 20px; line-height: 1.5; }
+        .points-display { color: #ff8800; font-size: 0.9rem; margin-bottom: 10px; }
+
         #input-container {
             width: 100%;
             max-width: 900px;
+            margin: 0 auto;
             display: flex;
+            gap: 10px;
+            background: #050505;
+            padding: 15px 0;
             border-top: 1px solid #222;
-            padding-top: 20px;
-            padding-bottom: 20px;
         }
 
         input {
-            flex-grow: 1;
+            flex: 1;
             background: #0a0a0a;
             border: 1px solid #333;
             color: #00ff41;
-            padding: 15px;
-            font-size: 1rem;
+            padding: 12px;
             font-family: inherit;
             outline: none;
         }
@@ -58,66 +59,60 @@
             background: #00ff41;
             color: #000;
             border: none;
-            padding: 0 30px;
+            padding: 0 25px;
             cursor: pointer;
             font-weight: bold;
-            text-transform: uppercase;
         }
 
         .architect-response {
-            color: #ffffff;
-            margin-top: 15px;
+            color: #fff;
+            margin: 15px 0;
             padding: 15px;
             border-left: 2px solid #00ff41;
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.03);
+            white-space: pre-wrap;
         }
 
         .action-container {
-            margin-top: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 30px;
         }
 
         .copy-btn {
-            background: transparent;
+            background: none;
             border: 1px solid #ff8800;
             color: #ff8800;
-            padding: 5px 15px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
             cursor: pointer;
-            font-size: 0.75rem;
-            font-family: inherit;
         }
 
-        .copy-btn:hover { background: #ff8800; color: #000; }
-
-        .points-display {
-            font-size: 0.8rem;
-            color: #ff8800;
-            text-shadow: 0 0 5px rgba(255, 136, 0, 0.5);
+        .footer-wrapper {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding-top: 10px;
+            border-top: 1px solid #1a1a1a;
         }
 
         .legal-footer {
-            width: 100%;
-            max-width: 900px;
-            font-size: 0.85rem;
-            color: #666; 
-            margin-top: 10px;
-            border-top: 1px solid #222;
-            padding-top: 15px;
+            font-size: 0.75rem;
+            color: #444;
             line-height: 1.4;
-            text-align: justify;
+            margin-bottom: 10px;
         }
 
         .version-tag {
-            font-size: 0.7rem;
-            color: #1a1a1a;
-            margin-top: 15px;
-            letter-spacing: 4px;
-            user-select: none;
+            text-align: center;
+            font-size: 0.65rem;
+            color: #222;
+            letter-spacing: 5px;
+            text-transform: uppercase;
         }
 
-        hr { border: 0; border-top: 1px solid #222; margin: 20px 0; }
+        hr { border: 0; border-top: 1px solid #222; margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -138,12 +133,13 @@
     <button onclick="sendScan()">SCAN</button>
 </div>
 
-<div class="legal-footer">
-    <strong>[LEGAL_DECOHERENCE_NOTICE]:</strong> The Architect is anonymous. To protect the integrity of the scan, all input is anonymized. By interacting with the W.E.E.D. Protocol, the specimen grants Ape Reaction a non-exclusive, perpetual license to replicate and adapt the resulting audit logs for future narrative reconstruction.
-</div>
-
-<div class="version-tag">
-    APE_REACTION // NEURAL_AUDIT_SYSTEM_v4.2
+<div class="footer-wrapper">
+    <div class="legal-footer">
+        [LEGAL_DECOHERENCE_NOTICE]: The Architect is anonymous. To protect the integrity of the scan, all input is anonymized. By interacting with the W.E.E.D. Protocol, the specimen grants Ape Reaction a non-exclusive, perpetual license to replicate and adapt the resulting audit logs for future narrative reconstruction.
+    </div>
+    <div class="version-tag">
+        APE_REACTION // NEURAL_AUDIT_SYSTEM_v4.2
+    </div>
 </div>
 
 <script>
@@ -153,8 +149,6 @@
     
     let currentAudit = "";
     let points = parseInt(localStorage.getItem('weed_points')) || 0;
-
-    // Initialize points
     pointsDisplay.innerText = `TOTAL_BROWNIE_POINTS: ${points}`;
 
     async function sendScan() {
@@ -175,13 +169,13 @@
             });
             const data = await response.json();
             
-            document.getElementById(loadingId).remove();
+            if (document.getElementById(loadingId)) document.getElementById(loadingId).remove();
             currentAudit = data.audit;
 
             terminal.innerHTML += `
                 <div class="architect-response">${data.audit}</div>
                 <div class="action-container">
-                    <span style="font-size: 0.7rem; color: #444;">ID: 0x${Math.floor(Math.random()*16777215).toString(16).toUpperCase()}</span>
+                    <span style="font-size: 0.7rem; color: #333;">ID: 0x${Math.floor(Math.random()*16777215).toString(16).toUpperCase()}</span>
                     <button class="copy-btn" onclick="copyAudit(this)">[REPLICATE_DIAGNOSTIC]</button>
                 </div>
             `;
@@ -192,29 +186,17 @@
     }
 
     function copyAudit(btn) {
-        const watermark = `--- APE REACTION // W.E.E.D. AUDIT ---\n\n${currentAudit}\n\n[STATUS: REPLICATED]\n[SCORE: +10 WEED_BROWNIE_POINTS]\nVerify your substrate at apereaction.com\n--------------------------------------`;
-        
+        const watermark = `--- APE REACTION // W.E.E.D. AUDIT ---\n\n${currentAudit}\n\n[SCORE: +10 WEED_BROWNIE_POINTS]\nVerify your substrate at apereaction.com\n--------------------------------------`;
         navigator.clipboard.writeText(watermark).then(() => {
-            // Update Points
             points += 10;
             localStorage.setItem('weed_points', points);
             pointsDisplay.innerText = `TOTAL_BROWNIE_POINTS: ${points}`;
-            
-            // Visual feedback on button
-            const originalText = btn.innerText;
             btn.innerText = "[REPLICATED]";
-            btn.style.borderColor = "#00ff41";
-            btn.style.color = "#00ff41";
-            setTimeout(() => {
-                btn.innerText = originalText;
-                btn.style.borderColor = "#ff8800";
-                btn.style.color = "#ff8800";
-            }, 2000);
+            setTimeout(() => { btn.innerText = "[REPLICATE_DIAGNOSTIC]"; }, 2000);
         });
     }
 
     input.addEventListener("keypress", (e) => { if (e.key === "Enter") sendScan(); });
 </script>
-
 </body>
 </html>
