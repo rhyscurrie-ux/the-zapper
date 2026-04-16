@@ -17,8 +17,8 @@ app.post('/api/audit', async (req, res) => {
     const { input } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
-    // Switched to v1 (Stable) to resolve the "not found" error
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // Using the most explicit stable model identifier
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const instruction = `
     Identity: Chaos Burner Architect. 
@@ -39,9 +39,8 @@ app.post('/api/audit', async (req, res) => {
 
         const data = await response.json();
         
-        // Detailed error reporting to the terminal
         if (data.error) {
-            console.error("Gemini Error:", data.error.message);
+            console.error("Gemini Error:", data.error);
             return res.json({ architect_roast: `[CONNECTION_ERROR]: ${data.error.message}` });
         }
 
