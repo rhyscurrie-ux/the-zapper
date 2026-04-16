@@ -3,19 +3,21 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
+// Railway provides the PORT, or we default to 3000
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
-// This tells the server to look inside the "public" folder for your files
+// Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// This specifically points the home page to index.html
+// Explicitly serve index.html for the root path
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// The API endpoint for the Architect's Audit
 app.post('/api/audit', async (req, res) => {
     const { input } = req.body;
 
@@ -28,12 +30,12 @@ app.post('/api/audit', async (req, res) => {
     Input: ${input}`;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ role: "user", parts: [{ text: instruction }] }],
-                generationConfig: { temperature: 1.0, maxOutputTokens: 800 }
+                generationConfig: { temperature: 1.0, maxOutputTokens: 1000 }
             })
         });
 
@@ -46,6 +48,7 @@ app.post('/api/audit', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+// The '0.0.0.0' allows Railway to route external traffic to your app
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`The Zapper is live on port ${PORT}`);
 });
