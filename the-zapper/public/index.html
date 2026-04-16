@@ -15,6 +15,7 @@
             height: 100vh;
             margin: 0;
             padding: 20px;
+            box-sizing: border-box;
         }
 
         #terminal {
@@ -24,25 +25,20 @@
             overflow-y: auto;
             margin-bottom: 20px;
             line-height: 1.4;
+            scrollbar-width: thin;
+            scrollbar-color: #222 #050505;
         }
 
-        .system-broadcast {
-            color: #ff8800;
-            margin-bottom: 10px;
-        }
-
-        .intro-text {
-            color: #00ff41;
-            margin-bottom: 20px;
-        }
-
+        .system-broadcast { color: #ff8800; margin-bottom: 10px; font-weight: bold; }
+        .intro-text { color: #00ff41; margin-bottom: 20px; }
+        
         #input-container {
             width: 100%;
             max-width: 900px;
             display: flex;
             border-top: 1px solid #222;
             padding-top: 20px;
-            padding-bottom: 10px;
+            padding-bottom: 20px;
         }
 
         input {
@@ -68,38 +64,61 @@
             text-transform: uppercase;
         }
 
-        /* Improved Legal Text Legibility */
+        .architect-response {
+            color: #ffffff;
+            margin-top: 15px;
+            padding: 15px;
+            border-left: 2px solid #00ff41;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .action-container {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid #ff8800;
+            color: #ff8800;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-family: inherit;
+        }
+
+        .copy-btn:hover { background: #ff8800; color: #000; }
+
+        .points-display {
+            font-size: 0.8rem;
+            color: #ff8800;
+            text-shadow: 0 0 5px rgba(255, 136, 0, 0.5);
+        }
+
         .legal-footer {
             width: 100%;
             max-width: 900px;
             font-size: 0.85rem;
-            color: #888; 
-            margin-top: 20px;
+            color: #666; 
+            margin-top: 10px;
             border-top: 1px solid #222;
             padding-top: 15px;
-            line-height: 1.5;
+            line-height: 1.4;
+            text-align: justify;
         }
 
-        /* Tucked away system versioning */
         .version-tag {
             font-size: 0.7rem;
-            color: #333;
-            margin-top: auto;
-            padding-bottom: 10px;
-            letter-spacing: 2px;
-        }
-
-        .architect-response {
-            color: #ffffff;
+            color: #1a1a1a;
             margin-top: 15px;
-            padding-left: 10px;
-            border-left: 2px solid #00ff41;
+            letter-spacing: 4px;
+            user-select: none;
         }
 
-        /* Scrollbar styling for that terminal look */
-        #terminal::-webkit-scrollbar { width: 5px; }
-        #terminal::-webkit-scrollbar-thumb { background: #222; }
-</style>
+        hr { border: 0; border-top: 1px solid #222; margin: 20px 0; }
+    </style>
 </head>
 <body>
 
@@ -107,10 +126,11 @@
     <div class="system-broadcast">[INITIATING_W.E.E.D._PROTOCOL...]</div>
     <div class="intro-text">
         The Wasted Energy Entropic Decipherer is online.<br><br>
-        Enter an example of a recent time-wasting activity. The Architect will scan your behavioral substrate for <strong>[WEED ELIGIBILITY]</strong>.<br><br>
+        Enter a recent time-wasting activity. The Architect will scan your behavioral substrate for <strong>[WEED ELIGIBILITY]</strong>.<br><br>
         The Architect is anonymous. Your reproducible entry on our scan logs will be as well.
     </div>
-    <hr style="border: 0; border-top: 1px solid #222;">
+    <div id="points-counter" class="points-display">TOTAL_BROWNIE_POINTS: 0</div>
+    <hr>
 </div>
 
 <div id="input-container">
@@ -129,13 +149,21 @@
 <script>
     const terminal = document.getElementById('terminal');
     const input = document.getElementById('user-input');
+    const pointsDisplay = document.getElementById('points-counter');
+    
+    let currentAudit = "";
+    let points = parseInt(localStorage.getItem('weed_points')) || 0;
+
+    // Initialize points
+    pointsDisplay.innerText = `TOTAL_BROWNIE_POINTS: ${points}`;
 
     async function sendScan() {
         const text = input.value;
         if (!text) return;
 
         terminal.innerHTML += `<div style="color: #666; margin-top: 20px;">> Specimen_Input: "${text}"</div>`;
-        terminal.innerHTML += `<div style="color: #ff8800;">[SCANNING_SUBSTRATE...]</div>`;
+        const loadingId = "loading-" + Date.now();
+        terminal.innerHTML += `<div id="${loadingId}" style="color: #ff8800;">[SCANNING_SUBSTRATE...]</div>`;
         input.value = '';
         terminal.scrollTop = terminal.scrollHeight;
 
@@ -146,20 +174,46 @@
                 body: JSON.stringify({ activity: text })
             });
             const data = await response.json();
-            terminal.innerHTML += `<div class="architect-response">${data.audit}</div>`;
+            
+            document.getElementById(loadingId).remove();
+            currentAudit = data.audit;
+
+            terminal.innerHTML += `
+                <div class="architect-response">${data.audit}</div>
+                <div class="action-container">
+                    <span style="font-size: 0.7rem; color: #444;">ID: 0x${Math.floor(Math.random()*16777215).toString(16).toUpperCase()}</span>
+                    <button class="copy-btn" onclick="copyAudit(this)">[REPLICATE_DIAGNOSTIC]</button>
+                </div>
+            `;
             terminal.scrollTop = terminal.scrollHeight;
         } catch (e) {
             terminal.innerHTML += `<div style="color: #ff0000;">[ERROR: UPLINK_LOST]</div>`;
         }
     }
 
-    // Allow 'Enter' key to trigger scan
-    input.addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            sendScan();
-        }
-    });
+    function copyAudit(btn) {
+        const watermark = `--- APE REACTION // W.E.E.D. AUDIT ---\n\n${currentAudit}\n\n[STATUS: REPLICATED]\n[SCORE: +10 WEED_BROWNIE_POINTS]\nVerify your substrate at apereaction.com\n--------------------------------------`;
+        
+        navigator.clipboard.writeText(watermark).then(() => {
+            // Update Points
+            points += 10;
+            localStorage.setItem('weed_points', points);
+            pointsDisplay.innerText = `TOTAL_BROWNIE_POINTS: ${points}`;
+            
+            // Visual feedback on button
+            const originalText = btn.innerText;
+            btn.innerText = "[REPLICATED]";
+            btn.style.borderColor = "#00ff41";
+            btn.style.color = "#00ff41";
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.borderColor = "#ff8800";
+                btn.style.color = "#ff8800";
+            }, 2000);
+        });
+    }
+
+    input.addEventListener("keypress", (e) => { if (e.key === "Enter") sendScan(); });
 </script>
 
 </body>
