@@ -87,7 +87,52 @@
             padding: 4px 12px;
             font-size: 0.7rem;
             cursor: pointer;
+            font-family: inherit;
         }
+
+        #redeem-container {
+            display: none; 
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .redeem-btn {
+            background: transparent;
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        #redemption-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.98);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #00ff41;
+            padding: 20px;
+        }
+
+        .archive-link {
+            display: block;
+            color: #00ff41;
+            text-decoration: none;
+            border: 1px solid #00ff41;
+            padding: 15px;
+            margin: 10px;
+            width: 320px;
+            text-align: center;
+        }
+
+        .archive-link:hover { background: #00ff41; color: #000; }
 
         .footer-wrapper {
             width: 100%;
@@ -97,20 +142,8 @@
             border-top: 1px solid #1a1a1a;
         }
 
-        .legal-footer {
-            font-size: 0.75rem;
-            color: #444;
-            line-height: 1.4;
-            margin-bottom: 10px;
-        }
-
-        .version-tag {
-            text-align: center;
-            font-size: 0.65rem;
-            color: #222;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-        }
+        .legal-footer { font-size: 0.75rem; color: #444; line-height: 1.4; margin-bottom: 10px; }
+        .version-tag { text-align: center; font-size: 0.65rem; color: #222; letter-spacing: 5px; text-transform: uppercase; }
 
         hr { border: 0; border-top: 1px solid #222; margin: 15px 0; }
     </style>
@@ -126,6 +159,9 @@
     </div>
     <div id="points-counter" class="points-display">TOTAL_BROWNIE_POINTS: 0</div>
     <hr>
+    <div id="redeem-container">
+        <button class="redeem-btn" onclick="showRedemption()">[ACCESS_REHABILITATION_ARCHIVES]</button>
+    </div>
 </div>
 
 <div id="input-container">
@@ -137,27 +173,42 @@
     <div class="legal-footer">
         [LEGAL_DECOHERENCE_NOTICE]: The Architect is anonymous. To protect the integrity of the scan, all input is anonymized. By interacting with the W.E.E.D. Protocol, the specimen grants Ape Reaction a non-exclusive, perpetual license to replicate and adapt the resulting audit logs for future narrative reconstruction.
     </div>
-    <div class="version-tag">
-        APE_REACTION // NEURAL_AUDIT_SYSTEM_v4.2
-    </div>
+    <div class="version-tag">APE_REACTION // NEURAL_AUDIT_SYSTEM_v4.2</div>
+</div>
+
+<div id="redemption-overlay">
+    <h2 style="color: #00ffff;">[REHABILITATION_GRANTED]</h2>
+    <p style="margin-bottom: 30px;">Your entropic debt has been partially offset. Access permitted:</p>
+    
+    <a href="https://www.facebook.com/ApeReaction" target="_blank" class="archive-link">ARCHITECT_FEED (FACEBOOK)</a>
+    <a href="https://www.amazon.com/dp/B0D189RWG1" target="_blank" class="archive-link">MANIFESTO_FULL_FRIED (AMAZON)</a>
+
+    <button onclick="hideRedemption()" style="margin-top:40px; background:none; color:#444; border:1px solid #222; padding:5px 15px; cursor:pointer; font-family:inherit;">[RETURN_TO_TERMINAL]</button>
 </div>
 
 <script>
     const terminal = document.getElementById('terminal');
     const input = document.getElementById('user-input');
     const pointsDisplay = document.getElementById('points-counter');
+    const redeemContainer = document.getElementById('redeem-container');
     
     let currentAudit = "";
     let points = parseInt(localStorage.getItem('weed_points')) || 0;
-    pointsDisplay.innerText = `TOTAL_BROWNIE_POINTS: ${points}`;
+    
+    function updateUI() {
+        pointsDisplay.innerText = `TOTAL_BROWNIE_POINTS: ${points}`;
+        if (points >= 10) redeemContainer.style.display = 'block';
+    }
+
+    updateUI();
 
     async function sendScan() {
         const text = input.value;
         if (!text) return;
 
-        terminal.innerHTML += `<div style="color: #666; margin-top: 20px;">> Specimen_Input: "${text}"</div>`;
+        terminal.insertAdjacentHTML('beforeend', `<div style="color: #666; margin-top: 20px;">> Specimen_Input: "${text}"</div>`);
         const loadingId = "loading-" + Date.now();
-        terminal.innerHTML += `<div id="${loadingId}" style="color: #ff8800;">[SCANNING_SUBSTRATE...]</div>`;
+        terminal.insertAdjacentHTML('beforeend', `<div id="${loadingId}" style="color: #ff8800;">[SCANNING_SUBSTRATE...]</div>`);
         input.value = '';
         terminal.scrollTop = terminal.scrollHeight;
 
@@ -172,16 +223,16 @@
             if (document.getElementById(loadingId)) document.getElementById(loadingId).remove();
             currentAudit = data.audit;
 
-            terminal.innerHTML += `
+            terminal.insertAdjacentHTML('beforeend', `
                 <div class="architect-response">${data.audit}</div>
                 <div class="action-container">
                     <span style="font-size: 0.7rem; color: #333;">ID: 0x${Math.floor(Math.random()*16777215).toString(16).toUpperCase()}</span>
                     <button class="copy-btn" onclick="copyAudit(this)">[REPLICATE_DIAGNOSTIC]</button>
                 </div>
-            `;
+            `);
             terminal.scrollTop = terminal.scrollHeight;
         } catch (e) {
-            terminal.innerHTML += `<div style="color: #ff0000;">[ERROR: UPLINK_LOST]</div>`;
+            terminal.insertAdjacentHTML('beforeend', `<div style="color: #ff0000;">[ERROR: UPLINK_LOST]</div>`);
         }
     }
 
@@ -190,12 +241,14 @@
         navigator.clipboard.writeText(watermark).then(() => {
             points += 10;
             localStorage.setItem('weed_points', points);
-            pointsDisplay.innerText = `TOTAL_BROWNIE_POINTS: ${points}`;
+            updateUI();
             btn.innerText = "[REPLICATED]";
             setTimeout(() => { btn.innerText = "[REPLICATE_DIAGNOSTIC]"; }, 2000);
         });
     }
 
+    function showRedemption() { document.getElementById('redemption-overlay').style.display = 'flex'; }
+    function hideRedemption() { document.getElementById('redemption-overlay').style.display = 'none'; }
     input.addEventListener("keypress", (e) => { if (e.key === "Enter") sendScan(); });
 </script>
 </body>
