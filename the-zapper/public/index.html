@@ -3,20 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ZAPPER // ARCHITECT_INTERFACE</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <title>APE REACTION // W.E.E.D. PROTOCOL</title>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #00ff41;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #terminal {
+            width: 80%;
+            max-width: 800px;
+            height: 60vh;
+            border: 1px solid #00ff41;
+            padding: 20px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+        }
+        #input-area {
+            width: 80%;
+            max-width: 800px;
+            margin-top: 20px;
+            display: flex;
+        }
+        input {
+            flex-grow: 1;
+            background: none;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 10px;
+            font-family: inherit;
+        }
+        button {
+            background: #00ff41;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .header { text-align: center; margin-bottom: 20px; }
+        .footer { font-size: 0.7rem; color: #555; margin-top: 30px; text-align: center; max-width: 700px; }
+        .scan-log { color: #ff8800; }
+    </style>
 </head>
 <body>
-    <div id="terminal">
-        <div class="line">[SYSTEM_BOOT // v11.4.0_RAILWAY_STABLE]</div>
-        <div class="line">INITIALIZING_ARCHIVE_HANDSHAKE...</div>
-    </div>
-    <div class="input-area">
-        <span class="prompt">></span>
-        <input type="text" id="commandInput" autofocus autocomplete="off">
-    </div>
-    <script src="script.js"></script>
+
+<div class="header">
+    <div>APE_REACTION // NEURAL_AUDIT_SYSTEM_v4.2</div>
+    <div>[STABILITY_CHECK: NOMINAL]</div>
+</div>
+
+<div id="terminal">
+    <div class="scan-log">[INITIATING_W.E.E.D._PROTOCOL...]</div>
+    <p><strong>The Wasted Energy Entropic Decipherer is online.</strong></p>
+    <p>Enter an example of a recent time-wasting activity. The Architect will scan your behavioral substrate for [WEED ELIGIBILITY].</p>
+    <p><em>The Architect is anonymous. Your reproducible entry on our scan logs will be as well.</em></p>
+    <hr>
+</div>
+
+<div id="input-area">
+    <input type="text" id="user-input" placeholder="Enter activity for scanning..." autocomplete="off">
+    <button onclick="sendScan()">SCAN</button>
+</div>
+
+<div class="footer">
+    [LEGAL_DECOHERENCE_NOTICE]: The Architect is anonymous. To protect the integrity of the scan, all input is anonymized. By interacting with the W.E.E.D. Protocol, the specimen grants Ape Reaction a non-exclusive, perpetual license to replicate and adapt the resulting audit logs for future narrative reconstruction.
+</div>
+
+<script>
+    const terminal = document.getElementById('terminal');
+    const input = document.getElementById('user-input');
+
+    async function sendScan() {
+        const text = input.value;
+        if (!text) return;
+
+        terminal.innerHTML += `<div>> Specimen Input: ${text}</div>`;
+        terminal.innerHTML += `<div>[SCANNING_SUBSTRATE...]</div>`;
+        input.value = '';
+
+        try {
+            const response = await fetch('/api/scan', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ activity: text })
+            });
+            const data = await response.json();
+            terminal.innerHTML += `<div style="color: #fff">${data.audit}</div><br>`;
+            terminal.scrollTop = terminal.scrollHeight;
+        } catch (e) {
+            terminal.innerHTML += `<div style="color: red">[ERROR: UPLINK_STUTTER]</div>`;
+        }
+    }
+</script>
+
 </body>
 </html>
