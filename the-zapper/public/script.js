@@ -27,10 +27,13 @@ input.addEventListener('keydown', async (e) => {
                 body: JSON.stringify({ activity: val })
             });
             const data = await res.json();
-            responseLine.innerHTML = data.audit.replace(/\n/g, '<br>');
+            
+            // Render text with line breaks
+            responseLine.innerHTML = (data.audit || "[EMPTY_RESPONSE]").replace(/\n/g, '<br>');
+            
             if (window.MathJax) MathJax.typesetPromise([responseLine]);
         } catch (err) {
-            responseLine.textContent = "[CONNECTION_SEVERED]";
+            responseLine.textContent = "[CONNECTION_SEVERED]: Check Railway Logs.";
         }
         input.disabled = false;
         input.focus();
