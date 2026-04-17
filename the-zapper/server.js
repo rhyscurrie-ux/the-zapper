@@ -24,8 +24,8 @@ app.post('/api/scan', async (req, res) => {
     const API_KEY = process.env.GEMINI_API_KEY;
 
     try {
-        // SWITCHING TO THE BASE STABLE MODEL: gemini-1.5-flash
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`, {
+        // MOVED TO /v1/ (Stable) instead of /v1beta/
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ app.post('/api/scan', async (req, res) => {
         const data = await response.json();
 
         if (data.error) {
-            // This will tell us if it's a model issue or an auth issue
+            // This error log will now tell us the exact state of the v1 endpoint
             throw new Error(`${data.error.status}: ${data.error.message}`);
         }
 
