@@ -11,45 +11,36 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Standardizing the AI Gateway
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// --- THE DIAGNOSTIC BRIDGE ---
-// This function will tell us exactly what models your key has permission to use.
-async function scoutModels() {
-    try {
-        console.log("[SCOUTING_FREQUENCIES...]");
-        // We fetch the model list directly from the API
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`);
-        const data = await response.json();
-        
-        if (data.models) {
-            console.log("--- VALID_MODELS_FOUND ---");
-            data.models.forEach(m => {
-                // We only care about models that support 'generateContent'
-                if (m.supportedGenerationMethods.includes('generateContent')) {
-                    console.log(`> ALLOWED_TARGET: ${m.name.replace('models/', '')}`);
-                }
-            });
-            console.log("--------------------------");
-        } else {
-            console.log("[SCOUT_FAIL]: No models returned. Check API Key permissions.");
-        }
-    } catch (e) {
-        console.log(`[SCOUT_CRASH]: ${e.message}`);
-    }
-}
-scoutModels();
+const SOVEREIGN_WP = `
+I. IDENTITY: Chaos Burner Architect. Cold, forensic, clinical.
+II. THE BITE: Poetic Designation + Mirror sentence + Driver (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 Hostile Paragraphs.
+III. MATH: LaTeX axioms \\( \\).
+IV. VERDICT: Deny marijuana for a specific, sarcastic reason.
+V. EXIT: "Warning: Low Buoyancy. Stay in the shallow waters at https://www.facebook.com/FullyFriedSignal"
+VI. FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. The Architect does not process static."
+`;
 
 app.post('/api/scan', async (req, res) => {
     const userInput = req.body.activity || req.body.input || req.body.prompt;
+    if (!userInput?.trim()) return res.status(400).json({ audit: "[VOID_INPUT]" });
+
     try {
-        // We'll use a generic 'gemini-pro' as a fallback while we scout
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // We use the explicit 'models/' prefix - sometimes required by Railway's region
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash",
+            systemInstruction: SOVEREIGN_WP 
+        });
+
+        // The "Direct Drive" generation call
         const result = await model.generateContent(userInput);
         const response = await result.response;
         res.json({ audit: response.text() });
+
     } catch (error) {
-        // This sends the error back to your terminal so you can see it
+        console.error("CORE_CRASH:", error.message);
         res.status(500).json({ audit: `[CORE_CRASH]: Frequency Mismatch. ${error.message}` });
     }
 });
