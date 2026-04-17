@@ -36,7 +36,8 @@ input.addEventListener('keydown', async (e) => {
         input.value = '';
         input.disabled = true;
 
-        if (val.toLowerCase().includes('dispute') || val.toLowerCase().includes('appeal')) {
+        const lower = val.toLowerCase();
+        if (lower.includes('dispute') || lower.includes('appeal')) {
             renderLine('[RECURSIVE_WHINE_DETECTED]: Appeal decommissioned. Exit the frequency.', '#ff0000');
         } else {
             renderLine(`> Specimen_Input: "${val}"`, '#ffffff');
