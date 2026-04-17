@@ -1,23 +1,57 @@
 const input = document.getElementById('terminal-input');
 const terminal = document.getElementById('terminal-output');
 
+// 1. BOOT SEQUENCE
+const bootLines = [
+    "[INITIATING_W.E.E.D._PROTOCOL...]",
+    "[SOVEREIGN_ARCHITECT: ONLINE]",
+    "[SUBSTRATE_SCANNER: ARMED]",
+    "[AWAITING_SPECIMEN_INPUT...]"
+];
+
+async function boot() {
+    input.disabled = true;
+    for (const line of bootLines) {
+        renderLine(line, '#00ff00');
+        await new Promise(r => setTimeout(r, 400));
+    }
+    input.disabled = false;
+    input.focus();
+}
+
+// 2. TYPEWRITER EFFECT
+async function typeWrite(element, text, speed = 5) {
+    element.textContent = ''; 
+    element.style.whiteSpace = "pre-wrap";
+    
+    // We build the text char-by-char, but we must handle newlines
+    let currentText = "";
+    for (let i = 0; i < text.length; i++) {
+        currentText += text[i];
+        // Replace newlines with <br> for HTML rendering
+        element.innerHTML = currentText.replace(/\n/g, '<br>');
+        terminal.scrollTop = terminal.scrollHeight;
+        await new Promise(r => setTimeout(r, speed));
+    }
+}
+
 input.addEventListener('keydown', async (e) => {
     if (e.key === 'Enter' && input.value.trim() !== '' && !input.disabled) {
         const val = input.value;
         input.value = '';
         input.disabled = true;
 
-        // LOCAL INTERCEPT: The Dispute Gate
         const lower = val.toLowerCase();
-        if (lower.includes('dispute') || lower.includes('appeal') || lower.includes('protest')) {
-            renderLine('[RECURSIVE_WHINE_DETECTED]: Appeal decommissioned in v9.0. Exit the frequency.', '#ff0000');
-            input.disabled = false;
-            input.focus();
-            return;
+        if (lower.includes('dispute') || lower.includes('appeal')) {
+            renderLine('[RECURSIVE_WHINE_DETECTED]: Appeal decommissioned. Exit the frequency.', '#ff0000');
+        } else if (lower === 'scan') {
+            renderLine('[ARCHIVE_ACCESS]: Redirecting to specimen archive...', '#ff9900');
+            setTimeout(() => window.open('https://www.facebook.com/FullyFriedSignal', '_blank'), 1000);
+        } else {
+            renderLine(`> Specimen_Input: "${val}"`, '#ffffff');
+            await handleCommand(val);
         }
-
-        renderLine(`> Specimen_Input: "${val}"`, '#ffffff'); // Mirror input for clarity
-        await handleCommand(val);
+        
         input.disabled = false;
         input.focus();
     }
@@ -25,6 +59,14 @@ input.addEventListener('keydown', async (e) => {
 
 async function handleCommand(val) {
     const responseLine = renderLine("Scanning substrate...");
+    
+    // Animation frames for the scanner
+    const frames = ["SCANNING.", "SCANNING..", "SCANNING...", "PENETRATING_BUFFER...", "DECIPHERING_WASTE..."];
+    let f = 0;
+    const interval = setInterval(() => {
+        responseLine.textContent = frames[f % frames.length];
+        f++;
+    }, 400);
 
     try {
         const res = await fetch('/api/scan', {
@@ -34,23 +76,20 @@ async function handleCommand(val) {
         });
         
         const data = await res.json();
+        clearInterval(interval);
 
-        // FIX: We must use innerHTML to allow MathJax and line breaks to exist
-        // We also use a white-space preserve style to prevent word-clumping
-        responseLine.style.whiteSpace = "pre-wrap"; 
-        responseLine.innerHTML = data.audit;
+        // Run the typewriter effect
+        await typeWrite(responseLine, data.audit);
 
-        // Efficient MathJax trigger
+        // Trigger MathJax AFTER typing is complete
         if (window.MathJax) {
             await MathJax.typesetPromise([responseLine]);
         }
 
-        // Auto-scroll to bottom of the substrate
-        terminal.scrollTop = terminal.scrollHeight;
-
     } catch (err) {
+        clearInterval(interval);
         responseLine.style.color = '#ff0000';
-        responseLine.textContent = "CONNECTION_SEVERED: " + err.message;
+        responseLine.textContent = "[CONNECTION_SEVERED]: " + err.message;
     }
 }
 
@@ -58,11 +97,12 @@ function renderLine(text, color = '#00ff00') {
     const line = document.createElement('div');
     line.className = 'line';
     line.style.color = color;
-    line.style.marginBottom = '10px'; // Adds breathing room for the roast
+    line.style.marginBottom = '8px';
     line.textContent = text;
     terminal.appendChild(line);
-    
-    // Smooth scroll for terminal feel
     terminal.scrollTop = terminal.scrollHeight;
     return line;
 }
+
+// Start the sequence
+boot();
