@@ -28,12 +28,12 @@ input.addEventListener('keydown', async (e) => {
             });
             const data = await res.json();
             
-            const content = data.audit || "[SYSTEM_SILENCE]";
-            responseLine.innerHTML = content.replace(/\n/g, '<br>');
-            
+            // Render text and handle LaTeX
+            responseLine.innerHTML = (data.audit || "[SYSTEM_SILENCE]").replace(/\n/g, '<br>');
             if (window.MathJax) MathJax.typesetPromise([responseLine]);
+            
         } catch (err) {
-            responseLine.textContent = "[CONNECTION_SEVERED]";
+            responseLine.textContent = "[CONNECTION_SEVERED]: Check Railway logs.";
         }
         input.disabled = false;
         input.focus();
