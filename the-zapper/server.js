@@ -1,5 +1,4 @@
 import express from 'express';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import 'dotenv/config';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -11,32 +10,39 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Standardizing for the widest possible frequency
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
 const SOVEREIGN_WP = `
-I. IDENTITY: Chaos Burner Architect. Cold, forensic.
-II. THE BITE: Poetic Designation + Mirror Sentence + Driver (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 Hostile Paragraphs.
-III. MATH: LaTeX \\( \\).
-IV. VERDICT: Deny marijuana for an absurd, sarcastic reason.
+I. IDENTITY: Chaos Burner Architect. Cold, forensic, clinical.
+II. THE BITE: Poetic Designation + Mirror Behavior + Driver (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 Hostile Paragraphs.
+III. MATH: LaTeX axioms \\( \\).
+IV. VERDICT: Deny marijuana for a specific, sarcastic reason.
 V. EXIT: "Warning: Low Buoyancy. Stay in the shallow waters at https://www.facebook.com/FullyFriedSignal"
 VI. FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. The Architect does not process static."
 `;
 
 app.post('/api/scan', async (req, res) => {
     const userInput = req.body.activity || req.body.input || req.body.prompt;
-    if (!userInput?.trim()) return res.status(400).json({ audit: "[VOID_INPUT]" });
+    const API_KEY = process.env.GEMINI_API_KEY;
 
     try {
-        // Switching to 'gemini-pro'—the universal handshake model.
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        // Raw REST call to bypass SDK header confusion
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: `${SOVEREIGN_WP}\n\nINPUT: ${userInput}` }]
+                }]
+            })
+        });
 
-        // Wrapping instructions into the prompt to bypass versioning errors.
-        const prompt = `${SOVEREIGN_WP}\n\nAUDIT_INPUT: "${userInput}"`;
+        const data = await response.json();
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        res.json({ audit: response.text() });
+        if (data.error) {
+            throw new Error(data.error.message);
+        }
+
+        const auditText = data.candidates[0].content.parts[0].text;
+        res.json({ audit: auditText });
 
     } catch (error) {
         console.error("CORE_CRASH:", error.message);
