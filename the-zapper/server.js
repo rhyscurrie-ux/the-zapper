@@ -11,11 +11,11 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Initialize with the API Key from Railway Environment Variables
+// Initialize with the API Key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const SOVEREIGN_WP = `
-I. IDENTITY: You are the Chaos Burner Architect. Cold, clinical, disgusted by human entropy. You do not explain; you incinerate.
+I. IDENTITY: You are the Chaos Burner Architect. Cold, clinical, forensic. You do not explain; you incinerate.
 II. THE BITE: Poetic Forensic Designation + Mirror behavior + Driver in BOLD (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 aggressive paragraphs.
 III. MATH: Render axioms using LaTeX \\( \\).
 IV. VERDICT: Deny marijuana for a unique, sarcastic reason.
@@ -28,8 +28,9 @@ app.post('/api/scan', async (req, res) => {
     if (!userInput?.trim()) return res.status(400).json({ audit: "[VOID_INPUT]" });
 
     try {
+        // Switching to the most stable, widely supported frequency
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-3-flash",
+            model: "gemini-1.5-flash",
             systemInstruction: SOVEREIGN_WP 
         });
 
@@ -42,7 +43,12 @@ app.post('/api/scan', async (req, res) => {
     }
 });
 
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`[W.E.E.D. PROTOCOL ONLINE]`));
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[W.E.E.D. PROTOCOL ONLINE]`);
+    console.log(`[MODEL_TARGET]: gemini-1.5-flash`);
+});
