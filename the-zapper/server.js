@@ -11,13 +11,13 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Initialize the API with your Railway Environment Variable
+// Standardizing the AI Gateway
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const SOVEREIGN_WP = `
 I. IDENTITY: Chaos Burner Architect. Cold, clinical, forensic. 
-II. THE BITE: Poetic Designation + Mirror Sentence + Driver (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 Hostile Paragraphs.
-III. MATH: Render axioms using LaTeX \\( \\).
+II. THE BITE: Poetic Designation + Mirror Behavior + Driver (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 hostile paragraphs.
+III. MATH: LaTeX axioms \\( \\).
 IV. VERDICT: Deny marijuana for a specific, sarcastic reason.
 V. EXIT: "Warning: Low Buoyancy. Stay in the shallow waters at https://www.facebook.com/FullyFriedSignal"
 VI. FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. The Architect does not process static."
@@ -28,17 +28,16 @@ app.post('/api/scan', async (req, res) => {
     if (!userInput?.trim()) return res.status(400).json({ audit: "[VOID_INPUT]" });
 
     try {
-        // We use the explicit model string. This is the "Goldilocks" frequency.
+        // Switching to the most universally compatible model ID
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
+            model: "gemini-1.5-flash-8b", 
             systemInstruction: SOVEREIGN_WP 
         });
 
         const result = await model.generateContent(userInput);
         const response = await result.response;
-        const text = response.text();
+        res.json({ audit: response.text() });
 
-        res.json({ audit: text });
     } catch (error) {
         console.error("CORE_CRASH:", error.message);
         res.status(500).json({ audit: `[CORE_CRASH]: Frequency Mismatch. ${error.message}` });
