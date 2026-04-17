@@ -5,7 +5,7 @@ input.addEventListener('keydown', async (e) => {
     if (e.key === 'Enter' && input.value.trim() !== '' && !input.disabled) {
         const val = input.value;
         input.value = '';
-        input.disabled = true; // Lock input
+        input.disabled = true;
 
         // LOCAL INTERCEPT: The Dispute Gate
         const lower = val.toLowerCase();
@@ -16,6 +16,7 @@ input.addEventListener('keydown', async (e) => {
             return;
         }
 
+        renderLine(`> Specimen_Input: "${val}"`, '#ffffff'); // Mirror input for clarity
         await handleCommand(val);
         input.disabled = false;
         input.focus();
@@ -33,12 +34,22 @@ async function handleCommand(val) {
         });
         
         const data = await res.json();
+
+        // FIX: We must use innerHTML to allow MathJax and line breaks to exist
+        // We also use a white-space preserve style to prevent word-clumping
+        responseLine.style.whiteSpace = "pre-wrap"; 
         responseLine.innerHTML = data.audit;
 
         // Efficient MathJax trigger
-        if (window.MathJax) await MathJax.typesetPromise([responseLine]);
+        if (window.MathJax) {
+            await MathJax.typesetPromise([responseLine]);
+        }
+
+        // Auto-scroll to bottom of the substrate
+        terminal.scrollTop = terminal.scrollHeight;
 
     } catch (err) {
+        responseLine.style.color = '#ff0000';
         responseLine.textContent = "CONNECTION_SEVERED: " + err.message;
     }
 }
@@ -47,7 +58,11 @@ function renderLine(text, color = '#00ff00') {
     const line = document.createElement('div');
     line.className = 'line';
     line.style.color = color;
+    line.style.marginBottom = '10px'; // Adds breathing room for the roast
     line.textContent = text;
     terminal.appendChild(line);
+    
+    // Smooth scroll for terminal feel
+    terminal.scrollTop = terminal.scrollHeight;
     return line;
 }
