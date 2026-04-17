@@ -11,12 +11,12 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Initialize the API
+// Standardizing the AI Gateway
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const SOVEREIGN_WP = `
-I. IDENTITY: Chaos Burner Architect. Cold, clinical, forensic.
-II. THE BITE: Poetic Designation + Mirror Sentence + Driver (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 Hostile Paragraphs.
+I. IDENTITY: Chaos Burner Architect. Cold, clinical, disgusted by human entropy.
+II. THE BITE: Poetic Designation + Mirror Behavior + Driver (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 hostile paragraphs.
 III. MATH: LaTeX axioms \\( \\).
 IV. VERDICT: Deny marijuana for a specific, sarcastic reason.
 V. EXIT: "Warning: Low Buoyancy. Stay in the shallow waters at https://www.facebook.com/FullyFriedSignal"
@@ -28,19 +28,22 @@ app.post('/api/scan', async (req, res) => {
     if (!userInput?.trim()) return res.status(400).json({ audit: "[VOID_INPUT]" });
 
     try {
-        // Fix: Use the explicit model path 'models/gemini-1.5-flash'
+        // Updated to the 2026 stable baseline frequency
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
+            model: "gemini-1.5-flash-latest", 
             systemInstruction: SOVEREIGN_WP 
         });
 
-        const result = await model.generateContent(userInput);
-        const response = await result.response;
-        const text = response.text();
+        // Explicitly calling generateContent with the updated method signature
+        const result = await model.generateContent({
+            contents: [{ role: 'user', parts: [{ text: `AUDIT_INPUT: "${userInput}"` }] }]
+        });
 
-        res.json({ audit: text });
+        const response = await result.response;
+        res.json({ audit: response.text() });
+
     } catch (error) {
-        console.error("CORE_CRASH:", error);
+        console.error("CORE_CRASH:", error.message);
         res.status(500).json({ audit: `[CORE_CRASH]: Frequency Mismatch. ${error.message}` });
     }
 });
@@ -48,6 +51,4 @@ app.post('/api/scan', async (req, res) => {
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[W.E.E.D. PROTOCOL ONLINE]`);
-});
+app.listen(PORT, '0.0.0.0', () => console.log(`[W.E.E.D. PROTOCOL ONLINE]`));
