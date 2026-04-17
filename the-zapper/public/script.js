@@ -1,7 +1,6 @@
 const input = document.getElementById('terminal-input');
 const terminal = document.getElementById('terminal-output');
 
-// 1. BOOT SEQUENCE
 const bootLines = [
     "[INITIATING_W.E.E.D._PROTOCOL...]",
     "[SOVEREIGN_ARCHITECT: ONLINE]",
@@ -19,16 +18,12 @@ async function boot() {
     input.focus();
 }
 
-// 2. TYPEWRITER EFFECT
 async function typeWrite(element, text, speed = 5) {
     element.textContent = ''; 
     element.style.whiteSpace = "pre-wrap";
-    
-    // We build the text char-by-char, but we must handle newlines
     let currentText = "";
     for (let i = 0; i < text.length; i++) {
         currentText += text[i];
-        // Replace newlines with <br> for HTML rendering
         element.innerHTML = currentText.replace(/\n/g, '<br>');
         terminal.scrollTop = terminal.scrollHeight;
         await new Promise(r => setTimeout(r, speed));
@@ -41,12 +36,8 @@ input.addEventListener('keydown', async (e) => {
         input.value = '';
         input.disabled = true;
 
-        const lower = val.toLowerCase();
-        if (lower.includes('dispute') || lower.includes('appeal')) {
+        if (val.toLowerCase().includes('dispute') || val.toLowerCase().includes('appeal')) {
             renderLine('[RECURSIVE_WHINE_DETECTED]: Appeal decommissioned. Exit the frequency.', '#ff0000');
-        } else if (lower === 'scan') {
-            renderLine('[ARCHIVE_ACCESS]: Redirecting to specimen archive...', '#ff9900');
-            setTimeout(() => window.open('https://www.facebook.com/FullyFriedSignal', '_blank'), 1000);
         } else {
             renderLine(`> Specimen_Input: "${val}"`, '#ffffff');
             await handleCommand(val);
@@ -59,9 +50,7 @@ input.addEventListener('keydown', async (e) => {
 
 async function handleCommand(val) {
     const responseLine = renderLine("Scanning substrate...");
-    
-    // Animation frames for the scanner
-    const frames = ["SCANNING.", "SCANNING..", "SCANNING...", "PENETRATING_BUFFER...", "DECIPHERING_WASTE..."];
+    const frames = ["SCANNING.", "SCANNING..", "SCANNING...", "PENETRATING_BUFFER..."];
     let f = 0;
     const interval = setInterval(() => {
         responseLine.textContent = frames[f % frames.length];
@@ -78,10 +67,8 @@ async function handleCommand(val) {
         const data = await res.json();
         clearInterval(interval);
 
-        // Run the typewriter effect
         await typeWrite(responseLine, data.audit);
 
-        // Trigger MathJax AFTER typing is complete
         if (window.MathJax) {
             await MathJax.typesetPromise([responseLine]);
         }
@@ -104,5 +91,4 @@ function renderLine(text, color = '#00ff00') {
     return line;
 }
 
-// Start the sequence
 boot();
