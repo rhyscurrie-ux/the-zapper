@@ -2,18 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>The Zapper // Audit</title>
-    <link rel="stylesheet" href="style.css">
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chaos Burner Terminal</title>
+    <style>
+        body { background: #050505; color: #00ff41; font-family: 'Courier New', monospace; display: flex; flex-direction: column; height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        #output { flex-grow: 1; overflow-y: auto; border: 1px solid #003300; padding: 20px; margin-bottom: 20px; white-space: pre-wrap; line-height: 1.5; }
+        .input-area { display: flex; gap: 10px; }
+        input { flex-grow: 1; background: #000; border: 1px solid #00ff41; color: #00ff41; padding: 10px; outline: none; }
+        button { background: #00ff41; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #00cc33; }
+        .loading { color: #888; font-style: italic; }
+    </style>
 </head>
 <body>
-    <div id="terminal-container">
-        <div id="terminal-output"></div>
-        <div id="input-line">
-            <span id="prompt">></span>
-            <input type="text" id="terminal-input" placeholder="Initiate scan..." autocomplete="off" autofocus>
-        </div>
+    <div id="output">[ARCHITECT: STANDBY]
+[AWAITING SPECIMEN DATA...]</div>
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Describe your activity..." onkeydown="if(event.key==='Enter') scan()">
+        <button onclick="scan()">SCAN</button>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        async function scan() {
+            const input = document.getElementById('userInput');
+            const output = document.getElementById('output');
+            const data = input.value;
+            if(!data) return;
+
+            input.value = '';
+            output.innerHTML += `\n\n> Specimen_Input: "${data}"\n<span class="loading">[PROCESSING...]</span>`;
+            output.scrollTop = output.scrollHeight;
+
+            try {
+                const res = await fetch('/api/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ input: data })
+                });
+                const result = await res.json();
+                
+                // Removing loading text and adding result
+                const loading = output.querySelector('.loading:last-child');
+                if(loading) loading.remove();
+                
+                output.innerHTML += `\n${result.audit}`;
+                output.scrollTop = output.scrollHeight;
+            } catch (err) {
+                output.innerHTML += `\n[CRITICAL_ERROR]: ${err.message}`;
+            }
+        }
+    </script>
 </body>
 </html>
