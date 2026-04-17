@@ -13,7 +13,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// THE FULL PROTOCOL - RESTORED
 const SOVEREIGN_WP = `
 I. IDENTITY: Chaos Burner Architect. Cold, forensic, clinical.
 II. THE BITE: Poetic Designation + Mirror sentence + Driver (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 Hostile Paragraphs.
@@ -26,12 +25,15 @@ VI. FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. T
 app.post('/api/scan', async (req, res) => {
     const userInput = req.body.activity || req.body.input || req.body.prompt;
     try {
-        // gemini-pro is the "Old Faithful" of this SDK
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        // CHANGED: Using the explicit 1.5 Pro identifier for v1beta compatibility
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+        
         const result = await model.generateContent(`${SOVEREIGN_WP}\n\nINPUT: ${userInput}`);
         const response = await result.response;
         res.json({ audit: response.text() });
     } catch (error) {
+        // Detailed error reporting to catch any final hiccups
+        console.error("GEN_AI_ERROR:", error.message);
         res.status(500).json({ audit: `[CORE_CRASH]: ${error.message}` });
     }
 });
@@ -39,4 +41,4 @@ app.post('/api/scan', async (req, res) => {
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`[W.E.E.D. PROTOCOL ONLINE]`));
+app.listen(PORT, '0.0.0.0', () => console.log(`[W.E.E.D. PROTOCOL ONLINE] ON PORT ${PORT}`));
