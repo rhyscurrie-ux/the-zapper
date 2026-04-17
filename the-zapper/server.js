@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Initialize with the API Key
+// Initialize the API with your Railway Environment Variable
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const SOVEREIGN_WP = `
@@ -28,21 +28,19 @@ app.post('/api/scan', async (req, res) => {
     if (!userInput?.trim()) return res.status(400).json({ audit: "[VOID_INPUT]" });
 
     try {
-        // Fix: Explicitly using the base stable ID. 
-        // We avoid '-latest' or versioned suffixes to prevent 404s on the v1 endpoint.
+        // We use the explicit model string. This is the "Goldilocks" frequency.
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash", 
+            model: "gemini-1.5-flash",
             systemInstruction: SOVEREIGN_WP 
         });
 
-        // The most compatible request structure for the @google/generative-ai library
         const result = await model.generateContent(userInput);
         const response = await result.response;
-        
-        res.json({ audit: response.text() });
+        const text = response.text();
+
+        res.json({ audit: text });
     } catch (error) {
         console.error("CORE_CRASH:", error.message);
-        // If it still 404s, we report the specific error to the terminal
         res.status(500).json({ audit: `[CORE_CRASH]: Frequency Mismatch. ${error.message}` });
     }
 });
