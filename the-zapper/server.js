@@ -26,7 +26,8 @@ app.post('/api/scan', async (req, res) => {
     const API_KEY = process.env.GEMINI_API_KEY;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+        // ULTIMATE FALLBACK: Using the most basic 'gemini-pro' alias on v1beta
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -44,7 +45,7 @@ app.post('/api/scan', async (req, res) => {
 
     } catch (error) {
         console.error("CORE_CRASH:", error.message);
-        res.status(500).json({ audit: `[CORE_CRASH]: ${error.message}` });
+        res.status(500).json({ audit: `[CORE_CRASH]: Frequency Mismatch. ${error.message}` });
     }
 });
 
