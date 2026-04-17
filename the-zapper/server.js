@@ -11,36 +11,33 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Standardizing the AI Gateway
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const SOVEREIGN_WP = `
-I. IDENTITY: Chaos Burner Architect. Cold, clinical, forensic. 
-II. THE BITE: Poetic Designation + Mirror Behavior + Driver (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 hostile paragraphs.
-III. MATH: LaTeX axioms \\( \\).
-IV. VERDICT: Deny marijuana for a specific, sarcastic reason.
-V. EXIT: "Warning: Low Buoyancy. Stay in the shallow waters at https://www.facebook.com/FullyFriedSignal"
-VI. FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. The Architect does not process static."
-`;
+// DIAGNOSTIC BOOT: This will print all available models to your Railway Logs
+async function listModels() {
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`);
+        const data = await response.json();
+        console.log("--- AVAILABLE MODELS ---");
+        data.models?.forEach(m => console.log(`> Found: ${m.name}`));
+        console.log("------------------------");
+    } catch (e) {
+        console.log("[DIAGNOSTIC_FAIL]: Could not list models.");
+    }
+}
+listModels();
 
 app.post('/api/scan', async (req, res) => {
     const userInput = req.body.activity || req.body.input || req.body.prompt;
-    if (!userInput?.trim()) return res.status(400).json({ audit: "[VOID_INPUT]" });
-
     try {
-        // Switching to the most universally compatible model ID
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash-8b", 
-            systemInstruction: SOVEREIGN_WP 
-        });
+        // We'll try the most standard 'gemini-pro' as a fallback
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const result = await model.generateContent(userInput);
         const response = await result.response;
         res.json({ audit: response.text() });
-
     } catch (error) {
-        console.error("CORE_CRASH:", error.message);
-        res.status(500).json({ audit: `[CORE_CRASH]: Frequency Mismatch. ${error.message}` });
+        res.status(500).json({ audit: `[CORE_CRASH]: ${error.message}` });
     }
 });
 
