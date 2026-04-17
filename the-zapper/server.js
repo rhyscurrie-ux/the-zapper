@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// FORCE THE SDK TO USE V1 (The Production Frequency)
+// Standard initialization
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const SOVEREIGN_WP = `
@@ -26,13 +26,12 @@ VI. FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. T
 app.post('/api/scan', async (req, res) => {
     const userInput = req.body.activity || req.body.input || req.body.prompt;
     try {
-        // We use the most basic model name for the V1 endpoint
+        // FORCING THE STABLE V1 ENDPOINT
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
-            apiVersion: "v1" // This is the kill-switch for the 404
-        });
+            model: "gemini-1.5-flash" 
+        }, { apiVersion: 'v1' }); // This prevents the library from wandering into v1beta
 
-        // We inject the system instructions directly into the prompt to ensure V1 compatibility
+        // Injecting the protocol directly into the content call
         const result = await model.generateContent(`${SOVEREIGN_WP}\n\nINPUT: ${userInput}`);
         const response = await result.response;
         res.json({ audit: response.text() });
