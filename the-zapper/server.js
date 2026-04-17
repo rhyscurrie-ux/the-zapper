@@ -1,6 +1,6 @@
 const express = require('express');
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
-const systemInstruction = require('./prompt'); // Import the full soul
+const prompt = require('./prompt'); // Your W.E.E.D. Protocol
 const app = express();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -10,31 +10,28 @@ app.use(express.static('public'));
 
 app.post('/api/scan', async (req, res) => {
     try {
+        // We use the model name directly from your billing SKU
+        const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+        
         const model = genAI.getGenerativeModel({ 
-            model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
-            systemInstruction: systemInstruction 
+            model: modelName,
+            systemInstruction: prompt 
         });
 
-        const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: `AUDIT_INPUT: "${req.body.activity}"` }] }],
-            safetySettings: [
-                { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-                { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE }
-            ],
-            generationConfig: { 
-                temperature: 0.95, 
-                maxOutputTokens: 1024 // Room for the full 6-section output
-            }
-        });
-
+        // Simpler request format for v0.21.0
+        const result = await model.generateContent(req.body.activity);
         const response = await result.response;
+        
         res.json({ audit: response.text() });
 
     } catch (error) {
-        console.error("V5_CRASH:", error.message);
-        res.status(500).json({ audit: `SYSTEM_ERROR: ${error.message.substring(0, 50)}` });
+        console.error("--- BILLING_SYNC_FAULT ---");
+        console.error("Error Message:", error.message);
+        
+        // This will now output the FULL error to your terminal
+        res.status(500).json({ audit: `DIAGNOSTIC: ${error.message}` });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`[W.E.E.D. SOVEREIGN ACTIVE]`));
+app.listen(PORT, '0.0.0.0', () => console.log(`[PROTOCOL ACTIVE: TARGETING ${process.env.GEMINI_MODEL || 'DEFAULT'}]`));
