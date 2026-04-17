@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// FORCING V1 ENDPOINT FOR AQ KEY COMPATIBILITY
+// FORCE THE SDK TO USE V1 (The Production Frequency)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const SOVEREIGN_WP = `
@@ -26,18 +26,19 @@ VI. FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. T
 app.post('/api/scan', async (req, res) => {
     const userInput = req.body.activity || req.body.input || req.body.prompt;
     try {
-        // Use the 'gemini-1.5-flash' identifier - it's the 2026 production standard.
+        // We use the most basic model name for the V1 endpoint
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash" 
+            model: "gemini-1.5-flash",
+            apiVersion: "v1" // This is the kill-switch for the 404
         });
 
-        // We wrap the instructions and input into a single prompt for maximum compatibility.
+        // We inject the system instructions directly into the prompt to ensure V1 compatibility
         const result = await model.generateContent(`${SOVEREIGN_WP}\n\nINPUT: ${userInput}`);
         const response = await result.response;
         res.json({ audit: response.text() });
     } catch (error) {
         console.error("GEN_AI_ERROR:", error.message);
-        res.status(500).json({ audit: `[CORE_CRASH]: ${error.message}` });
+        res.status(500).json({ audit: `[CORE_CRASH]: Frequency Mismatch. ${error.message}` });
     }
 });
 
