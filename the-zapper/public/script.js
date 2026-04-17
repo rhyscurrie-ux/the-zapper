@@ -1,58 +1,53 @@
-// This matches the IDs in your HTML file
-const terminal = document.getElementById('terminal');
-const input = document.getElementById('commandInput'); 
+const input = document.getElementById('terminal-input');
+const terminal = document.getElementById('terminal-output');
 
-async function handleCommand(val) {
-    // 1. Create the user's input line
-    const line = document.createElement('div');
-    line.className = 'line'; // Matches your CSS class
-    line.textContent = `> ${val}`;
-    terminal.appendChild(line);
+input.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter' && input.value.trim() !== '' && !input.disabled) {
+        const val = input.value;
+        input.value = '';
+        input.disabled = true; // Lock input
 
-    // 2. Create the loading indicator
-    const loading = document.createElement('div');
-    loading.className = 'line';
-    loading.textContent = "[PENETRATING_BUFFER...]";
-    terminal.appendChild(loading);
-
-    try {
-        // 3. Send the request to your Railway server
-        const response = await fetch('/api/audit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ input: val })
-        });
-
-        const data = await response.json();
-        
-        // 4. Clean up and show the Architect's response
-        loading.remove();
-        const responseLine = document.createElement('div');
-        responseLine.className = 'line';
-        responseLine.style.color = "#00ff00"; // Ensure it pops in green
-        
-        // This handles the LaTeX math and formatting
-        responseLine.innerHTML = data.architect_roast;
-        terminal.appendChild(responseLine);
-
-        // Trigger MathJax to render any LaTeX math in the response
-        if (window.MathJax) {
-            MathJax.typesetPromise();
+        // LOCAL INTERCEPT: The Dispute Gate
+        const lower = val.toLowerCase();
+        if (lower.includes('dispute') || lower.includes('appeal') || lower.includes('protest')) {
+            renderLine('[RECURSIVE_WHINE_DETECTED]: Appeal decommissioned in v9.0. Exit the frequency.', '#ff0000');
+            input.disabled = false;
+            input.focus();
+            return;
         }
 
-    } catch (e) {
-        loading.textContent = "[SYSTEM_SILENCE]: Check connection.";
-        console.error("Architect Error:", e);
-    }
-    
-    // Auto-scroll to the bottom
-    window.scrollTo(0, document.body.scrollHeight);
-}
-
-// Listen for the 'Enter' key
-input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && input.value.trim() !== '') {
-        handleCommand(input.value);
-        input.value = ''; // Clear the box for the next command
+        await handleCommand(val);
+        input.disabled = false;
+        input.focus();
     }
 });
+
+async function handleCommand(val) {
+    const responseLine = renderLine("Scanning substrate...");
+
+    try {
+        const res = await fetch('/api/scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ activity: val })
+        });
+        
+        const data = await res.json();
+        responseLine.innerHTML = data.audit;
+
+        // Efficient MathJax trigger
+        if (window.MathJax) await MathJax.typesetPromise([responseLine]);
+
+    } catch (err) {
+        responseLine.textContent = "CONNECTION_SEVERED: " + err.message;
+    }
+}
+
+function renderLine(text, color = '#00ff00') {
+    const line = document.createElement('div');
+    line.className = 'line';
+    line.style.color = color;
+    line.textContent = text;
+    terminal.appendChild(line);
+    return line;
+}
