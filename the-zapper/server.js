@@ -24,11 +24,13 @@ app.post('/api/scan', async (req, res) => {
     const API_KEY = process.env.GEMINI_API_KEY;
 
     try {
-        // Raw fetch bypasses SDK versioning bugs. 
-        // We use the 'latest' alias which is the most robust endpoint.
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
+        // SWITCHING TO THE BASE STABLE MODEL: gemini-1.5-flash
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'x-goog-api-key': API_KEY 
+            },
             body: JSON.stringify({
                 contents: [{
                     parts: [{ text: `${SOVEREIGN_WP}\n\nINPUT: ${userInput}` }]
@@ -39,6 +41,7 @@ app.post('/api/scan', async (req, res) => {
         const data = await response.json();
 
         if (data.error) {
+            // This will tell us if it's a model issue or an auth issue
             throw new Error(`${data.error.status}: ${data.error.message}`);
         }
 
