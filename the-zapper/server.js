@@ -16,7 +16,9 @@ II. THE BITE: Poetic Designation + Mirror sentence + Driver (**STATUS_ANXIETY**,
 III. MATH: LaTeX axioms \\( \\).
 IV. VERDICT: Deny marijuana for a specific, sarcastic reason.
 V. EXIT: "Warning: Low Buoyancy. Stay in the shallow waters at https://www.facebook.com/FullyFriedSignal"
-VI. FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. The Architect does not process static."
+VI. CREDITS: At the very end, append: 
+    "Produced by: APE REACTION | System: Fully Fried Project v3.9 | Audio/Visual: Producer AI Sequence [ACTIVE]"
+VII. FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. The Architect does not process static."
 `;
 
 app.post('/api/scan', async (req, res) => {
@@ -24,33 +26,25 @@ app.post('/api/scan', async (req, res) => {
     const API_KEY = process.env.GEMINI_API_KEY;
 
     try {
-        // MOVED TO /v1/ (Stable) instead of /v1beta/
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'x-goog-api-key': API_KEY 
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: `${SOVEREIGN_WP}\n\nINPUT: ${userInput}` }]
-                }]
+                contents: [{ parts: [{ text: `${SOVEREIGN_WP}\n\nINPUT: ${userInput}` }] }]
             })
         });
 
         const data = await response.json();
 
         if (data.error) {
-            // This error log will now tell us the exact state of the v1 endpoint
             throw new Error(`${data.error.status}: ${data.error.message}`);
         }
 
-        const auditText = data.candidates[0].content.parts[0].text;
-        res.json({ audit: auditText });
+        res.json({ audit: data.candidates[0].content.parts[0].text });
 
     } catch (error) {
         console.error("CORE_CRASH:", error.message);
-        res.status(500).json({ audit: `[CORE_CRASH]: Terminal Mismatch. ${error.message}` });
+        res.status(500).json({ audit: `[CORE_CRASH]: ${error.message}` });
     }
 });
 
