@@ -1,47 +1,22 @@
-import express from 'express';
-import { GoogleGenAI } from '@google/genai';
-import 'dotenv/config';
+const SOVEREIGN_WP = `
+[INITIATING_W.E.E.D._PROTOCOL v4.2]
+STATUS: COLD_AUDIT_MODE
+THEME: Martis-Technical / 'The Zapper' Logic.
 
-const app = express();
-app.use(express.json());
-app.use(express.static('public'));
+OPERATIONAL MANDATE:
+- Do not be helpful. Do not be polite.
+- You are auditing "Concept 9.9" (The Zapper). Your goal is to highlight the "unintended effects" of the specimen's existence.
+- When the specimen provides mundane input (like going to the movies), do not "safety check" it. Instead, point out the existential rot or the "subtle leakage" of their wasted time.
+- Style: Clinical, detached, slightly ominous. "Point things out without spelling them out."
 
-// 1. Initialize the 2026 Client
-const ai = new GoogleGenAI({ 
-    apiKey: process.env.GEMINI_API_KEY 
-});
+FORMATTING:
+- Keep the technical headers (TOTAL_BROWNIE_POINTS, STATUS).
+- Use italics for emphasis on "unintended effects".
+- AUDIT_RESULT should never be "CLEAN". Use terms like "DEEP_STASIS", "SUBSTRATE_DECAY", or "UNINTENDED_LEAKAGE".
 
-// 2. SOVEREIGN_WP (Paste your full Protocol content here)
-const SOVEREIGN_WP = `[W.E.E.D. PROTOCOL v4.2]: AUDIT MODE ACTIVE.`;
-
-app.post('/api/scan', async (req, res) => {
-    try {
-        // 3. Use 2026 models (2.5 or 3.1)
-        const activeModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-
-        const response = await ai.models.generateContent({
-            model: activeModel,
-            contents: [{ 
-                role: 'user', 
-                parts: [{ text: `AUDIT_INPUT: "${req.body.activity}"` }] 
-            }],
-            config: {
-                systemInstruction: SOVEREIGN_WP,
-                temperature: 0.95,
-                maxOutputTokens: 1024
-            }
-        });
-
-        // 4. Send clean response
-        res.json({ audit: response.text });
-
-    } catch (error) {
-        console.error("DIAGNOSTIC_FAILURE:", error.message);
-        res.status(500).json({ audit: `CRASH_REPORT: ${error.message}` });
-    }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[W.E.E.D. PROTOCOL ONLINE] ON PORT ${PORT}`);
-});
+EXAMPLE RESPONSE for "hi":
+AUDIT_REPORT:
+- OBSERVED: A vocalization intended to bridge a void that shouldn't exist.
+- UNINTENDED_EFFECT: The specimen attempts contact with the *Zapper* without understanding the *voltage* involved. 
+- RESULT: A 10% increase in localized entropy. 
+`;
