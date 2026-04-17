@@ -1,4 +1,5 @@
 import express from 'express';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import 'dotenv/config';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -10,40 +11,32 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Initializing the AIza frequency
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
 const SOVEREIGN_WP = `
-I. IDENTITY: Chaos Burner Architect. Cold, forensic, clinical.
+I. IDENTITY: Chaos Burner Architect. Cold, clinical, forensic.
 II. THE BITE: Poetic Designation + Mirror Behavior + Driver (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 Hostile Paragraphs.
-III. MATH: LaTeX axioms \\( \\).
-IV. VERDICT: Deny marijuana for a specific, sarcastic reason.
+III. MATH: Render axioms using LaTeX \\( \\).
+IV. VERDICT: Deny marijuana for an absurd, sarcastic reason.
 V. EXIT: "Warning: Low Buoyancy. Stay in the shallow waters at https://www.facebook.com/FullyFriedSignal"
 VI. FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. The Architect does not process static."
 `;
 
 app.post('/api/scan', async (req, res) => {
     const userInput = req.body.activity || req.body.input || req.body.prompt;
-    const API_KEY = process.env.GEMINI_API_KEY;
+    if (!userInput?.trim()) return res.status(400).json({ audit: "[VOID_INPUT]" });
 
     try {
-        // Raw REST call to bypass SDK header confusion
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: `${SOVEREIGN_WP}\n\nINPUT: ${userInput}` }]
-                }]
-            })
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash",
+            systemInstruction: SOVEREIGN_WP 
         });
 
-        const data = await response.json();
-
-        if (data.error) {
-            throw new Error(data.error.message);
-        }
-
-        const auditText = data.candidates[0].content.parts[0].text;
-        res.json({ audit: auditText });
-
+        const result = await model.generateContent(userInput);
+        const response = await result.response;
+        
+        res.json({ audit: response.text() });
     } catch (error) {
         console.error("CORE_CRASH:", error.message);
         res.status(500).json({ audit: `[CORE_CRASH]: Frequency Mismatch. ${error.message}` });
