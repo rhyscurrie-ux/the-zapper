@@ -4,35 +4,26 @@ import 'dotenv/config';
 
 const app = express();
 app.use(express.json());
-app.use(express.static('public')); // Serves your UI from the public folder
+app.use(express.static('public'));
 
-// 1. Initialize the 2026 SDK Client
-// It automatically looks for GEMINI_API_KEY in your environment variables
+// 1. Initialize the 2026 Client
 const ai = new GoogleGenAI({ 
     apiKey: process.env.GEMINI_API_KEY 
 });
 
-// 2. THE W.E.E.D. PROTOCOL (System Instructions)
-// Keep your raw technical material here
-const SOVEREIGN_WP = `
-[INITIATING_W.E.E.D._PROTOCOL...]
-STATUS: SUBSTRATE_VERIFIED
-GOAL: Audit specimen input for narrative inconsistencies.
-NOTE: Martis’s technical material regarding 'concept 9.9' (The Zapper) 
-emphasizes unintended effects. Point things out without spelling them out.
-`;
+// 2. SOVEREIGN_WP (Paste your full Protocol content here)
+const SOVEREIGN_WP = `[W.E.E.D. PROTOCOL v4.2]: AUDIT MODE ACTIVE.`;
 
 app.post('/api/scan', async (req, res) => {
-    const userInput = req.body.activity || req.body.prompt;
-    
     try {
-        // 3. 2026 Syntax for Content Generation
-        // Using 'gemini-2.0-flash' as the primary baseline for your key
+        // 3. Use 2026 models (2.5 or 3.1)
+        const activeModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+
         const response = await ai.models.generateContent({
-            model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+            model: activeModel,
             contents: [{ 
                 role: 'user', 
-                parts: [{ text: `AUDIT_INPUT: "${userInput}"` }] 
+                parts: [{ text: `AUDIT_INPUT: "${req.body.activity}"` }] 
             }],
             config: {
                 systemInstruction: SOVEREIGN_WP,
@@ -41,22 +32,15 @@ app.post('/api/scan', async (req, res) => {
             }
         });
 
-        // 4. Send the text back to your terminal UI
+        // 4. Send clean response
         res.json({ audit: response.text });
 
     } catch (error) {
-        console.error("CRASH:", error.message);
-        
-        // Detailed error reporting for the UI
-        res.status(500).json({ 
-            audit: `DIAGNOSTIC_FAILURE: ${error.message}`,
-            id: "0x" + Math.floor(Math.random()*16777215).toString(16)
-        });
+        console.error("DIAGNOSTIC_FAILURE:", error.message);
+        res.status(500).json({ audit: `CRASH_REPORT: ${error.message}` });
     }
 });
 
-// 5. RAILWAY PORT BINDING
-// We listen on 0.0.0.0 to prevent the 'Crashed' status
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`[W.E.E.D. PROTOCOL ONLINE] ON PORT ${PORT}`);
