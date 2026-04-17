@@ -27,7 +27,10 @@ input.addEventListener('keydown', async (e) => {
                 body: JSON.stringify({ activity: val })
             });
             const data = await res.json();
-            responseLine.innerHTML = data.audit.replace(/\n/g, '<br>');
+            
+            const content = data.audit || "[SYSTEM_SILENCE]";
+            responseLine.innerHTML = content.replace(/\n/g, '<br>');
+            
             if (window.MathJax) MathJax.typesetPromise([responseLine]);
         } catch (err) {
             responseLine.textContent = "[CONNECTION_SEVERED]";
