@@ -26,8 +26,8 @@ app.post('/api/scan', async (req, res) => {
     const API_KEY = process.env.GEMINI_API_KEY;
 
     try {
-        // ULTIMATE FALLBACK: Using the most basic 'gemini-pro' alias on v1beta
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`, {
+        // Switch to v1beta and append -latest to bypass the project versioning lock
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -38,7 +38,13 @@ app.post('/api/scan', async (req, res) => {
         const data = await response.json();
 
         if (data.error) {
+            // Log the full error to Railway console so we can see the exact reason
+            console.error("GOOGLE_ERROR:", JSON.stringify(data.error));
             throw new Error(`${data.error.status}: ${data.error.message}`);
+        }
+
+        if (!data.candidates || data.candidates.length === 0) {
+            throw new Error("EMPTY_RESPONSE: Model blocked output.");
         }
 
         res.json({ audit: data.candidates[0].content.parts[0].text });
