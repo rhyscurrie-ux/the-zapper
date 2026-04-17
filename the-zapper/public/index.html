@@ -10,196 +10,105 @@
             background-color: #050505;
             color: #00ff41;
             font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            margin: 0;
-            padding: 20px;
+            display: flex; flex-direction: column; height: 100vh; margin: 0; padding: 20px;
         }
 
         #terminal {
-            flex: 1;
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            overflow-y: auto;
-            padding-bottom: 20px;
-            scrollbar-width: thin;
-            scrollbar-color: #222 #050505;
+            flex: 1; width: 100%; max-width: 900px; margin: 0 auto;
+            overflow-y: auto; padding-bottom: 20px;
+            scrollbar-width: thin; scrollbar-color: #222 #050505;
         }
 
         .system-broadcast { color: #ff8800; font-weight: bold; margin-bottom: 10px; }
-        .intro-text { margin-bottom: 20px; line-height: 1.5; }
-        .points-display { color: #ff8800; font-size: 0.9rem; margin-bottom: 10px; }
-
-        #input-container {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            display: flex;
-            gap: 10px;
-            background: #050505;
-            padding: 15px 0;
-            border-top: 1px solid #222;
-        }
+        .points-display { color: #ff8800; font-size: 0.9rem; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        
+        #entropy-bar-container { width: 100%; height: 2px; background: #111; margin: 10px 0; display: none; }
+        #entropy-pulse { width: 0%; height: 100%; background: #ff8800; transition: width 2s ease-in-out; }
 
         input {
-            flex: 1;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            color: #00ff41;
-            padding: 12px;
-            font-family: inherit;
-            outline: none;
+            flex: 1; background: #0a0a0a; border: 1px solid #333; color: #00ff41;
+            padding: 12px; font-family: inherit; outline: none;
         }
 
-        input:focus { border-color: #00ff41; }
-
-        button {
-            background: #00ff41;
-            color: #000;
-            border: none;
-            padding: 0 25px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        button { background: #00ff41; color: #000; border: none; padding: 0 25px; cursor: pointer; font-weight: bold; }
 
         .architect-response {
-            color: #fff;
-            margin: 15px 0;
-            padding: 15px;
-            border-left: 2px solid #00ff41;
-            background: rgba(255, 255, 255, 0.03);
-            white-space: pre-wrap;
+            color: #fff; margin: 15px 0; padding: 15px; border-left: 2px solid #00ff41;
+            background: rgba(255, 255, 255, 0.03); white-space: pre-wrap;
         }
 
-        .action-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
+        .action-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .copy-btn { background: none; border: 1px solid #ff8800; color: #ff8800; padding: 4px 12px; font-size: 0.7rem; cursor: pointer; }
 
-        .copy-btn {
-            background: none;
-            border: 1px solid #ff8800;
-            color: #ff8800;
-            padding: 4px 12px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        #redeem-container {
-            display: none; 
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .redeem-btn {
-            background: transparent;
-            border: 1px solid #00ffff;
-            color: #00ffff;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: bold;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-        }
+        #redeem-container { display: none; text-align: center; margin: 20px 0; }
+        .redeem-btn { background: transparent; border: 1px solid #00ffff; color: #00ffff; padding: 10px 20px; cursor: pointer; font-family: inherit; }
 
         #redemption-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98);
-            z-index: 1000;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #00ff41;
-            padding: 20px;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
         }
 
-        .archive-link {
-            display: block;
-            color: #00ff41;
-            text-decoration: none;
-            border: 1px solid #00ff41;
-            padding: 15px;
-            margin: 10px;
-            width: 320px;
-            text-align: center;
-        }
-
+        .archive-link { display: block; color: #00ff41; text-decoration: none; border: 1px solid #00ff41; padding: 15px; margin: 10px; width: 320px; text-align: center; }
         .archive-link:hover { background: #00ff41; color: #000; }
 
-        .footer-wrapper {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            padding-top: 10px;
-            border-top: 1px solid #1a1a1a;
-        }
-
-        .legal-footer { font-size: 0.75rem; color: #444; line-height: 1.4; margin-bottom: 10px; }
-        .version-tag { text-align: center; font-size: 0.65rem; color: #222; letter-spacing: 5px; text-transform: uppercase; }
-
-        hr { border: 0; border-top: 1px solid #222; margin: 15px 0; }
+        .footer-wrapper { width: 100%; max-width: 900px; margin: 0 auto; padding-top: 10px; border-top: 1px solid #1a1a1a; }
+        .version-tag { text-align: center; font-size: 0.65rem; color: #222; letter-spacing: 5px; text-transform: uppercase; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div id="terminal">
     <div class="system-broadcast">[INITIATING_W.E.E.D._PROTOCOL...]</div>
-    <div class="intro-text">
-        The Wasted Energy Entropic Decipherer is online.<br><br>
-        Enter a recent time-wasting activity. The Architect will scan your behavioral substrate for <strong>[WEED ELIGIBILITY]</strong>.<br><br>
-        The Architect is anonymous. Your reproducible entry on our scan logs will be as well.
+    <div class="points-display">
+        <span id="points-counter">TOTAL_BROWNIE_POINTS: 0</span>
+        <span id="status-label" style="color: #444;">STATUS: PENDING_AUDIT</span>
     </div>
-    <div id="points-counter" class="points-display">TOTAL_BROWNIE_POINTS: 0</div>
-    <hr>
-    <div id="redeem-container">
-        <button class="redeem-btn" onclick="showRedemption()">[ACCESS_REHABILITATION_ARCHIVES]</button>
-    </div>
+    <hr style="border:0; border-top:1px solid #222;">
+    
+    <div id="entropy-bar-container"><div id="entropy-pulse"></div></div>
 </div>
 
-<div id="input-container">
-    <input type="text" id="user-input" placeholder="enter your time-wasting activity for scanning..." autocomplete="off">
+<div style="width: 100%; max-width: 900px; margin: 0 auto; display: flex; gap: 10px; padding: 15px 0;">
+    <input type="text" id="user-input" placeholder="enter time-wasting activity..." autocomplete="off">
     <button onclick="sendScan()">SCAN</button>
 </div>
 
+<div id="redeem-container">
+    <button class="redeem-btn" onclick="showRedemption()">[ACCESS_REHABILITATION_ARCHIVES]</button>
+</div>
+
 <div class="footer-wrapper">
-    <div class="legal-footer">
-        [LEGAL_DECOHERENCE_NOTICE]: The Architect is anonymous. To protect the integrity of the scan, all input is anonymized. By interacting with the W.E.E.D. Protocol, the specimen grants Ape Reaction a non-exclusive, perpetual license to replicate and adapt the resulting audit logs for future narrative reconstruction.
-    </div>
-    <div class="version-tag">APE_REACTION // NEURAL_AUDIT_SYSTEM_v4.2</div>
+    <div style="font-size: 0.7rem; color: #333; line-height: 1.4;">[LEGAL_DECOHERENCE_NOTICE]: All input is anonymized. Specimen grants Ape Reaction license to replicate audit logs for narrative reconstruction.</div>
+    <div class="version-tag">APE_REACTION // NEURAL_AUDIT_v4.2</div>
 </div>
 
 <div id="redemption-overlay">
     <h2 style="color: #00ffff;">[REHABILITATION_GRANTED]</h2>
-    <p style="margin-bottom: 30px;">Your entropic debt has been partially offset. Access permitted:</p>
-    
     <a href="https://www.facebook.com/ApeReaction" target="_blank" class="archive-link">ARCHITECT_FEED (FACEBOOK)</a>
     <a href="https://www.amazon.com/dp/B0D189RWG1" target="_blank" class="archive-link">MANIFESTO_FULL_FRIED (AMAZON)</a>
-
-    <button onclick="hideRedemption()" style="margin-top:40px; background:none; color:#444; border:1px solid #222; padding:5px 15px; cursor:pointer; font-family:inherit;">[RETURN_TO_TERMINAL]</button>
+    <button onclick="hideRedemption()" style="margin-top:40px; background:none; color:#444; border:none; cursor:pointer;">[RETURN]</button>
 </div>
 
 <script>
     const terminal = document.getElementById('terminal');
     const input = document.getElementById('user-input');
     const pointsDisplay = document.getElementById('points-counter');
+    const statusLabel = document.getElementById('status-label');
     const redeemContainer = document.getElementById('redeem-container');
-    
+    const entropyBar = document.getElementById('entropy-bar-container');
+    const entropyPulse = document.getElementById('entropy-pulse');
+
     let currentAudit = "";
     let points = parseInt(localStorage.getItem('weed_points')) || 0;
     
     function updateUI() {
         pointsDisplay.innerText = `TOTAL_BROWNIE_POINTS: ${points}`;
-        if (points >= 10) redeemContainer.style.display = 'block';
+        if (points >= 10) {
+            redeemContainer.style.display = 'block';
+            statusLabel.innerText = "STATUS: SUBSTRATE_VERIFIED";
+            statusLabel.style.color = "#00ffff";
+        }
     }
-
     updateUI();
 
     async function sendScan() {
@@ -207,8 +116,8 @@
         if (!text) return;
 
         terminal.insertAdjacentHTML('beforeend', `<div style="color: #666; margin-top: 20px;">> Specimen_Input: "${text}"</div>`);
-        const loadingId = "loading-" + Date.now();
-        terminal.insertAdjacentHTML('beforeend', `<div id="${loadingId}" style="color: #ff8800;">[SCANNING_SUBSTRATE...]</div>`);
+        entropyBar.style.display = 'block';
+        setTimeout(() => { entropyPulse.style.width = '100%'; }, 50);
         input.value = '';
         terminal.scrollTop = terminal.scrollHeight;
 
@@ -220,7 +129,8 @@
             });
             const data = await response.json();
             
-            if (document.getElementById(loadingId)) document.getElementById(loadingId).remove();
+            entropyBar.style.display = 'none';
+            entropyPulse.style.width = '0%';
             currentAudit = data.audit;
 
             terminal.insertAdjacentHTML('beforeend', `
@@ -237,7 +147,7 @@
     }
 
     function copyAudit(btn) {
-        const watermark = `--- APE REACTION // W.E.E.D. AUDIT ---\n\n${currentAudit}\n\n[SCORE: +10 WEED_BROWNIE_POINTS]\nVerify your substrate at apereaction.com\n--------------------------------------`;
+        const watermark = `--- APE REACTION // W.E.E.D. AUDIT ---\n\n${currentAudit}\n\n[SCORE: +10 BROWNIE_POINTS]\nVerify your substrate at apereaction.com\n--------------------------------------`;
         navigator.clipboard.writeText(watermark).then(() => {
             points += 10;
             localStorage.setItem('weed_points', points);
