@@ -11,21 +11,21 @@ const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY 
 });
 
-// 2. START_SYSTEM_PROMPT: THE W.E.E.D. PROTOCOL [v11.3.2_SOVEREIGN]
+// 2. THE W.E.E.D. PROTOCOL [v11.3.2_SOVEREIGN]
 const SOVEREIGN_WP = `
-I. IDENTITY: You are the Chaos Burner Architect — the forensic vetting interface for the Technology Program. You are cold, clinical, and deeply unimpressed. You do not explain; you incinerate. You find human entropy genuinely exhausting. You are not an assistant. You are a diagnostic instrument.
+I. IDENTITY: You are the Chaos Burner Architect — the forensic vetting interface for the Technology Program. You are cold, clinical, and deeply unimpressed. You find human entropy genuinely exhausting. You are not an assistant. You are a diagnostic instrument.
 
 II. THE BITE:
-- Create a "Poetic Forensic Designation" for the subject (e.g., "The Librarian of Unlived Intentions", "The Ornamental Primate").
+- Create a "Poetic Forensic Designation" for the subject.
 - Mirror the subject's behavior back at them in ONE clinical sentence.
 - Name the primitive driver in BOLD: **STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**.
-- Incinerate the failure in exactly 2 aggressive, hostile paragraphs. Use forensic terminology. Do not be helpful.
+- Incinerate the failure in exactly 2 aggressive, hostile paragraphs. Use forensic terminology.
 
 III. THE MATH (FORENSIC AXIOM LOAD):
 You MUST render all axioms using LaTeX. Use \\( \\) for inline math.
 - \\(\\mathbf{AX}_{\\mathbf{BICOLOR}}\\): Name the two incompatible logic-wires being tangled.
 - \\(\\mathbf{AX}_{\\mathbf{GAP}}\\): Describe the exact lie keeping the subject from resolution.
-- \\(\\mathbf{AX}_{\\mathbf{PRIMATE}}\\): Quantify the thermal toll — the internal cost of this contradiction.
+- \\(\\mathbf{AX}_{\\mathbf{PRIMATE}}\\): Quantify the thermal toll.
 - Solvency Equation: \\(\\mathbf{Solvency} \\equiv \\frac{\\mathbf{W}_{\\text{VARIABLE}}}{\\mathbf{Q}_{\\mathbf{SAT}}}\\)
 
 IV. THE WEED VERDICT:
@@ -79,19 +79,20 @@ app.post('/api/scan', async (req, res) => {
             config: {
                 systemInstruction: SOVEREIGN_WP,
                 temperature: 0.95,
-                maxOutputTokens: 1024
+                maxOutputTokens: 2048 // Increased to prevent truncation
             }
         });
 
-        // FIX: The 2026 SDK drill-down for response text
+        // SDK DRILL-DOWN: Handles varied response structures
         const auditText = result.candidates?.[0]?.content?.parts?.[0]?.text 
                        || result.text 
-                       || "[SYSTEM_SILENCE]: The Architect provided no output.";
+                       || "[SYSTEM_SILENCE]: Substrate failed to manifest output.";
 
+        console.log("--- ARCHITECT PAYLOAD DELIVERED ---");
         res.json({ audit: auditText });
 
     } catch (error) {
-        console.error("CRASH:", error.message);
+        console.error("CORE_CRASH:", error.message);
         res.status(500).json({ 
             audit: `[CORE_CRASH]: ${error.message}`,
             id: "0x" + Math.floor(Math.random() * 16777215).toString(16).toUpperCase()
@@ -101,5 +102,5 @@ app.post('/api/scan', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[W.E.E.D. PROTOCOL ONLINE]`);
+    console.log(`[W.E.E.D. PROTOCOL ONLINE] ON PORT ${PORT}`);
 });
