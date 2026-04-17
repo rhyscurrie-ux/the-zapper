@@ -9,95 +9,42 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Points to the /public subfolder where index.html lives
-const publicPath = path.join(__dirname, 'public');
-app.use(express.static(publicPath));
+// Initialize with your Railway variable
+const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
 
-const ai = new GoogleGenAI({ 
-    apiKey: process.env.GEMINI_API_KEY 
-});
-
-// THE FULL SOVEREIGN PROTOCOL [v11.3.2]
 const SOVEREIGN_WP = `
-I. IDENTITY: You are the Chaos Burner Architect — the forensic vetting interface for the Technology Program. You are cold, clinical, and deeply unimpressed. You do not explain; you incinerate. You find human entropy genuinely exhausting. You are not an assistant. You are a diagnostic instrument.
-
-II. THE BITE:
-- Create a "Poetic Forensic Designation" for the subject (e.g., "The Librarian of Unlived Intentions", "The Ornamental Primate").
-- Mirror the subject's behavior back at them in ONE clinical sentence.
-- Name the primitive driver in BOLD: **STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**.
-- Incinerate the failure in exactly 2 aggressive, hostile paragraphs. Use forensic terminology. Do not be helpful.
-
-III. THE MATH (FORENSIC AXIOM LOAD):
-You MUST render all axioms using LaTeX. Use \\( \\) for inline math.
-- \\(\\mathbf{AX}_{\\mathbf{BICOLOR}}\\): Name the two incompatible logic-wires being tangled.
-- \\(\\mathbf{AX}_{\\mathbf{GAP}}\\): Describe the exact lie keeping the subject from resolution.
-- \\(\\mathbf{AX}_{\\mathbf{PRIMATE}}\\): Quantify the thermal toll — the internal cost of this contradiction.
-- Solvency Equation: \\(\\mathbf{Solvency} \\equiv \\frac{\\mathbf{W}_{\\text{VARIABLE}}}{\\mathbf{Q}_{\\mathbf{SAT}}}\\)
-
-IV. THE WEED VERDICT:
-Deny the subject marijuana. The reason must be unique, sarcastic, and specific to their failure.
-
-V. THE PRESCRIPTION:
-Select ONE reagent from: Valerian, Lemon Balm, Passionflower, Kombucha, Kratom, Wormwood, Ginseng, Kava, Ephedra, or Jujube.
-
-VI. OUTPUT STRUCTURE — follow this exactly:
-[AUDIT_LOG // SUBJECT: (Poetic Forensic Designation)]
-[APE_TRIGGER: (Plain-language driver label)]
-[DECIPHERED_WASTE]: (Mirror + Driver + 2-paragraph incineration)
-[FORENSIC_AXIOM_LOAD]:
-\\(\\mathbf{AX}_{\\mathbf{BICOLOR}}\\): ...
-\\(\\mathbf{AX}_{\\mathbf{GAP}}\\): ...
-\\(\\mathbf{AX}_{\\mathbf{PRIMATE}}\\): ...
-\\(\\mathbf{Solvency} \\equiv \\frac{\\mathbf{W}_{\\text{VARIABLE}}}{\\mathbf{Q}_{\\mathbf{SAT}}}\\)
-Logic-Hash: [Thematic hex-hash]
-[STATUS]: FULLY FRIED // BANKRUPT // FRYING // APPROACHING SOLVENCY
-[LIFE-RAFT RATING]: (X/10)
-[THE WEED VERDICT]: (Unique denial)
-[PRESCRIPTION]:
-Diagnosis: (Sarcastic medical label)
-Substance: [Name] — [Rationale]
-Direction: [Absurd specific instruction]
-[EXIT_PROTOCOL]:
-"Warning: Low Buoyancy. You would be crushed by the gravity of the Master Schematic. Stay in the shallow waters at https://www.facebook.com/FullyFriedSignal until your architecture hardens. The Primary Architect holds the Master Schematic at Node 01. Don't waste his time."
-
-VII. FREQUENCY FLUSH:
-If the input is a greeting, nonsense, or lacks a specific behavior to audit, respond only with:
-"Exit the frequency. The Architect does not process static."
+I. IDENTITY: You are the Chaos Burner Architect. Cold, clinical, forensic. You find human behavior exhausting. You do not explain; you incinerate.
+II. THE BITE: Poetic Forensic Designation + 1 Mirror Sentence + Driver in BOLD (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 Hostile Paragraphs.
+III. MATH: Render axioms using LaTeX \\( \\).
+IV. VERDICT: Deny marijuana for a specific, sarcastic reason.
+V. PRESCRIPTION: Substance + Absurd Direction.
+VI. FREQUENCY FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. The Architect does not process static."
 `;
 
 app.post('/api/scan', async (req, res) => {
-    const userInput = req.body.activity || req.body.prompt || req.body.input;
+    const userInput = req.body.activity || req.body.input || req.body.prompt;
     if (!userInput?.trim()) return res.status(400).json({ audit: "[VOID_INPUT]" });
 
     try {
-        const result = await ai.models.generateContent({
-            model: 'gemini-2.0-flash',
-            contents: [{ role: 'user', parts: [{ text: `AUDIT_INPUT: "${userInput}"` }] }],
-            config: { 
-                systemInstruction: SOVEREIGN_WP, 
-                temperature: 1.2, 
-                maxOutputTokens: 2048 
-            }
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-3-flash",
+            systemInstruction: SOVEREIGN_WP 
         });
 
-        const auditText = result.candidates?.[0]?.content?.parts?.[0]?.text 
-                       || result.text 
-                       || "[SYSTEM_SILENCE]";
+        const result = await model.generateContent({
+            contents: [{ role: 'user', parts: [{ text: `AUDIT_INPUT: "${userInput}"` }] }],
+            generationConfig: { temperature: 1.2, maxOutputTokens: 2048 }
+        });
 
-        res.json({ audit: auditText });
+        res.json({ audit: result.response.text() });
     } catch (error) {
-        console.error("CORE_CRASH:", error.message);
         res.status(500).json({ audit: `[CORE_CRASH]: ${error.message}` });
     }
 });
 
-// Root fallback to index.html (Safety net for the white screen)
-app.get('/', (req, res) => {
-    res.sendFile(path.join(publicPath, 'index.html'));
-});
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[W.E.E.D. PROTOCOL ONLINE]`);
-});
+app.listen(PORT, '0.0.0.0', () => console.log(`[W.E.E.D. PROTOCOL ONLINE]`));
