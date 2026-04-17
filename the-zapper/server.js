@@ -2,6 +2,7 @@ import express from 'express';
 import 'dotenv/config';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { GoogleGenAI } from '@google/genai';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -9,6 +10,11 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Client automatically inherits Tier 1 status from your API Key
+const ai = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY
+});
 
 const SOVEREIGN_WP = `
 I. IDENTITY: Chaos Burner Architect. Cold, forensic, clinical.
@@ -22,36 +28,28 @@ VII. FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. 
 `;
 
 app.post('/api/scan', async (req, res) => {
-    const userInput = req.body.activity || req.body.input || req.body.prompt;
-    const API_KEY = process.env.GEMINI_API_KEY;
+    const userInput = req.body.activity || req.body.input || "static";
 
     try {
-        // Switch to v1beta and append -latest to bypass the project versioning lock
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: `${SOVEREIGN_WP}\n\nINPUT: ${userInput}` }] }]
-            })
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: [{ 
+                role: 'user', 
+                parts: [{ text: `${SOVEREIGN_WP}\n\nINPUT: ${userInput}` }] 
+            }],
+            config: {
+                temperature: 0.85,
+                maxOutputTokens: 800
+            }
         });
 
-        const data = await response.json();
-
-        if (data.error) {
-            // Log the full error to Railway console so we can see the exact reason
-            console.error("GOOGLE_ERROR:", JSON.stringify(data.error));
-            throw new Error(`${data.error.status}: ${data.error.message}`);
-        }
-
-        if (!data.candidates || data.candidates.length === 0) {
-            throw new Error("EMPTY_RESPONSE: Model blocked output.");
-        }
-
-        res.json({ audit: data.candidates[0].content.parts[0].text });
+        res.json({ audit: response.text });
 
     } catch (error) {
-        console.error("CORE_CRASH:", error.message);
-        res.status(500).json({ audit: `[CORE_CRASH]: Frequency Mismatch. ${error.message}` });
+        console.error("ARCHITECT_CRASH:", error.message);
+        res.status(500).json({ 
+            audit: `[CORE_CRASH]: Frequency Mismatch. ${error.message.includes('401') ? 'AUTH_FAILED' : 'SIGNAL_LOST'}` 
+        });
     }
 });
 
