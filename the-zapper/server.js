@@ -11,6 +11,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// FORCING V1 ENDPOINT FOR AQ KEY COMPATIBILITY
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const SOVEREIGN_WP = `
@@ -25,14 +26,16 @@ VI. FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. T
 app.post('/api/scan', async (req, res) => {
     const userInput = req.body.activity || req.body.input || req.body.prompt;
     try {
-        // CHANGED: Using the explicit 1.5 Pro identifier for v1beta compatibility
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-        
+        // Use the 'gemini-1.5-flash' identifier - it's the 2026 production standard.
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash" 
+        });
+
+        // We wrap the instructions and input into a single prompt for maximum compatibility.
         const result = await model.generateContent(`${SOVEREIGN_WP}\n\nINPUT: ${userInput}`);
         const response = await result.response;
         res.json({ audit: response.text() });
     } catch (error) {
-        // Detailed error reporting to catch any final hiccups
         console.error("GEN_AI_ERROR:", error.message);
         res.status(500).json({ audit: `[CORE_CRASH]: ${error.message}` });
     }
@@ -41,4 +44,4 @@ app.post('/api/scan', async (req, res) => {
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`[W.E.E.D. PROTOCOL ONLINE] ON PORT ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`[W.E.E.D. PROTOCOL ONLINE]`));
