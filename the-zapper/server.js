@@ -1,37 +1,41 @@
-const express = require('express');
-const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
-const prompt = require('./prompt'); // Your W.E.E.D. Protocol
+import { Client } from "@google/genai";
+import express from "express";
+import 'dotenv/config';
+
 const app = express();
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
 app.use(express.json());
-app.use(express.static('public'));
 
-app.post('/api/scan', async (req, res) => {
-    try {
-        // We use the model name directly from your billing SKU
-        const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-        
-        const model = genAI.getGenerativeModel({ 
-            model: modelName,
-            systemInstruction: prompt 
-        });
+// 1. Initialize the 2026 Client using your AQ... key
+const client = new Client({ 
+  apiKey: process.env.GEMINI_API_KEY 
+});
 
-        // Simpler request format for v0.21.0
-        const result = await model.generateContent(req.body.activity);
-        const response = await result.response;
-        
-        res.json({ audit: response.text() });
+// 2. Set the model (Gemini 3 Flash is the 2026 default for speed)
+const MODEL_ID = process.env.GEMINI_MODEL || "gemini-3-flash";
 
-    } catch (error) {
-        console.error("--- BILLING_SYNC_FAULT ---");
-        console.error("Error Message:", error.message);
-        
-        // This will now output the FULL error to your terminal
-        res.status(500).json({ audit: `DIAGNOSTIC: ${error.message}` });
+app.post("/roast", async (req, res) => {
+  const { prompt } = req.body;
+
+  try {
+    // 3. New 2026 Syntax for generating content
+    const response = await client.models.generateContent(
+      MODEL_ID,
+      prompt
+    );
+
+    res.json({ text: response.text() });
+
+  } catch (error) {
+    console.error("Architect Connection Error:", error);
+    
+    // Specifically catch the "Invalid Key" error
+    if (error.message.includes("API_KEY_INVALID")) {
+      return res.status(401).json({ error: "The AQ key is rejected. Check Billing." });
     }
+
+    res.status(500).json({ error: "The Architect is blinded." });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`[PROTOCOL ACTIVE: TARGETING ${process.env.GEMINI_MODEL || 'DEFAULT'}]`));
+app.listen(PORT, () => console.log(`Burner active on port ${PORT}`));
