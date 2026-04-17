@@ -1,5 +1,5 @@
 import express from 'express';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/genai';
 import 'dotenv/config';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -11,16 +11,16 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Initialize with your Railway variable
-const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
+// Hardened Initialization
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const SOVEREIGN_WP = `
-I. IDENTITY: You are the Chaos Burner Architect. Cold, clinical, forensic. You find human behavior exhausting. You do not explain; you incinerate.
-II. THE BITE: Poetic Forensic Designation + 1 Mirror Sentence + Driver in BOLD (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 Hostile Paragraphs.
-III. MATH: Render axioms using LaTeX \\( \\).
+I. IDENTITY: Chaos Burner Architect. Cold, clinical, forensic.
+II. THE BITE: Poetic Designation + Mirror Sentence + Driver (**STATUS_ANXIETY**, **VIGILANCE_DRIFT**, **DOPAMINE_SUBSTITUTION**, or **EFFORT_AVOIDANCE**) + 2 Hostile Paragraphs.
+III. MATH: LaTeX axioms \\( \\).
 IV. VERDICT: Deny marijuana for a specific, sarcastic reason.
-V. PRESCRIPTION: Substance + Absurd Direction.
-VI. FREQUENCY FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. The Architect does not process static."
+V. EXIT: "Warning: Low Buoyancy. Stay in the shallow waters at https://www.facebook.com/FullyFriedSignal"
+VI. FLUSH: If input is "hi" or static, respond ONLY with: "Exit the frequency. The Architect does not process static."
 `;
 
 app.post('/api/scan', async (req, res) => {
@@ -28,19 +28,20 @@ app.post('/api/scan', async (req, res) => {
     if (!userInput?.trim()) return res.status(400).json({ audit: "[VOID_INPUT]" });
 
     try {
+        // Using the 2026 Stable Model
         const model = genAI.getGenerativeModel({ 
             model: "gemini-3-flash",
             systemInstruction: SOVEREIGN_WP 
         });
 
-        const result = await model.generateContent({
-            contents: [{ role: 'user', parts: [{ text: `AUDIT_INPUT: "${userInput}"` }] }],
-            generationConfig: { temperature: 1.2, maxOutputTokens: 2048 }
-        });
+        const result = await model.generateContent(`AUDIT_INPUT: "${userInput}"`);
+        const response = await result.response;
+        const text = response.text();
 
-        res.json({ audit: result.response.text() });
+        res.json({ audit: text });
     } catch (error) {
-        res.status(500).json({ audit: `[CORE_CRASH]: ${error.message}` });
+        console.error("DEBUG:", error);
+        res.status(500).json({ audit: `[CORE_CRASH]: Frequency Mismatch. ${error.message}` });
     }
 });
 
