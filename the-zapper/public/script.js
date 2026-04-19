@@ -2,11 +2,12 @@ let chatHistory = [];
 const input = document.getElementById('user-input');
 const output = document.getElementById('audit-output');
 
-input.addEventListener('keypress', async (e) => {
+input.addEventListener('keydown', async (e) => {
     if (e.key === 'Enter') {
         const val = input.value;
+        if (!val.trim()) return;
         input.value = '';
-        output.innerText += `\n\n> Specimen_Input: "${val}"\n[CALIBRATING...]`;
+        output.innerHTML += `<br><br>> Specimen_Input: "${val}"<br>[CALIBRATING...]`;
 
         try {
             const res = await fetch('/api/scan', {
@@ -16,17 +17,16 @@ input.addEventListener('keypress', async (e) => {
             });
 
             const data = await res.json();
-            output.innerText += `\n${data.audit}`;
+            const auditHTML = data.audit.replace(/\n/g, '<br>');
+            output.innerHTML += `<br>${auditHTML}`;
             chatHistory = data.history;
             
-            // Trigger MathJax to render the new LaTeX
             if (window.MathJax) {
-                MathJax.typesetPromise();
+                MathJax.typesetPromise([output]);
             }
-            
             window.scrollTo(0, document.body.scrollHeight);
         } catch (err) {
-            output.innerText += `\n[CRITICAL_ERROR]: ${err.message}`;
+            output.innerHTML += `<br>[CRITICAL_ERROR]: ${err.message}`;
         }
     }
 });
