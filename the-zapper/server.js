@@ -8,11 +8,12 @@ const app = express();
 app.use(express.json());
 app.use(express.static('public'));
 
+// CRITICAL: Ensure 'API_KEY' is set in your Railway Environment Variables
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
 app.post('/api/scan', async (req, res) => {
     try {
-        // Universal Intake: Handles 'input' or 'activity'
+        // UNIVERSAL INTAKE: Handles 'input' (index.html) or 'activity' (script.js)
         const userInput = req.body.input || req.body.activity; 
         
         if (!userInput) {
@@ -35,7 +36,7 @@ app.post('/api/scan', async (req, res) => {
         
     } catch (error) {
         console.error("AUDIT_FAILURE:", error);
-        res.status(500).json({ audit: "[CONNECTION_SEVERED]: Substrate collapse. Check API Key." });
+        res.status(500).json({ audit: "[CONNECTION_SEVERED]: Substrate collapse. Verify your API_KEY in Railway Variables." });
     }
 });
 
