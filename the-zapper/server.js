@@ -15,6 +15,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.post('/api/scan', async (req, res) => {
     try {
         const userInput = req.body.input || req.body.activity;
+        if (!userInput?.trim()) {
+            return res.status(400).json({ audit: "[VOID_INPUT]: The Architect does not process silence." });
+        }
+
         const history = req.body.history || [];
         const apiKey = process.env.API_KEY;
 
@@ -22,8 +26,12 @@ app.post('/api/scan', async (req, res) => {
 
         const contents = [...history, { role: 'user', parts: [{ text: userInput }] }];
 
+        // Log for Bug 5 verification
+        console.log("SYSTEM_PROMPT_LENGTH:", promptText.length);
+        console.log("HISTORY_TURNS:", contents.length);
+
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -46,4 +54,4 @@ app.post('/api/scan', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`[ARCHITECT ONLINE]: v11.5.4 on ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`[ARCHITECT ONLINE]: v11.5.5 active.`));
