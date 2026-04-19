@@ -1,7 +1,7 @@
 import express from 'express';
 import { GoogleGenerativeAI } from '@google/genai';
 import dotenv from 'dotenv';
-import promptText from './prompt.js';
+import { promptText } from './prompt.js'; // Note the curly braces here
 
 dotenv.config();
 const app = express();
@@ -12,7 +12,6 @@ const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
 app.post('/api/scan', async (req, res) => {
     try {
-        // UNIVERSAL INTAKE: Handles 'input' from index.html OR 'activity' from script.js
         const userInput = req.body.input || req.body.activity; 
         
         if (!userInput) {
@@ -28,7 +27,6 @@ app.post('/api/scan', async (req, res) => {
         const response = await result.response;
         const text = response.text();
 
-        // Sends back to data.audit (script.js) or result.audit (index.html)
         res.json({ audit: text });
         
     } catch (error) {
