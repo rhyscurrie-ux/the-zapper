@@ -1,11 +1,9 @@
 {
-  "name": "chaos-burner-terminal",
-  "version": "11.5.0",
+  "name": "the-zapper",
+  "version": "11.5.2",
   "type": "module",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
+  "scripts": { "start": "node server.js" },
   "dependencies": {
     "dotenv": "^16.4.5",
     "express": "^4.19.2"
