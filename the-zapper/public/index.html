@@ -3,19 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ZAPPER // v11.5.4</title>
+    <title>THE ZAPPER // v11.5.5</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
     <div id="terminal">
-        <div id="output-container">
-            <pre id="audit-output">AWAITING_SIGNAL...</pre>
-        </div>
-        <div id="input-line">
-            <span>&gt;</span>
-            <input type="text" id="user-input" placeholder="Input behavior..." autofocus>
-        </div>
+        <div id="output-container"><div id="audit-output">AWAITING_SIGNAL...</div></div>
+        <div id="input-line"><span>&gt;</span><input type="text" id="user-input" autofocus></div>
     </div>
     <script src="script.js"></script>
 </body>
