@@ -30,7 +30,7 @@ app.post('/api/scan', async (req, res) => {
                 body: JSON.stringify({
                     system_instruction: { parts: [{ text: promptText }] },
                     contents: contents,
-                    generationConfig: { temperature: 1.2, maxOutputTokens: 2048 } // EXPANDED BUFFER
+                    generationConfig: { temperature: 1.2, maxOutputTokens: 2048 }
                 })
             }
         );
@@ -46,4 +46,4 @@ app.post('/api/scan', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`[ARCHITECT ONLINE]: v11.5.2 on ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`[ARCHITECT ONLINE]: v11.5.4 on ${PORT}`));
