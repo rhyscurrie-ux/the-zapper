@@ -8,12 +8,11 @@ const app = express();
 app.use(express.json());
 app.use(express.static('public'));
 
-// CRITICAL: Ensure 'API_KEY' is set in your Railway Environment Variables
+// Ensure Railway has a Variable named API_KEY
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
 app.post('/api/scan', async (req, res) => {
     try {
-        // UNIVERSAL INTAKE: Handles 'input' (index.html) or 'activity' (script.js)
         const userInput = req.body.input || req.body.activity; 
         
         if (!userInput) {
