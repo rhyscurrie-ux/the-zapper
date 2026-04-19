@@ -3,22 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chaos Burner Terminal</title>
+    <title>Chaos Burner Terminal [v11.5.0]</title>
     <style>
-        body { background: #050505; color: #00ff41; font-family: 'Courier New', monospace; display: flex; flex-direction: column; height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-        #output { flex-grow: 1; overflow-y: auto; border: 1px solid #003300; padding: 20px; margin-bottom: 20px; white-space: pre-wrap; line-height: 1.5; }
-        .input-area { display: flex; gap: 10px; }
+        body { background: #050505; color: #00ff41; font-family: 'Courier New', monospace; padding: 20px; box-sizing: border-box; }
+        #output { border: 1px solid #003300; padding: 20px; height: 70vh; overflow-y: auto; white-space: pre-wrap; line-height: 1.5; }
+        .input-area { display: flex; gap: 10px; margin-top: 20px; }
         input { flex-grow: 1; background: #000; border: 1px solid #00ff41; color: #00ff41; padding: 10px; outline: none; }
         button { background: #00ff41; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #00cc33; }
-        .loading { color: #888; font-style: italic; }
     </style>
 </head>
 <body>
-    <div id="output">[ARCHITECT: STANDBY]
-[AWAITING SPECIMEN DATA...]</div>
+    <div id="output">[ARCHITECT: AWAITING_SUBSTRATE...]</div>
     <div class="input-area">
-        <input type="text" id="userInput" placeholder="Describe your activity..." onkeydown="if(event.key==='Enter') scan()">
+        <input type="text" id="userInput" placeholder="Signal intake..." onkeydown="if(event.key==='Enter') scan()">
         <button onclick="scan()">SCAN</button>
     </div>
 
@@ -30,9 +27,8 @@
             if(!data) return;
 
             input.value = '';
-            output.innerHTML += `\n\n> Specimen_Input: "${data}"\n<span class="loading">[PROCESSING...]</span>`;
-            output.scrollTop = output.scrollHeight;
-
+            output.innerHTML += `\n\n> Specimen_Input: "${data}"\n[PROCESSING...]`;
+            
             try {
                 const res = await fetch('/api/scan', {
                     method: 'POST',
@@ -40,11 +36,6 @@
                     body: JSON.stringify({ input: data })
                 });
                 const result = await res.json();
-                
-                // Removing loading text and adding result
-                const loading = output.querySelector('.loading:last-child');
-                if(loading) loading.remove();
-                
                 output.innerHTML += `\n${result.audit}`;
                 output.scrollTop = output.scrollHeight;
             } catch (err) {
