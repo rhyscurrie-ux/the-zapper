@@ -1,43 +1,52 @@
 import express from 'express';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { promptText } from './prompt.js';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Ensure Railway has a Variable named API_KEY
-const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 app.post('/api/scan', async (req, res) => {
     try {
-        const userInput = req.body.input || req.body.activity; 
-        
-        if (!userInput) {
-            return res.status(400).json({ audit: "[SYSTEM_ERROR]: No signal detected." });
-        }
+        const userInput = req.body.input || req.body.activity;
+        if (!userInput?.trim()) return res.status(400).json({ audit: "[SYSTEM_ERROR]: No signal." });
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const chat = model.startChat({
-            history: [
-                { role: "user", parts: [{ text: promptText }] },
-                { role: "model", parts: [{ text: "[WP: 0] [THERMAL_STATUS: SOLVENT] Architect Online. Substrate initialized." }] },
-            ],
+        const history = req.body.history || [];
+
+        const contents = [
+            ...(history.length === 0 ? [
+                { role: 'user', parts: [{ text: promptText }] },
+                { role: 'model', parts: [{ text: '[WP: 0] [THERMAL_STATUS: BANKRUPT] Architect Online. Substrate initialized.' }] }
+            ] : history),
+            { role: 'user', parts: [{ text: userInput }] }
+        ];
+
+        const result = await ai.models.generateContent({
+            model: 'gemini-2.0-flash',
+            contents,
+            config: { temperature: 1.2, maxOutputTokens: 1024 }
         });
 
-        const result = await chat.sendMessage(userInput);
-        const response = await result.response;
-        const text = response.text();
+        const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "[SYSTEM_SILENCE]";
+        const updatedHistory = [...contents, { role: 'model', parts: [{ text }] }];
 
-        res.json({ audit: text });
-        
+        res.json({ audit: text, history: updatedHistory });
+
     } catch (error) {
-        console.error("AUDIT_FAILURE:", error);
-        res.status(500).json({ audit: "[CONNECTION_SEVERED]: Substrate collapse. Verify your API_KEY in Railway Variables." });
+        console.error("AUDIT_FAILURE:", error.message);
+        res.status(500).json({ audit: `[CONNECTION_SEVERED]: ${error.message}` });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`[ARCHITECT ONLINE]: v11.5.0 on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`[ARCHITECT ONLINE]: Port ${PORT}`));
