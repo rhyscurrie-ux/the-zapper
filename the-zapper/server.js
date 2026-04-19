@@ -22,13 +22,12 @@ app.post('/api/scan', async (req, res) => {
             return res.status(500).json({ audit: "[CRITICAL_FAILURE]: API_KEY missing from Railway Variables." });
         }
 
-        // Format history for the REST API
-        // Note: The REST API uses 'model' instead of 'assistant'
         const contents = [
             ...history,
             { role: 'user', parts: [{ text: userInput }] }
         ];
 
+        // DIRECT REST CALL - Bypasses SDK Credential Errors
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.API_KEY}`,
             {
@@ -37,29 +36,18 @@ app.post('/api/scan', async (req, res) => {
                 body: JSON.stringify({
                     system_instruction: { parts: [{ text: promptText }] },
                     contents: contents,
-                    generationConfig: {
-                        temperature: 1.2,
-                        maxOutputTokens: 1024
-                    }
+                    generationConfig: { temperature: 1.2, maxOutputTokens: 1024 }
                 })
             }
         );
 
         const data = await response.json();
-
-        if (data.error) {
-            throw new Error(data.error.message);
-        }
+        if (data.error) throw new Error(data.error.message);
 
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "[SYSTEM_SILENCE]";
-
-        const updatedHistory = [
-            ...contents,
-            { role: 'model', parts: [{ text }] }
-        ];
+        const updatedHistory = [...contents, { role: 'model', parts: [{ text }] }];
 
         res.json({ audit: text, history: updatedHistory });
-
     } catch (error) {
         console.error("REST_FAILURE:", error.message);
         res.status(500).json({ audit: `[CONNECTION_SEVERED]: ${error.message}` });
@@ -67,4 +55,4 @@ app.post('/api/scan', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`[ARCHITECT ONLINE]: REST mode active on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`[ARCHITECT ONLINE]: Port ${PORT}`));
