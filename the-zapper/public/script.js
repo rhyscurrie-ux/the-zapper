@@ -1,6 +1,6 @@
 let chatHistory = [];
 let auditCount = 0;
-const boredomLimit = Math.floor(Math.random() * 3) + 3; // Random exit after 3-5 disputes
+const boredomLimit = Math.floor(Math.random() * 3) + 3;
 
 const btn = document.getElementById('submit-btn');
 const input = document.getElementById('user-input');
@@ -14,7 +14,7 @@ const tickerBox = document.getElementById('sample-ticker');
 const tickerText = document.getElementById('ticker-text');
 const rewardContainer = document.getElementById('reward-container');
 
-// TURNSTILE ENGINE
+// TICKER ENGINE
 const samples = [
     "\"I spent 3 hours arguing about a movie I haven't seen.\"",
     "\"I checked my fridge 4 times in 10 minutes hoping for new content.\"",
@@ -50,7 +50,6 @@ async function runAudit(type = "standard") {
     const val = input.value;
     if (type === "standard" && !val.trim() && auditCount === 0) return;
     
-    // UI SILENCING
     clearInterval(tickerInterval);
     tickerBox.style.display = 'none';
     input.classList.add('hidden');
@@ -61,40 +60,56 @@ async function runAudit(type = "standard") {
     output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
     btn.disabled = true;
 
+    // THE INSTRUCTIONS (THE WP) LIVE HERE:
+    const systemMandate = `
+        ACT AS THE ARCHITECT OF THE MARTIS PROGRAM. 
+        YOUR GOAL: CONDUCT A PROXIMITY AUDIT ON THE USER'S STAGNATION.
+        
+        MANDATORY FORMATTING:
+        1. Start with [WP: ###] based on stagnation.
+        2. Provide clinical analysis.
+        3. ALWAYS conclude with "[THE WEED VERDICT]:".
+        4. THE VERDICT MUST EXPLICITLY MENTION CANNABIS/WEED/THC AND MUST ALWAYS BE A NEGATION (DENIAL).
+        
+        RECURSIVE RULES:
+        - IF 'dumb': Provide a cutting one-paragraph simpleton summary. Deny weed eligibility.
+        - IF 'dispute': Be intellectually defensive. Use LaTeX.
+        - IF auditCount > 3: Express boredom and terminate with parting advice.
+    `;
+
     try {
-        const payload = type === "dumb" 
-            ? "Dumb down the previous audit into a cutting one-paragraph summary for a simpleton. Be insulting but brief." 
+        const userPayload = type === "dumb" 
+            ? "The specimen is a simpleton. Provide the cutting one-paragraph summary and deny cannabis eligibility." 
             : val;
 
         const res = await fetch('/api/scan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ input: payload, history: chatHistory })
+            body: JSON.stringify({ 
+                prompt: systemMandate, 
+                input: userPayload, 
+                history: chatHistory 
+            })
         });
         
         const data = await res.json();
         chatHistory = data.history;
         auditCount++;
 
-        // RENDER AUDIT
         output.innerHTML = data.audit.replace(/\n/g, '<br>');
         
-        // CHECK FOR BOREDOM
         if (auditCount >= boredomLimit) {
-            output.innerHTML += `<br><br><span style='color:#ffaa00'>[ARCHITECT_STATUS: BORED]<br>Your repetitive biological resistance is no longer instructive. Cease your inputs.<br><br>PARTING_ADVICE: Learn to sit in silence until your skin suit expires.</span>`;
+            output.innerHTML += `<br><br><span style='color:#ffaa00'>[ARCHITECT_STATUS: BORED]<br>Your repetitive biological resistance is no longer instructive. Parting advice: Go outside. The resolution is higher, though the gameplay is equally pointless.</span>`;
             return;
         }
 
-        // UPDATE IDENTIFIER
         const idMatch = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/);
         const currentID = idMatch ? idMatch[1] : skinDisplay.innerText;
         skinDisplay.innerText = currentID;
 
-        // SHOW RECURSIVE CHOICE
         decisionText.innerText = `DOES ${currentID} NEED ITS AUDIT DUMB THE DOWN?`;
         decisionBox.classList.remove('hidden');
 
-        // REWARD GATING
         const wpMatch = data.audit.match(/\[WP:\s*(\d+)\]/);
         const wp = wpMatch ? parseInt(wpMatch[1]) : 0;
         if (wp >= 50) {
@@ -109,13 +124,12 @@ async function runAudit(type = "standard") {
         window.scrollTo(0, 0);
 
     } catch (err) {
-        output.innerHTML = `<span style="color:red">[CRITICAL_FAILURE]: CONNECTION_LOST</span>`;
+        output.innerHTML = `<span style="color:red">[CRITICAL_FAILURE]</span>`;
     } finally {
         btn.disabled = false;
     }
 }
 
-// EVENT LISTENERS
 btn.addEventListener('click', () => runAudit("standard"));
 btnYes.addEventListener('click', () => runAudit("dumb"));
 btnDispute.addEventListener('click', () => {
