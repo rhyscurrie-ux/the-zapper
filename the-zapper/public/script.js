@@ -4,7 +4,30 @@ const input = document.getElementById('user-input');
 const output = document.getElementById('audit-output');
 const skinDisplay = document.getElementById('skin-suit-display');
 const rewardContainer = document.getElementById('reward-container');
+const tickerText = document.getElementById('ticker-text');
 
+// TURNSTILE DATA
+const samples = [
+    "I spent 3 hours arguing about a movie I haven't seen.",
+    "I checked my fridge 4 times in 10 minutes hoping for new content.",
+    "I've been scrolling through 'productivity' hacks for two hours.",
+    "I watched a 15-minute video on how to wash a car I don't own.",
+    "I re-read an old text thread to find a reason to be offended.",
+    "I spent my lunch break looking at vacation homes I can't afford."
+];
+let sampleIndex = 0;
+
+function rotateSamples() {
+    tickerText.classList.add('fade-out');
+    setTimeout(() => {
+        sampleIndex = (sampleIndex + 1) % samples.length;
+        tickerText.innerText = samples[sampleIndex];
+        tickerText.classList.remove('fade-out');
+    }, 500);
+}
+setInterval(rotateSamples, 4000);
+
+// SUBMISSION LOGIC
 input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -27,16 +50,17 @@ btn.addEventListener('click', async () => {
         });
 
         const data = await res.json();
-        if (data.audit.startsWith("[CONNECTION_SEVERED]")) throw new Error(data.audit);
+        
+        // HIDE INPUT AREA AFTER SUBMISSION
+        input.style.display = 'none';
+        document.getElementById('sample-ticker').style.display = 'none';
 
         output.innerHTML = data.audit.replace(/\n/g, '<br>');
         chatHistory = data.history;
 
-        // PARSE WEIGHTING POINTS
         const wpMatch = data.audit.match(/\[WP:\s*(\d+)\]/);
         const wp = wpMatch ? parseInt(wpMatch[1]) : 0;
 
-        // REVEAL GATES BASED ON DEBT STATUS
         if (wp >= 50) {
             rewardContainer.classList.remove('hidden');
             document.getElementById('reward-fb').classList.remove('hidden');
@@ -46,7 +70,6 @@ btn.addEventListener('click', async () => {
             document.getElementById('reward-signal').classList.remove('hidden');
         }
 
-        // UPDATE IDENTIFIER
         const idMatch = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/);
         if (idMatch) skinDisplay.innerText = idMatch[1];
         
@@ -54,7 +77,7 @@ btn.addEventListener('click', async () => {
             MathJax.typesetPromise([output]).catch((err) => console.log(err.message));
         }
 
-        window.scrollTo(0, 0); // Keep focus on the audit result
+        window.scrollTo(0, 0);
     } catch (err) {
         output.innerHTML = `<span style="color:red">[CRITICAL_FAILURE]: ${err.message}</span>`;
     } finally {
