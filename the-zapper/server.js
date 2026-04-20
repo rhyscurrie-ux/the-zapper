@@ -2,31 +2,24 @@ import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createClient } from '@supabase/supabase-js';
 import { promptText } from './prompt.js';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/scan', async (req, res) => {
     try {
-        const userInput = req.body.input || req.body.activity;
-        if (!userInput?.trim()) {
-            return res.status(400).json({ audit: "[VOID_INPUT]: The Architect does not process silence." });
-        }
-
+        const userInput = req.body.input;
         const history = req.body.history || [];
         const apiKey = process.env.API_KEY;
 
-        if (!apiKey) return res.status(500).json({ audit: "[CRITICAL_FAILURE]: API_KEY missing." });
-
-        const contents = [...history, { role: 'user', parts: [{ text: userInput }] }];
-
-        // APEX v2.5 FLASH v1beta ENDPOINT
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
             {
@@ -34,21 +27,28 @@ app.post('/api/scan', async (req, res) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     system_instruction: { parts: [{ text: promptText }] },
-                    contents: contents,
-                    generationConfig: { temperature: 1.2, maxOutputTokens: 2048 }
+                    contents: [...history, { role: 'user', parts: [{ text: userInput }] }],
+                    generationConfig: { temperature: 1.2 }
                 })
             }
         );
 
         const data = await response.json();
+        // Bug 2: Error Check
         if (data.error) throw new Error(data.error.message);
+        
+        const auditText = data.candidates?.[0]?.content?.parts?.[0]?.text || "[SYSTEM_SILENCE]";
 
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "[SYSTEM_SILENCE]";
-        res.json({ audit: text, history: [...contents, { role: 'model', parts: [{ text }] }] });
+        // Bug 3: Non-blocking Fire-and-Forget
+        supabase.from('entropy_logs')
+            .insert([{ specimen_input: userInput, architect_audit: auditText }])
+            .then(({ error }) => { if (error) console.error("Supabase Error:", error.message); });
+
+        res.json({ audit: auditText, history: [...history, { role: 'user', parts: [{ text: userInput }] }, { role: 'model', parts: [{ text: auditText }] }] });
     } catch (error) {
         res.status(500).json({ audit: `[CONNECTION_SEVERED]: ${error.message}` });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`[ARCHITECT ONLINE]: v11.5.8 v2.5-APEX.`));
+app.listen(PORT, '0.0.0.0', () => console.log(`[ARCHITECT ONLINE]: APEreaction v11.9.1`));
