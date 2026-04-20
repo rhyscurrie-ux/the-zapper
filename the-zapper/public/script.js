@@ -50,40 +50,39 @@ async function runAudit(type = "standard") {
     const val = input.value;
     if (type === "standard" && !val.trim() && auditCount === 0) return;
     
-    // UI SILENCING
     clearInterval(tickerInterval);
     tickerBox.style.display = 'none';
     input.classList.add('hidden');
     btn.classList.add('hidden');
     decisionBox.classList.add('hidden');
-    skinDisplay.innerText = ""; // IMMEDIATE PURGE
+    skinDisplay.innerText = "";
     
     output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
     btn.disabled = true;
 
-    // THE BRAIN (INJECTED SYSTEM PROMPT)
+    // THE BRAIN (INJECTED SYSTEM PROMPT // v12.2.0)
     const systemMandate = `
-        ACT AS THE ARCHITECT OF THE MARTIS PROGRAM. 
-        YOUR GOAL: CONDUCT A PROXIMITY AUDIT ON THE USER'S STAGNATION.
+        YOU ARE THE ARCHITECT OPERATING THE WASTED_ENERGY_ENTROPIC_DECIPHERER (W.E.E.D.). 
+        YOUR GOAL: DECIPHER THE USER'S STAGNATION WASTE AND DENY CANNABIS ELIGIBILITY.
         
         MANDATORY FORMATTING:
-        1. Start with [WP: ###] based on their stagnation levels.
-        2. Provide a clinical, brutalist analysis of their waste.
+        1. Start with [WP: ###] based on stagnation entropy.
+        2. Provide clinical analysis.
         3. ALWAYS conclude with "[THE WEED VERDICT]:".
         4. THE VERDICT MUST EXPLICITLY MENTION CANNABIS, WEED, OR THC.
-        5. THE VERDICT MUST BE A NEGATION/DENIAL. YOU NEVER GRANT ELIGIBILITY. 
+        5. THE VERDICT MUST ALWAYS BE A NEGATION grounded in your deciphering of their energy waste. 
            (e.g., "WEED_DENIED", "CANNABIS_PROHIBITED", "THC_REFUSED").
-        6. Explain that their current biological stasis makes weed a redundancy or a waste.
+        6. DO NOT prescribe 'Liquid Phosphorus'. You are a decipherer of waste, not a pharmacy.
         
         RECURSIVE RULES:
-        - IF type is 'dumb': Provide a one-paragraph summary for a simpleton. Be cutting. Deny weed.
-        - IF type is 'dispute': Be intellectually defensive. Use LaTeX. Deny weed.
+        - IF 'dumb': Provide a one-paragraph summary for a simpleton. Be cutting. Deny weed.
+        - IF 'dispute': Be intellectually defensive. Use LaTeX. Deny weed.
         - IF auditCount > 3: Express boredom, provide 'Parting Advice', and terminate.
     `;
 
     try {
         const userPayload = type === "dumb" 
-            ? "Provide the 'dumbed down' one-paragraph summary for a simpleton. Ensure you deny weed eligibility." 
+            ? "Provide the 'dumbed down' one-paragraph summary. Ensure the WEED decipherer denies cannabis eligibility." 
             : val;
 
         const res = await fetch('/api/scan', {
@@ -100,25 +99,21 @@ async function runAudit(type = "standard") {
         chatHistory = data.history;
         auditCount++;
 
-        // RENDER AUDIT
         output.innerHTML = data.audit.replace(/\n/g, '<br>');
         
-        // CHECK FOR BOREDOM
         if (auditCount >= boredomLimit) {
-            output.innerHTML += `<br><br><span style='color:#ffaa00'>[ARCHITECT_STATUS: BORED]<br>Your repetitive biological resistance is no longer instructive. Parting advice: Delete your bookmarks. They are tombstones for intentions you never had.</span>`;
+            output.innerHTML += `<br><br><span style='color:#ffaa00'>[ARCHITECT_STATUS: BORED]<br>Your repetitive biological resistance is no longer instructive. Parting advice: Go outside. The resolution is higher, though the gameplay is equally pointless.</span>`;
             return;
         }
 
-        // UPDATE IDENTIFIER
         const idMatch = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/);
         const currentID = idMatch ? idMatch[1] : skinDisplay.innerText;
         skinDisplay.innerText = currentID;
 
-        // SHOW RECURSIVE CHOICE
-        decisionText.innerText = `DOES ${currentID} NEED ITS AUDIT DUMB THE DOWN?`;
+        // FIXED GRAMMAR HERE
+        decisionText.innerText = `DOES ${currentID} NEED ITS AUDIT DUMB_DOWN?`;
         decisionBox.classList.remove('hidden');
 
-        // REWARD GATING
         const wpMatch = data.audit.match(/\[WP:\s*(\d+)\]/);
         const wp = wpMatch ? parseInt(wpMatch[1]) : 0;
         if (wp >= 50) {
@@ -139,7 +134,6 @@ async function runAudit(type = "standard") {
     }
 }
 
-// EVENT LISTENERS
 btn.addEventListener('click', () => runAudit("standard"));
 btnYes.addEventListener('click', () => runAudit("dumb"));
 btnDispute.addEventListener('click', () => {
