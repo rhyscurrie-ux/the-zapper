@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APEreaction.com // v12.1.3</title>
+    <title>APEreaction.com // v12.1.4</title>
     
     <script>
       window.MathJax = {
@@ -16,7 +16,7 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
-        /* CLINICAL BRUTALISM // v12.1.3 */
+        /* CLINICAL BRUTALISM // v12.1.4 */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         html, body {
@@ -81,16 +81,17 @@
 
         #user-input:focus { border-bottom: 1px solid #00ff41 !important; }
 
-        /* TURNSTILE STYLE */
+        /* EXPANDED TURNSTILE */
         #sample-ticker {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: rgba(0, 255, 65, 0.6);
-            margin-bottom: 30px;
-            height: 1.2rem;
+            margin-bottom: 35px;
+            min-height: 3.5rem; /* Prevents slicing on mobile */
             display: flex;
             gap: 8px;
-            overflow: hidden;
+            overflow: visible;
             text-transform: none;
+            line-height: 1.4;
         }
 
         #ticker-label { font-weight: 900; color: #00ff41; opacity: 0.8; text-transform: uppercase; }
@@ -163,7 +164,7 @@
             
             <div id="sample-ticker">
                 <span id="ticker-label">Example:</span>
-                <span id="ticker-text">I spent 3 hours arguing about a movie I haven't seen.</span>
+                <span id="ticker-text">"I spent 3 hours arguing about a movie I haven't seen."</span>
             </div>
 
             <button id="submit-btn">INITIALIZE SCAN</button>
