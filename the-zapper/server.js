@@ -9,19 +9,9 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// DEFENSIVE VARIABLE SHIELD
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-    console.warn("[WARNING]: SUPABASE_URL or SUPABASE_KEY missing. The Ledger will be offline.");
-}
-
-// Initialize client with fallback to prevent boot crash
-const supabase = createClient(
-    supabaseUrl || 'https://placeholder.supabase.co', 
-    supabaseKey || 'placeholder'
-);
+const supabase = createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseKey || 'placeholder');
 
 const app = express();
 app.use(express.json());
@@ -32,8 +22,6 @@ app.post('/api/scan', async (req, res) => {
         const userInput = req.body.input;
         const history = req.body.history || [];
         const apiKey = process.env.API_KEY;
-
-        if (!apiKey) throw new Error("API_KEY is missing from environment.");
 
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
@@ -53,21 +41,18 @@ app.post('/api/scan', async (req, res) => {
         
         const auditText = data.candidates?.[0]?.content?.parts?.[0]?.text || "[SYSTEM_SILENCE]";
 
-        // NON-BLOCKING SUPABASE INJECTION
+        // NON-BLOCKING PERSISTENCE
         if (supabaseUrl && supabaseKey) {
             supabase.from('entropy_logs')
                 .insert([{ specimen_input: userInput, architect_audit: auditText }])
                 .then(({ error }) => { if (error) console.error("Supabase Error:", error.message); });
         }
 
-        res.json({ 
-            audit: auditText, 
-            history: [...history, { role: 'user', parts: [{ text: userInput }] }, { role: 'model', parts: [{ text: auditText }] }] 
-        });
+        res.json({ audit: auditText, history: [...history, { role: 'user', parts: [{ text: userInput }] }, { role: 'model', parts: [{ text: auditText }] }] });
     } catch (error) {
         res.status(500).json({ audit: `[CONNECTION_SEVERED]: ${error.message}` });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`[ARCHITECT ONLINE]: v11.9.2 - APEX`));
+app.listen(PORT, '0.0.0.0', () => console.log(`[ARCHITECT ONLINE]: APEreaction v12.1.2`));
