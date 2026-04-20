@@ -15,7 +15,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.post('/api/scan', async (req, res) => {
     try {
         const userInput = req.body.input || req.body.activity;
-        // Bug 6 Fix: Input Guard
         if (!userInput?.trim()) {
             return res.status(400).json({ audit: "[VOID_INPUT]: The Architect does not process silence." });
         }
@@ -27,13 +26,9 @@ app.post('/api/scan', async (req, res) => {
 
         const contents = [...history, { role: 'user', parts: [{ text: userInput }] }];
 
-        // Bug 5: Verification Logging
-        console.log("SYSTEM_PROMPT_LENGTH:", promptText.length);
-        console.log("HISTORY_TURNS:", contents.length);
-
-        // Bug 4: Atomic Model String Fix
+        // APEX v2.5 FLASH v1beta ENDPOINT
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -56,4 +51,4 @@ app.post('/api/scan', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`[ARCHITECT ONLINE]: v11.5.6 Heartbeat Detected.`));
+app.listen(PORT, '0.0.0.0', () => console.log(`[ARCHITECT ONLINE]: v11.5.8 v2.5-APEX.`));
