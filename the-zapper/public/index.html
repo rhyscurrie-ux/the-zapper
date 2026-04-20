@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APEreaction // v12.2.1</title>
+    <title>APEreaction // v12.2.2</title>
     
     <script>
       window.MathJax = { tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] } };
@@ -25,7 +25,24 @@
         #audit-output { text-transform: none; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; min-height: 20px; }
         .flashing-amber { color: #ffaa00 !important; font-weight: 900; animation: blink 0.8s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        #user-input { background: transparent; border: none; border-bottom: 1px solid rgba(0, 255, 65, 0.3); color: #00ff41 !important; font-family: inherit; font-size: 1.1rem; width: 100%; min-height: 100px; padding: 10px 0; margin-bottom: 10px; outline: none; resize: none; }
+        
+        /* THE ELASTIC VOID */
+        #user-input { 
+            background: transparent; 
+            border: none; 
+            border-bottom: 1px solid rgba(0, 255, 65, 0.3); 
+            color: #00ff41 !important; 
+            font-family: inherit; 
+            font-size: 1.1rem; 
+            width: 100%; 
+            min-height: 120px; 
+            padding: 10px 0; 
+            margin-bottom: 10px; 
+            outline: none; 
+            resize: none; 
+            overflow: hidden; 
+        }
+
         #sample-ticker { font-size: 0.8rem; color: rgba(0, 255, 65, 0.6); margin-bottom: 35px; min-height: 3.5rem; display: flex; gap: 8px; text-transform: none; }
         #ticker-text { transition: opacity 0.6s ease-in-out; font-style: italic; }
         .fade-out { opacity: 0 !important; }
@@ -45,8 +62,8 @@
         <header id="eligibility-header">APEreaction // PROXIMITY_AUDIT<br><span>WEED_ELIGIBILITY_SCAN</span></header>
         <main id="vortex">
             <div id="audit-output"></div>
-            <textarea id="user-input" placeholder="Describe your stagnation..."></textarea>
-            <div id="sample-ticker"><span id="ticker-label">Example:</span><span id="ticker-text">"I spent 3 hours arguing about a movie I haven't seen."</span></div>
+            <textarea id="user-input" placeholder="Confess your stagnation to the Architect..."></textarea>
+            <div id="sample-ticker"><span id="ticker-label">Example:</span><span id="ticker-text">"I checked my fridge 4 times in 10 minutes hoping for new content."</span></div>
             <button id="submit-btn">INITIALIZE SCAN</button>
             <div id="decision-box" class="hidden">
                 <p id="decision-text"></p>
