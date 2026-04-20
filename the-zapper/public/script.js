@@ -7,7 +7,7 @@ const rewardContainer = document.getElementById('reward-container');
 const tickerText = document.getElementById('ticker-text');
 const tickerBox = document.getElementById('sample-ticker');
 
-// TURNSTILE DATA
+// 1. STABILIZED TURNSTILE
 const samples = [
     "\"I spent 3 hours arguing about a movie I haven't seen.\"",
     "\"I checked my fridge 4 times in 10 minutes hoping for new content.\"",
@@ -21,10 +21,10 @@ let tickerInterval = setInterval(() => {
         sampleIndex = (sampleIndex + 1) % samples.length;
         tickerText.innerText = samples[sampleIndex];
         tickerText.classList.remove('fade-out');
-    }, 500);
+    }, 600); // Matched to CSS transition
 }, 4000);
 
-// RECRUITMENT HANDLER
+// 2. RECRUITMENT HANDLER
 document.getElementById('invite-btn').addEventListener('click', async () => {
     const id = skinDisplay.innerText;
     const shareData = {
@@ -38,15 +38,17 @@ document.getElementById('invite-btn').addEventListener('click', async () => {
     } catch (err) { console.log(err); }
 });
 
+// 3. THE AUDIT TRIGGER
 btn.addEventListener('click', async () => {
     const val = input.value;
     if (!val.trim()) return;
     
-    // UI SILENCING
+    // IMMEDIATE PURGE & BLACKOUT
     clearInterval(tickerInterval);
     tickerBox.style.display = 'none';
     input.style.display = 'none';
     btn.style.display = 'none';
+    skinDisplay.innerText = ""; // PURGE [AWAITING_IDENTIFIER]
     
     output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
     btn.disabled = true;
@@ -59,7 +61,7 @@ btn.addEventListener('click', async () => {
         });
         const data = await res.json();
         
-        // RE-ENABLE INPUT FOR NEXT STEP
+        // RE-ENABLE FOR MULTI-STEP
         input.style.display = 'block';
         input.value = '';
         btn.style.display = 'block';
@@ -79,8 +81,13 @@ btn.addEventListener('click', async () => {
         }
         if (wp >= 100) document.getElementById('reward-signal').classList.remove('hidden');
 
+        // ASSIGN NEW IDENTIFIER
         const idMatch = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/);
-        if (idMatch) skinDisplay.innerText = idMatch[1];
+        if (idMatch) {
+            skinDisplay.style.opacity = "0";
+            skinDisplay.innerText = idMatch[1];
+            setTimeout(() => { skinDisplay.style.opacity = "1"; }, 100);
+        }
         
         if (window.MathJax) MathJax.typesetPromise([output]);
         window.scrollTo(0, 0);
