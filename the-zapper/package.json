@@ -1,9 +1,14 @@
 {
   "name": "ape-reaction",
-  "version": "11.9.1",
+  "version": "11.9.2",
   "type": "module",
   "main": "server.js",
-  "scripts": { "start": "node server.js" },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
     "dotenv": "^16.4.5",
