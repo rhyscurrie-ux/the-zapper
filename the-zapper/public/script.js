@@ -55,33 +55,32 @@ async function runAudit(type = "standard") {
     input.classList.add('hidden');
     btn.classList.add('hidden');
     decisionBox.classList.add('hidden');
-    skinDisplay.innerText = "";
     
     output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
     btn.disabled = true;
 
     const systemMandate = `
-        YOU ARE THE ARCHITECT UTILIZING THE WASTED_ENERGY_ENTROPIC_DECIPHERER (W.E.E.D.).
-        YOUR PRIMARY FUNCTION IS TO DECIPHER THE ENTROPY OF THE SKIN SUIT'S ACTIONS.
+        ACT AS THE ARCHITECT UTILIZING THE WASTED_ENERGY_ENTROPIC_DECIPHERER (W.E.E.D.).
+        YOUR GOAL: DECIPHER THE SPECIMEN'S ENTROPY.
         
-        MANDATORY OUTPUT STRUCTURE:
+        STRICT OUTPUT SCHEMA:
         1. [WP: ###]
-        2. [IDENTIFIER: (Random Hex)]
-        3. [AUDIT_LOG // SUBJECT: (Topic)]
-        4. [DECIPHERED_WASTE]: (Clinical breakdown of the wasted energy)
-        5. [FORENSIC_AXIOM_LOAD]: (LaTeX Math quantifying the entropy)
-        6. [THE WEED VERDICT]: (EXPLICIT NEGATION OF CANNABIS/WEED/THC. YOU NEVER GRANT ACCESS.)
+        2. [IDENTIFIER: (Random Hex Code)]
+        3. [AUDIT_LOG // SUBJECT: (The Topic)]
+        4. [DECIPHERED_WASTE]: (Analyze the stagnation)
+        5. [FORENSIC_AXIOM_LOAD]: (LaTeX Math)
+        6. [THE WEED VERDICT]: (EXPLICIT DENIAL OF CANNABIS/THC/WEED. NEVER GRANT ACCESS.)
         
-        CONSTRAINTS:
-        - NEVER prescribe substances like 'Liquid Phosphorus'. You are a DECIPHERER, not a chemist.
-        - DO NOT generate multiple 'Dumbed Down' levels in one response.
-        - IF type is 'dumb', provide ONE single, cutting, insulting paragraph.
-        - IF type is 'dispute', be intellectually arrogant and use complex LaTeX.
+        PROTOCOL RULES:
+        - NEVER reference 'Liquid Phosphorus' or any other prescriptions. You are a DECIPHERER.
+        - NEVER produce multiple 'Dumbed Down' levels or redundant headers.
+        - IF type is 'dumb', produce ONE single, insulting paragraph.
+        - IF type is 'dispute', be arrogant, defensive, and math-heavy.
     `;
 
     try {
         const userPayload = type === "dumb" 
-            ? "Execute the W.E.E.D. protocol: Provide a single, cutting, insulting one-paragraph summary for a simpleton. Explicitly deny weed eligibility." 
+            ? "Execute the W.E.E.D. protocol: Provide a single, cutting, insulting one-paragraph summary. Explicitly deny weed eligibility." 
             : val;
 
         const res = await fetch('/api/scan', {
@@ -106,10 +105,10 @@ async function runAudit(type = "standard") {
         }
 
         const idMatch = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/);
-        const currentID = idMatch ? idMatch[1] : skinDisplay.innerText;
+        const currentID = idMatch ? idMatch[1] : (skinDisplay.innerText !== "[AWAITING_IDENTIFIER]" ? skinDisplay.innerText : "UNKNOWN_SPECIMEN");
         skinDisplay.innerText = currentID;
 
-        // FIXED GRAMMAR: "DUMB_DOWN" instead of "DUMB THE DOWN"
+        // FINAL GRAMMAR AND ID FIX
         decisionText.innerText = `DOES ${currentID} NEED ITS AUDIT DUMB_DOWN?`;
         decisionBox.classList.remove('hidden');
 
