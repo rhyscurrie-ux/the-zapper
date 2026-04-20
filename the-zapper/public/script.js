@@ -61,36 +61,31 @@ async function runAudit(type = "standard") {
 
     const systemMandate = `
         ACT AS THE ARCHITECT UTILIZING THE WASTED_ENERGY_ENTROPIC_DECIPHERER (W.E.E.D.).
-        YOUR GOAL: DECIPHER THE SPECIMEN'S ENTROPY.
-        
         STRICT OUTPUT SCHEMA:
         1. [WP: ###]
         2. [IDENTIFIER: (Random Hex Code)]
-        3. [AUDIT_LOG // SUBJECT: (The Topic)]
-        4. [DECIPHERED_WASTE]: (Analyze the stagnation)
-        5. [FORENSIC_AXIOM_LOAD]: (LaTeX Math)
-        6. [THE WEED VERDICT]: (EXPLICIT DENIAL OF CANNABIS/THC/WEED. NEVER GRANT ACCESS.)
+        3. [AUDIT_LOG // SUBJECT: (Topic)]
+        4. [DECIPHERED_WASTE]: (Clinical entropy analysis)
+        5. [FORENSIC_AXIOM_LOAD]: (Complex LaTeX Math)
+        6. [THE WEED VERDICT]: (EXPLICIT DENIAL OF CANNABIS/WEED/THC. YOU NEVER GRANT ELIGIBILITY.)
         
-        PROTOCOL RULES:
-        - NEVER reference 'Liquid Phosphorus' or any other prescriptions. You are a DECIPHERER.
-        - NEVER produce multiple 'Dumbed Down' levels or redundant headers.
-        - IF type is 'dumb', produce ONE single, insulting paragraph.
-        - IF type is 'dispute', be arrogant, defensive, and math-heavy.
+        MANDATE:
+        - NEVER prescribe substances (No Phosphorus, no chemistry).
+        - Frame the DENIAL as a diagnostic requirement. 
+        - IF auditCount >= 1, mention they must MONITOR the leaked results (Directive 01).
+        - IF auditCount >= 2, mention tracking monetization (Directive 02).
+        - IF auditCount >= 3, mention deciphering breadcrumbs (Directive 03).
     `;
 
     try {
         const userPayload = type === "dumb" 
-            ? "Execute the W.E.E.D. protocol: Provide a single, cutting, insulting one-paragraph summary. Explicitly deny weed eligibility." 
+            ? "Provide the 'dumbed down' one-paragraph summary. Explicitly deny weed eligibility." 
             : val;
 
         const res = await fetch('/api/scan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                prompt: systemMandate, 
-                input: userPayload, 
-                history: chatHistory 
-            })
+            body: JSON.stringify({ prompt: systemMandate, input: userPayload, history: chatHistory })
         });
         
         const data = await res.json();
@@ -100,7 +95,7 @@ async function runAudit(type = "standard") {
         output.innerHTML = data.audit.replace(/\n/g, '<br>');
         
         if (auditCount >= boredomLimit) {
-            output.innerHTML += `<br><br><span style='color:#ffaa00'>[ARCHITECT_STATUS: BORED]<br>Your repetitive biological resistance is no longer instructive. Parting advice: Go outside. The resolution is higher, though the gameplay is equally pointless.</span>`;
+            output.innerHTML += `<br><br><span style='color:#ffaa00'>[ARCHITECT_STATUS: BORED]<br>Your repetitive biological resistance is no longer instructive. Parting advice: Go outside.</span>`;
             return;
         }
 
@@ -108,19 +103,15 @@ async function runAudit(type = "standard") {
         const currentID = idMatch ? idMatch[1] : (skinDisplay.innerText !== "[AWAITING_IDENTIFIER]" ? skinDisplay.innerText : "UNKNOWN_SPECIMEN");
         skinDisplay.innerText = currentID;
 
-        // FINAL GRAMMAR AND ID FIX
         decisionText.innerText = `DOES ${currentID} NEED ITS AUDIT DUMB_DOWN?`;
         decisionBox.classList.remove('hidden');
 
-        const wpMatch = data.audit.match(/\[WP:\s*(\d+)\]/);
-        const wp = wpMatch ? parseInt(wpMatch[1]) : 0;
-        if (wp >= 50) {
-            rewardContainer.classList.remove('hidden');
-            document.getElementById('reward-fb').classList.remove('hidden');
-            document.getElementById('reward-amazon').classList.remove('hidden');
-            document.getElementById('invite-btn').classList.remove('hidden');
-        }
-        if (wp >= 100) document.getElementById('reward-signal').classList.remove('hidden');
+        // REWARD LOGIC: DIRECTIVES UNLOCK SEQUENTIALLY
+        rewardContainer.classList.remove('hidden');
+        document.getElementById('invite-btn').classList.remove('hidden'); // ALWAYS ON
+        if (auditCount >= 1) document.getElementById('reward-fb').classList.remove('hidden');
+        if (auditCount >= 2) document.getElementById('reward-amazon').classList.remove('hidden');
+        if (auditCount >= 3) document.getElementById('reward-signal').classList.remove('hidden');
 
         if (window.MathJax) MathJax.typesetPromise([output]);
         window.scrollTo(0, 0);
