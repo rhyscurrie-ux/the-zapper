@@ -7,12 +7,12 @@ const rewardContainer = document.getElementById('reward-container');
 const tickerText = document.getElementById('ticker-text');
 const tickerBox = document.getElementById('sample-ticker');
 
-// TURNSTILE ENGINE
+// TURNSTILE DATA
 const samples = [
     "\"I spent 3 hours arguing about a movie I haven't seen.\"",
     "\"I checked my fridge 4 times in 10 minutes hoping for new content.\"",
-    "\"I watched a 15-minute video on how to wash a car I don't own.\"",
-    "\"I've been scrolling through 'productivity' hacks for two hours.\""
+    "\"I re-read an old text thread to find a reason to be offended.\"",
+    "\"I spent my lunch break looking at vacation homes I can't afford.\""
 ];
 let sampleIndex = 0;
 let tickerInterval = setInterval(() => {
@@ -24,14 +24,28 @@ let tickerInterval = setInterval(() => {
     }, 500);
 }, 4000);
 
+// RECRUITMENT HANDLER
+document.getElementById('invite-btn').addEventListener('click', async () => {
+    const id = skinDisplay.innerText;
+    const shareData = {
+        title: 'MARTIS PROGRAM // PROXIMITY AUDIT',
+        text: `[AUDIT_LOG]: My stagnation has been identified as ${id}. Recalibrate your own debt at APEreaction.com.`,
+        url: 'https://apereaction.com'
+    };
+    try {
+        if (navigator.share) { await navigator.share(shareData); } 
+        else { await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`); alert("[INVITATION_COPIED_TO_CLIPBOARD]"); }
+    } catch (err) { console.log(err); }
+});
+
 btn.addEventListener('click', async () => {
     const val = input.value;
     if (!val.trim()) return;
     
-    // IMMEDIATE BLACKOUT & FLASHING AMBER STATUS
-    clearInterval(tickerInterval); // Kill the background logic
-    tickerBox.style.display = 'none'; // Instant visual death
-    input.style.display = 'none'; 
+    // UI SILENCING
+    clearInterval(tickerInterval);
+    tickerBox.style.display = 'none';
+    input.style.display = 'none';
     btn.style.display = 'none';
     
     output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
@@ -43,20 +57,25 @@ btn.addEventListener('click', async () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ input: val, history: chatHistory })
         });
-
         const data = await res.json();
         
-        // RENDER FINAL AUDIT (Removes flashing amber)
+        // RE-ENABLE INPUT FOR NEXT STEP
+        input.style.display = 'block';
+        input.value = '';
+        btn.style.display = 'block';
+        btn.innerText = "SUBMIT FURTHER EVIDENCE";
+
         output.innerHTML = data.audit.replace(/\n/g, '<br>');
         chatHistory = data.history;
 
-        // GATE LOGIC
+        // WP GATING
         const wpMatch = data.audit.match(/\[WP:\s*(\d+)\]/);
         const wp = wpMatch ? parseInt(wpMatch[1]) : 0;
         if (wp >= 50) {
             rewardContainer.classList.remove('hidden');
             document.getElementById('reward-fb').classList.remove('hidden');
             document.getElementById('reward-amazon').classList.remove('hidden');
+            document.getElementById('invite-btn').classList.remove('hidden');
         }
         if (wp >= 100) document.getElementById('reward-signal').classList.remove('hidden');
 
