@@ -1,69 +1,22 @@
-/* THE ZAPPER // MARTIS FORENSIC VISUALS */
+body { background: #000; color: #00ff41; font-family: 'Courier New', Courier, monospace; padding: 20px; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden; }
 
-body { 
-    background: #000; 
-    color: #00ff41; /* The "Classic Green" frequency */
-    font-family: 'Courier New', Courier, monospace; 
-    padding: 20px; 
-    line-height: 1.5;
-    margin: 0;
-}
+#terminal { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 30px; }
 
-#terminal { 
-    max-width: 900px; 
-    margin: auto; 
-    display: flex;
-    flex-direction: column;
-}
+#eligibility-header { text-align: center; font-size: 1.1em; border-bottom: 1px solid #00ff41; padding-bottom: 10px; }
+#eligibility-header span { font-size: 0.7em; opacity: 0.6; }
 
-#output-container { 
-    border: 1px solid #00ff41; 
-    padding: 25px; 
-    background: rgba(0, 30, 0, 0.15); /* Slight green tint inside the box */
-    min-height: 500px;
-    box-shadow: 0 0 15px rgba(0, 255, 65, 0.1);
-    margin-bottom: 15px;
-}
+#vortex { display: flex; flex-direction: column; gap: 20px; }
 
-#audit-output { 
-    white-space: pre-wrap; 
-    word-wrap: break-word; 
-    font-size: 0.95em;
-}
+#audit-output { font-size: 0.85em; max-height: 50vh; overflow-y: auto; line-height: 1.5; border-left: 2px solid #00ff41; padding-left: 15px; }
 
-/* BUG 2 FIX: MathJax 3 rendering container */
-mjx-container { 
-    color: #00ff41 !important; 
-    display: block; 
-    margin: 20px 0 !important; 
-    font-size: 1.2em;
-    text-align: center;
-}
+#user-input { background: rgba(0,255,65,0.05); border: 1px solid #00ff41; color: #00ff41; padding: 15px; height: 120px; font-family: inherit; resize: none; font-size: 1em; }
 
-#input-line { 
-    display: flex; 
-    gap: 12px; 
-    font-size: 1.1em;
-    padding: 5px;
-}
+#submit-btn { background: #00ff41; color: #000; border: none; padding: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
 
-#user-input { 
-    background: transparent; 
-    border: none; 
-    color: #00ff41; 
-    outline: none; 
-    width: 100%; 
-    font-family: inherit; 
-    border-bottom: 1px solid rgba(0, 255, 65, 0.3);
-}
+#reward-container { margin-top: 10px; display: flex; flex-direction: column; gap: 10px; }
+.reward-btn { display: block; border: 1px solid #00ff41; color: #00ff41; text-decoration: none; padding: 10px; text-align: center; font-size: 0.8em; }
 
-/* Scrollbar styling for that retro-terminal feel */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #000; }
-::-webkit-scrollbar-thumb { background: #003300; border: 1px solid #00ff41; }
+#legal-footer { text-align: center; font-size: 0.6em; opacity: 0.7; border-top: 1px solid #00ff41; padding-top: 15px; }
+#skin-suit-display { font-weight: bold; color: #00ff41; font-size: 1.2em; display: block; margin-top: 5px; }
 
-/* Emphasis formatting for the Deciphered Waste */
-i, em {
-    color: #fff; /* Highlighting forensic terms in white for contrast */
-    font-style: italic;
-}
+.hidden { display: none !important; }
