@@ -1,6 +1,6 @@
 let chatHistory = [];
 let auditCount = 0;
-const boredomLimit = Math.floor(Math.random() * 3) + 3;
+const boredomLimit = Math.floor(Math.random() * 3) + 4; // Architect stays slightly longer for high-entropy input
 
 const btn = document.getElementById('submit-btn');
 const input = document.getElementById('user-input');
@@ -16,8 +16,8 @@ const rewardContainer = document.getElementById('reward-container');
 
 // TICKER ENGINE
 const samples = [
-    "\"I spent 3 hours arguing about a movie I haven't seen.\"",
     "\"I checked my fridge 4 times in 10 minutes hoping for new content.\"",
+    "\"I spent 3 hours arguing about a movie I haven't seen.\"",
     "\"I re-read an old text thread to find a reason to be offended.\"",
     "\"I watched a 15-minute video on how to wash a car I don't own.\""
 ];
@@ -30,6 +30,12 @@ let tickerInterval = setInterval(() => {
         tickerText.classList.remove('fade-out');
     }, 600);
 }, 4000);
+
+// AUTO-EXPAND THE VOID
+input.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+});
 
 // RECRUITMENT HANDLER
 document.getElementById('invite-btn').addEventListener('click', async () => {
@@ -65,16 +71,17 @@ async function runAudit(type = "standard") {
         1. [WP: ###]
         2. [IDENTIFIER: (Random Hex Code)]
         3. [AUDIT_LOG // SUBJECT: (Topic)]
-        4. [DECIPHERED_WASTE]: (Clinical entropy analysis)
-        5. [FORENSIC_AXIOM_LOAD]: (Complex LaTeX Math)
-        6. [THE WEED VERDICT]: (EXPLICIT DENIAL OF CANNABIS/WEED/THC. YOU NEVER GRANT ELIGIBILITY.)
+        4. [DECIPHERED_WASTE]: (Clinical entropy analysis of their stagnation)
+        5. [FORENSIC_AXIOM_LOAD]: (LaTeX Math)
+        6. [THE WEED VERDICT]: (EXPLICIT DENIAL OF CANNABIS/THC. YOU NEVER GRANT ELIGIBILITY.)
         
         MANDATE:
-        - NEVER prescribe substances (No Phosphorus, no chemistry).
+        - NEVER prescribe substances.
         - Frame the DENIAL as a diagnostic requirement. 
-        - IF auditCount >= 1, mention they must MONITOR the leaked results (Directive 01).
-        - IF auditCount >= 2, mention tracking monetization (Directive 02).
-        - IF auditCount >= 3, mention deciphering breadcrumbs (Directive 03).
+        - IF auditCount == 1, mention DIRECTIVE 01: MONITOR PUBLIC EMBARRASSMENT.
+        - IF auditCount == 2, mention DIRECTIVE 02: TRACK BLUNDER MONETIZATION.
+        - IF auditCount >= 3, mention DIRECTIVE 03: DECIPHER THE BREADCRUMBS.
+        - IF type is 'dumb', produce ONE single, insulting paragraph.
     `;
 
     try {
@@ -106,9 +113,9 @@ async function runAudit(type = "standard") {
         decisionText.innerText = `DOES ${currentID} NEED ITS AUDIT DUMB_DOWN?`;
         decisionBox.classList.remove('hidden');
 
-        // REWARD LOGIC: DIRECTIVES UNLOCK SEQUENTIALLY
+        // REWARD RECALIBRATION: SEQUENTIAL DIRECTIVES
         rewardContainer.classList.remove('hidden');
-        document.getElementById('invite-btn').classList.remove('hidden'); // ALWAYS ON
+        document.getElementById('invite-btn').classList.remove('hidden'); 
         if (auditCount >= 1) document.getElementById('reward-fb').classList.remove('hidden');
         if (auditCount >= 2) document.getElementById('reward-amazon').classList.remove('hidden');
         if (auditCount >= 3) document.getElementById('reward-signal').classList.remove('hidden');
@@ -128,6 +135,7 @@ btnYes.addEventListener('click', () => runAudit("dumb"));
 btnDispute.addEventListener('click', () => {
     decisionBox.classList.add('hidden');
     input.classList.remove('hidden');
+    input.style.height = '120px'; // Reset void height for new evidence
     input.placeholder = "STATE YOUR GROUNDS...";
     input.value = "";
     btn.classList.remove('hidden');
