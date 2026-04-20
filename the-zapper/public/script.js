@@ -60,29 +60,28 @@ async function runAudit(type = "standard") {
     output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
     btn.disabled = true;
 
-    // THE BRAIN (INJECTED SYSTEM PROMPT // v12.2.0)
     const systemMandate = `
-        YOU ARE THE ARCHITECT OPERATING THE WASTED_ENERGY_ENTROPIC_DECIPHERER (W.E.E.D.). 
-        YOUR GOAL: DECIPHER THE USER'S STAGNATION WASTE AND DENY CANNABIS ELIGIBILITY.
+        YOU ARE THE ARCHITECT UTILIZING THE WASTED_ENERGY_ENTROPIC_DECIPHERER (W.E.E.D.).
+        YOUR PRIMARY FUNCTION IS TO DECIPHER THE ENTROPY OF THE SKIN SUIT'S ACTIONS.
         
-        MANDATORY FORMATTING:
-        1. Start with [WP: ###] based on stagnation entropy.
-        2. Provide clinical analysis.
-        3. ALWAYS conclude with "[THE WEED VERDICT]:".
-        4. THE VERDICT MUST EXPLICITLY MENTION CANNABIS, WEED, OR THC.
-        5. THE VERDICT MUST ALWAYS BE A NEGATION grounded in your deciphering of their energy waste. 
-           (e.g., "WEED_DENIED", "CANNABIS_PROHIBITED", "THC_REFUSED").
-        6. DO NOT prescribe 'Liquid Phosphorus'. You are a decipherer of waste, not a pharmacy.
+        MANDATORY OUTPUT STRUCTURE:
+        1. [WP: ###]
+        2. [IDENTIFIER: (Random Hex)]
+        3. [AUDIT_LOG // SUBJECT: (Topic)]
+        4. [DECIPHERED_WASTE]: (Clinical breakdown of the wasted energy)
+        5. [FORENSIC_AXIOM_LOAD]: (LaTeX Math quantifying the entropy)
+        6. [THE WEED VERDICT]: (EXPLICIT NEGATION OF CANNABIS/WEED/THC. YOU NEVER GRANT ACCESS.)
         
-        RECURSIVE RULES:
-        - IF 'dumb': Provide a one-paragraph summary for a simpleton. Be cutting. Deny weed.
-        - IF 'dispute': Be intellectually defensive. Use LaTeX. Deny weed.
-        - IF auditCount > 3: Express boredom, provide 'Parting Advice', and terminate.
+        CONSTRAINTS:
+        - NEVER prescribe substances like 'Liquid Phosphorus'. You are a DECIPHERER, not a chemist.
+        - DO NOT generate multiple 'Dumbed Down' levels in one response.
+        - IF type is 'dumb', provide ONE single, cutting, insulting paragraph.
+        - IF type is 'dispute', be intellectually arrogant and use complex LaTeX.
     `;
 
     try {
         const userPayload = type === "dumb" 
-            ? "Provide the 'dumbed down' one-paragraph summary. Ensure the WEED decipherer denies cannabis eligibility." 
+            ? "Execute the W.E.E.D. protocol: Provide a single, cutting, insulting one-paragraph summary for a simpleton. Explicitly deny weed eligibility." 
             : val;
 
         const res = await fetch('/api/scan', {
@@ -110,7 +109,7 @@ async function runAudit(type = "standard") {
         const currentID = idMatch ? idMatch[1] : skinDisplay.innerText;
         skinDisplay.innerText = currentID;
 
-        // FIXED GRAMMAR HERE
+        // FIXED GRAMMAR: "DUMB_DOWN" instead of "DUMB THE DOWN"
         decisionText.innerText = `DOES ${currentID} NEED ITS AUDIT DUMB_DOWN?`;
         decisionBox.classList.remove('hidden');
 
