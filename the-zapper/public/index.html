@@ -1,18 +1,157 @@
-<header id="eligibility-header">
-    APEreaction // PROXIMITY_AUDIT<br>
-    <span>WEED_ELIGIBILITY_SCAN</span>
-</header>
-
-<main id="vortex">
-    <div id="audit-output"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>APEreaction.com // v12.1.2</title>
     
-    <textarea id="user-input" placeholder="Describe your stagnation..."></textarea>
-    
-    <button id="submit-btn">INITIALIZE SCAN</button>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-    <div id="reward-container" class="hidden">
-        <a id="reward-fb" href="https://facebook.com/..." class="reward-btn hidden">01: OBSERVE THE ARCHITECT</a>
-        <a id="reward-amazon" href="https://amazon.com/author/dbriggs" class="reward-btn hidden">02: RETRIEVE THE ARCHIVE</a>
-        <a id="reward-signal" href="https://facebook.com/reels/927685439893655" class="reward-btn hidden">03: INITIALIZE THE SIGNAL</a>
+    <style>
+        /* CLINICAL BRUTALISM // v12.1.2 */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html, body {
+            background-color: #0a0a0a !important;
+            color: #00ff41 !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        body { padding: 40px 20px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        #terminal { width: 100%; max-width: 450px; display: flex; flex-direction: column; }
+
+        #eligibility-header {
+            font-weight: 900;
+            font-size: 1.4rem;
+            border-bottom: 3px solid #00ff41;
+            padding-bottom: 10px;
+            margin-bottom: 40px;
+            line-height: 1.1;
+        }
+
+        #eligibility-header span {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            opacity: 0.7;
+            display: block;
+            margin-top: 5px;
+        }
+
+        #vortex { display: flex; flex-direction: column; }
+
+        #audit-output {
+            text-transform: none;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        /* BOXLESS VORTEX */
+        #user-input {
+            background: transparent !important;
+            border: none !important;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.3) !important;
+            color: #00ff41 !important;
+            font-family: inherit;
+            font-size: 1.1rem;
+            width: 100%;
+            min-height: 120px;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            outline: none;
+            resize: none;
+            text-transform: none;
+            transition: border-bottom 0.3s ease;
+        }
+
+        #user-input:focus { border-bottom: 1px solid #00ff41 !important; }
+
+        #submit-btn {
+            background-color: #00ff41 !important;
+            color: #0a0a0a !important;
+            border: none;
+            padding: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        #submit-btn:disabled { opacity: 0.5; }
+
+        #reward-container { margin-top: 30px; display: flex; flex-direction: column; gap: 12px; }
+
+        .reward-btn {
+            display: block;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            text-decoration: none;
+            padding: 15px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .hidden { display: none !important; }
+
+        #legal-footer {
+            margin-top: 60px;
+            font-size: 0.65rem;
+            opacity: 0.5;
+            text-align: left;
+            border-top: 1px solid rgba(0, 255, 65, 0.2);
+            padding-top: 20px;
+        }
+
+        #skin-suit-display {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #00ff41;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="terminal">
+        <header id="eligibility-header">
+            APEreaction // PROXIMITY_AUDIT<br>
+            <span>WEED_ELIGIBILITY_SCAN</span>
+        </header>
+        
+        <main id="vortex">
+            <div id="audit-output"></div>
+            <textarea id="user-input" placeholder="Describe your stagnation..."></textarea>
+            <button id="submit-btn">INITIALIZE SCAN</button>
+
+            <div id="reward-container" class="hidden">
+                <a id="reward-fb" href="https://facebook.com/..." class="reward-btn hidden">01: OBSERVE THE ARCHITECT</a>
+                <a id="reward-amazon" href="https://amazon.com/author/dbriggs" class="reward-btn hidden">02: RETRIEVE THE ARCHIVE</a>
+                <a id="reward-signal" href="https://facebook.com/reels/927685439893655" class="reward-btn hidden">03: INITIALIZE THE SIGNAL</a>
+            </div>
+        </main>
+
+        <footer id="legal-footer">
+            THE ARCHITECT MIGHT REPRODUCE YOUR RESPONSES.<br>
+            <span id="skin-suit-display">[AWAITING_IDENTIFIER]</span>
+        </footer>
     </div>
-</main>
+    <script src="script.js"></script>
+</body>
+</html>
