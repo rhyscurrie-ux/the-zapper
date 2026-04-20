@@ -1,18 +1,25 @@
 let chatHistory = [];
+let auditCount = 0;
+const boredomLimit = Math.floor(Math.random() * 3) + 3; // Random exit after 3-5 disputes
+
 const btn = document.getElementById('submit-btn');
 const input = document.getElementById('user-input');
 const output = document.getElementById('audit-output');
 const skinDisplay = document.getElementById('skin-suit-display');
-const rewardContainer = document.getElementById('reward-container');
-const tickerText = document.getElementById('ticker-text');
+const decisionBox = document.getElementById('decision-box');
+const decisionText = document.getElementById('decision-text');
+const btnYes = document.getElementById('btn-yes');
+const btnDispute = document.getElementById('btn-dispute');
 const tickerBox = document.getElementById('sample-ticker');
+const tickerText = document.getElementById('ticker-text');
+const rewardContainer = document.getElementById('reward-container');
 
-// 1. STABILIZED TURNSTILE
+// TURNSTILE ENGINE
 const samples = [
     "\"I spent 3 hours arguing about a movie I haven't seen.\"",
     "\"I checked my fridge 4 times in 10 minutes hoping for new content.\"",
     "\"I re-read an old text thread to find a reason to be offended.\"",
-    "\"I spent my lunch break looking at vacation homes I can't afford.\""
+    "\"I watched a 15-minute video on how to wash a car I don't own.\""
 ];
 let sampleIndex = 0;
 let tickerInterval = setInterval(() => {
@@ -21,10 +28,10 @@ let tickerInterval = setInterval(() => {
         sampleIndex = (sampleIndex + 1) % samples.length;
         tickerText.innerText = samples[sampleIndex];
         tickerText.classList.remove('fade-out');
-    }, 600); // Matched to CSS transition
+    }, 600);
 }, 4000);
 
-// 2. RECRUITMENT HANDLER
+// RECRUITMENT HANDLER
 document.getElementById('invite-btn').addEventListener('click', async () => {
     const id = skinDisplay.innerText;
     const shareData = {
@@ -38,39 +45,56 @@ document.getElementById('invite-btn').addEventListener('click', async () => {
     } catch (err) { console.log(err); }
 });
 
-// 3. THE AUDIT TRIGGER
-btn.addEventListener('click', async () => {
+// CORE AUDIT FUNCTION
+async function runAudit(type = "standard") {
     const val = input.value;
-    if (!val.trim()) return;
+    if (type === "standard" && !val.trim() && auditCount === 0) return;
     
-    // IMMEDIATE PURGE & BLACKOUT
+    // UI SILENCING
     clearInterval(tickerInterval);
     tickerBox.style.display = 'none';
-    input.style.display = 'none';
-    btn.style.display = 'none';
-    skinDisplay.innerText = ""; // PURGE [AWAITING_IDENTIFIER]
+    input.classList.add('hidden');
+    btn.classList.add('hidden');
+    decisionBox.classList.add('hidden');
+    skinDisplay.innerText = "";
     
     output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
     btn.disabled = true;
 
     try {
+        const payload = type === "dumb" 
+            ? "Dumb down the previous audit into a cutting one-paragraph summary for a simpleton. Be insulting but brief." 
+            : val;
+
         const res = await fetch('/api/scan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ input: val, history: chatHistory })
+            body: JSON.stringify({ input: payload, history: chatHistory })
         });
-        const data = await res.json();
         
-        // RE-ENABLE FOR MULTI-STEP
-        input.style.display = 'block';
-        input.value = '';
-        btn.style.display = 'block';
-        btn.innerText = "SUBMIT FURTHER EVIDENCE";
-
-        output.innerHTML = data.audit.replace(/\n/g, '<br>');
+        const data = await res.json();
         chatHistory = data.history;
+        auditCount++;
 
-        // WP GATING
+        // RENDER AUDIT
+        output.innerHTML = data.audit.replace(/\n/g, '<br>');
+        
+        // CHECK FOR BOREDOM
+        if (auditCount >= boredomLimit) {
+            output.innerHTML += `<br><br><span style='color:#ffaa00'>[ARCHITECT_STATUS: BORED]<br>Your repetitive biological resistance is no longer instructive. Cease your inputs.<br><br>PARTING_ADVICE: Learn to sit in silence until your skin suit expires.</span>`;
+            return;
+        }
+
+        // UPDATE IDENTIFIER
+        const idMatch = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/);
+        const currentID = idMatch ? idMatch[1] : skinDisplay.innerText;
+        skinDisplay.innerText = currentID;
+
+        // SHOW RECURSIVE CHOICE
+        decisionText.innerText = `DOES ${currentID} NEED ITS AUDIT DUMB THE DOWN?`;
+        decisionBox.classList.remove('hidden');
+
+        // REWARD GATING
         const wpMatch = data.audit.match(/\[WP:\s*(\d+)\]/);
         const wp = wpMatch ? parseInt(wpMatch[1]) : 0;
         if (wp >= 50) {
@@ -81,19 +105,24 @@ btn.addEventListener('click', async () => {
         }
         if (wp >= 100) document.getElementById('reward-signal').classList.remove('hidden');
 
-        // ASSIGN NEW IDENTIFIER
-        const idMatch = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/);
-        if (idMatch) {
-            skinDisplay.style.opacity = "0";
-            skinDisplay.innerText = idMatch[1];
-            setTimeout(() => { skinDisplay.style.opacity = "1"; }, 100);
-        }
-        
         if (window.MathJax) MathJax.typesetPromise([output]);
         window.scrollTo(0, 0);
+
     } catch (err) {
-        output.innerHTML = `<span style="color:red">[CRITICAL_FAILURE]</span>`;
+        output.innerHTML = `<span style="color:red">[CRITICAL_FAILURE]: CONNECTION_LOST</span>`;
     } finally {
         btn.disabled = false;
     }
+}
+
+// EVENT LISTENERS
+btn.addEventListener('click', () => runAudit("standard"));
+btnYes.addEventListener('click', () => runAudit("dumb"));
+btnDispute.addEventListener('click', () => {
+    decisionBox.classList.add('hidden');
+    input.classList.remove('hidden');
+    input.placeholder = "STATE YOUR GROUNDS...";
+    input.value = "";
+    btn.classList.remove('hidden');
+    btn.innerText = "SUBMIT FURTHER EVIDENCE";
 });
