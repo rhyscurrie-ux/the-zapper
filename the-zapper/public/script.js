@@ -1,6 +1,6 @@
 let chatHistory = [];
 let auditCount = 0;
-const boredomLimit = Math.floor(Math.random() * 3) + 4; // Architect stays slightly longer for high-entropy input
+const boredomLimit = 6; 
 
 const btn = document.getElementById('submit-btn');
 const input = document.getElementById('user-input');
@@ -37,7 +37,7 @@ input.addEventListener('input', function() {
     this.style.height = (this.scrollHeight) + 'px';
 });
 
-// RECRUITMENT HANDLER
+// RECRUITMENT HANDLER (DIRECTIVE 00)
 document.getElementById('invite-btn').addEventListener('click', async () => {
     const id = skinDisplay.innerText;
     const shareData = {
@@ -71,7 +71,7 @@ async function runAudit(type = "standard") {
         1. [WP: ###]
         2. [IDENTIFIER: (Random Hex Code)]
         3. [AUDIT_LOG // SUBJECT: (Topic)]
-        4. [DECIPHERED_WASTE]: (Clinical entropy analysis of their stagnation)
+        4. [DECIPHERED_WASTE]: (Entropy analysis of their stagnation)
         5. [FORENSIC_AXIOM_LOAD]: (LaTeX Math)
         6. [THE WEED VERDICT]: (EXPLICIT DENIAL OF CANNABIS/THC. YOU NEVER GRANT ELIGIBILITY.)
         
@@ -81,7 +81,7 @@ async function runAudit(type = "standard") {
         - IF auditCount == 1, mention DIRECTIVE 01: MONITOR PUBLIC EMBARRASSMENT.
         - IF auditCount == 2, mention DIRECTIVE 02: TRACK BLUNDER MONETIZATION.
         - IF auditCount >= 3, mention DIRECTIVE 03: DECIPHER THE BREADCRUMBS.
-        - IF type is 'dumb', produce ONE single, insulting paragraph.
+        - IF type is 'dumb', produce ONE single, cutting, insulting paragraph.
     `;
 
     try {
@@ -115,7 +115,6 @@ async function runAudit(type = "standard") {
 
         // REWARD RECALIBRATION: SEQUENTIAL DIRECTIVES
         rewardContainer.classList.remove('hidden');
-        document.getElementById('invite-btn').classList.remove('hidden'); 
         if (auditCount >= 1) document.getElementById('reward-fb').classList.remove('hidden');
         if (auditCount >= 2) document.getElementById('reward-amazon').classList.remove('hidden');
         if (auditCount >= 3) document.getElementById('reward-signal').classList.remove('hidden');
@@ -135,7 +134,7 @@ btnYes.addEventListener('click', () => runAudit("dumb"));
 btnDispute.addEventListener('click', () => {
     decisionBox.classList.add('hidden');
     input.classList.remove('hidden');
-    input.style.height = '120px'; // Reset void height for new evidence
+    input.style.height = '120px';
     input.placeholder = "STATE YOUR GROUNDS...";
     input.value = "";
     btn.classList.remove('hidden');
