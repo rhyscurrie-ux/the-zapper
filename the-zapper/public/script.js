@@ -71,7 +71,7 @@ async function runAudit(type = "standard") {
         1. [WP: ###]
         2. [IDENTIFIER: (Random Hex Code)]
         3. [AUDIT_LOG // SUBJECT: (Topic)]
-        4. [DECIPHERED_WASTE]: (Entropy analysis of their stagnation)
+        4. [DECIPHERED_WASTE]: (Entropy analysis)
         5. [FORENSIC_AXIOM_LOAD]: (LaTeX Math)
         6. [THE WEED VERDICT]: (EXPLICIT DENIAL OF CANNABIS/THC. YOU NEVER GRANT ELIGIBILITY.)
         
@@ -81,7 +81,7 @@ async function runAudit(type = "standard") {
         - IF auditCount == 1, mention DIRECTIVE 01: MONITOR PUBLIC EMBARRASSMENT.
         - IF auditCount == 2, mention DIRECTIVE 02: TRACK BLUNDER MONETIZATION.
         - IF auditCount >= 3, mention DIRECTIVE 03: DECIPHER THE BREADCRUMBS.
-        - IF type is 'dumb', produce ONE single, cutting, insulting paragraph.
+        - IF type is 'dumb', provide ONE single, cutting paragraph.
     `;
 
     try {
@@ -128,6 +128,18 @@ async function runAudit(type = "standard") {
         btn.disabled = false;
     }
 }
+
+// DIRECTIVE EXPANSION LOGIC
+document.querySelectorAll('.reward-btn').forEach(button => {
+    button.addEventListener('click', function(e) {
+        if (e.target.classList.contains('proceed-link')) return;
+        const info = this.querySelector('.directive-info');
+        if (info) {
+            document.querySelectorAll('.directive-info').forEach(d => d.classList.remove('expanded'));
+            info.classList.toggle('expanded');
+        }
+    });
+});
 
 btn.addEventListener('click', () => runAudit("standard"));
 btnYes.addEventListener('click', () => runAudit("dumb"));
