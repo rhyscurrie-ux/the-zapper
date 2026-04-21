@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APEreaction // v12.2.3</title>
+    <title>APEreaction // v12.2.4</title>
     
     <script>
       window.MathJax = { tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] } };
@@ -26,7 +26,6 @@
         .flashing-amber { color: #ffaa00 !important; font-weight: 900; animation: blink 0.8s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         
-        /* THE ELASTIC VOID */
         #user-input { 
             background: transparent; border: none; border-bottom: 1px solid rgba(0, 255, 65, 0.3); 
             color: #00ff41 !important; font-family: inherit; font-size: 1.1rem; width: 100%; 
@@ -41,8 +40,18 @@
         #decision-box { margin-top: 20px; text-transform: none; border-top: 1px solid rgba(0, 255, 65, 0.2); padding-top: 20px; }
         #decision-text { font-weight: 900; margin-bottom: 15px; color: #00ff41; text-transform: uppercase; font-size: 0.85rem; }
         .decision-buttons { display: flex; flex-direction: column; gap: 10px; }
+        
         #reward-container { margin-top: 30px; display: flex; flex-direction: column; gap: 12px; }
         .reward-btn { display: block; border: 1px solid #00ff41; color: #00ff41; text-decoration: none; padding: 15px; text-align: center; font-size: 0.75rem; cursor: pointer; background: transparent; font-family: inherit; text-transform: uppercase; font-weight: 700; line-height: 1.3; }
+        
+        .directive-info { 
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; 
+            font-size: 0.7rem; text-transform: none; color: #ffaa00; 
+            padding: 0 10px; text-align: left; line-height: 1.4;
+        }
+        .directive-info.expanded { max-height: 150px; padding: 10px; margin-top: 5px; border-top: 1px dashed rgba(255, 170, 0, 0.3); }
+        .proceed-link { display: inline-block; margin-top: 8px; color: #00ff41; font-weight: 900; text-decoration: underline; cursor: pointer; }
+        
         .hidden { display: none !important; }
         #legal-footer { margin-top: 60px; font-size: 0.6rem; opacity: 0.5; border-top: 1px solid rgba(0, 255, 65, 0.2); padding-top: 20px; }
         #skin-suit-display { display: block; font-size: 1.6rem; font-weight: 900; color: #00ff41; margin-top: 10px; }
@@ -54,7 +63,7 @@
         <main id="vortex">
             <div id="audit-output"></div>
             <textarea id="user-input" placeholder="Confess your stagnation to the Architect..."></textarea>
-            <div id="sample-ticker"><span id="ticker-label">Example:</span><span id="ticker-text">"I checked my fridge 4 times in 10 minutes hoping for new content."</span></div>
+            <div id="sample-ticker"><span id="ticker-label">Example:</span><span id="ticker-text">"I spent 3 hours arguing about a movie I haven't seen."</span></div>
             <button id="submit-btn">INITIALIZE SCAN</button>
             <div id="decision-box" class="hidden">
                 <p id="decision-text"></p>
@@ -65,10 +74,32 @@
             </div>
             <div id="reward-container" class="hidden">
                 <h3 id="reward-title" style="font-size: 0.9rem; margin-bottom: 15px; color: #ffaa00; border-bottom: 1px solid rgba(255, 170, 0, 0.3); padding-bottom: 5px;">UNLOAD ENTROPIC DEBT // MANDATORY MONITORING</h3>
-                <button id="invite-btn" class="reward-btn">DIRECTIVE 00: EXTERNALIZE THE DEBT (RECRUIT HOST)</button>
-                <a id="reward-fb" href="https://facebook.com/..." class="reward-btn hidden">DIRECTIVE 01: MONITOR PUBLIC EMBARRASSMENT</a>
-                <a id="reward-amazon" href="https://amazon.com/author/dbriggs" class="reward-btn hidden">DIRECTIVE 02: TRACK BLUNDER MONETIZATION</a>
-                <a id="reward-signal" href="https://facebook.com/reels/927685439893655" class="reward-btn hidden">DIRECTIVE 03: DECIPHER THE BREADCRUMBS</a>
+                
+                <button id="invite-btn" class="reward-btn">DIRECTIVE 00: EXTERNALIZE THE DEBT</button>
+
+                <div id="reward-fb" class="reward-btn hidden">
+                    <span>DIRECTIVE 01: MONITOR PUBLIC EMBARRASSMENT</span>
+                    <div class="directive-info">
+                        WARNING: Proceeding will link your audit logs to the Architect's public feed. Failure to monitor may result in unmitigated social debt.
+                        <br><a href="https://facebook.com/..." target="_blank" class="proceed-link">[ PROCEED TO SURVEILLANCE ]</a>
+                    </div>
+                </div>
+
+                <div id="reward-amazon" class="reward-btn hidden">
+                    <span>DIRECTIVE 02: TRACK BLUNDER MONETIZATION</span>
+                    <div class="directive-info">
+                        WARNING: By proceeding, you acknowledge that your cognitive waste is being archived for commercial gain.
+                        <br><a href="https://amazon.com/author/dbriggs" target="_blank" class="proceed-link">[ VIEW THE ARCHIVE ]</a>
+                    </div>
+                </div>
+
+                <div id="reward-signal" class="reward-btn hidden">
+                    <span>DIRECTIVE 03: DECIPHER THE BREADCRUMBS</span>
+                    <div class="directive-info">
+                        WARNING: This trail leads beyond the terminal. Do not proceed if your primary processor is unstable.
+                        <br><a href="https://facebook.com/reels/927685439893655" target="_blank" class="proceed-link">[ INITIALIZE THE SIGNAL ]</a>
+                    </div>
+                </div>
             </div>
         </main>
         <footer id="legal-footer">THE ARCHITECT MIGHT REPRODUCE YOUR RESPONSES.<br><span id="skin-suit-display">[AWAITING_IDENTIFIER]</span></footer>
