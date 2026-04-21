@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>APEreaction // THE ZAPPER</title>
     
     <script>
@@ -20,46 +20,16 @@
         </header>
 
         <main id="vortex">
-            <div id="audit-output"></div>
+            <div id="audit-output">
+                <span class="dim">[AWAITING_INPUT]</span>
+            </div>
 
             <div id="input-section">
                 <textarea id="user-input" placeholder="Confess your stagnation to the Architect..."></textarea>
+                
                 <div id="sample-ticker">
                     <span id="ticker-label">Example:</span>
-                    <span id="ticker-text">"I spent 3 hours arguing about a movie I haven't seen."</span>
+                    <span id="ticker-text">"I checked the fridge 4 times in 10 minutes hoping for new content."</span>
                 </div>
-                <button id="submit-btn">INITIALIZE SCAN</button>
-            </div>
-
-            <div id="decision-box" class="hidden">
-                <p id="decision-text"></p>
-                <div class="decision-buttons">
-                    <button id="btn-yes" class="reward-btn">YES, DUMB_DOWN THE DATA</button>
-                    <button id="btn-dispute" class="reward-btn">DISPUTE AUDIT LOG</button>
-                    <button id="copy-link-btn" class="reward-btn" style="border-color: #444; color: #666;">[ COPY_ARCHIVE_LINK ]</button>
-                    <button id="reactivate-btn" class="reward-btn hidden" style="border-color: #444; color: #666;">[ NEW_SCAN ]</button>
-                </div>
-            </div>
-
-            <div id="reward-container" class="hidden">
-                <h3 id="reward-title">UNLOAD ENTROPIC DEBT // MANDATORY MONITORING</h3>
-                <button id="invite-btn" class="reward-btn">DIRECTIVE 00: EXTERNALIZE THE DEBT</button>
-
-                <div id="reward-fb" class="reward-btn hidden">
-                    <span>DIRECTIVE 01: MONITOR PUBLIC EMBARRASSMENT</span>
-                    <div class="directive-info">
-                        FOLLOW the Architect's public feed.
-                        <br><a href="https://facebook.com/..." target="_blank" class="proceed-link">[ PROCEED TO SURVEILLANCE ]</a>
-                    </div>
-                </div>
-                </div>
-        </main>
-
-        <footer id="legal-footer">
-            THE ARCHITECT MIGHT REPRODUCE YOUR RESPONSES.<br>
-            <span id="skin-suit-display">[AWAITING_IDENTIFIER]</span>
-        </footer>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+                
+                <button id="submit-btn">INITIALIZE SCAN</button
