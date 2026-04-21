@@ -1,106 +1,68 @@
-/* 1. Reset & Global Layout */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
+/* THE ZAPPER - CLINICAL BRUTALIST UI */
 body {
-    background-color: #000000 !important; /* Force black background */
-    color: #ffffff !important;           /* Force white text */
-    font-family: 'Courier New', Courier, monospace;
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-}
-
-/* 2. The Zapper Terminal Frame */
-#terminal {
-    width: 95%;
-    max-width: 650px;
-    height: 85vh;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #222;
-    padding: 25px;
     background-color: #000;
-    box-shadow: 0 0 40px rgba(255, 255, 255, 0.02);
+    color: #fff;
+    font-family: 'Courier New', Courier, monospace; /* Keeping it technical */
+    margin: 20px;
+    line-height: 1.4;
 }
 
-/* 3. Header & Footer (Meta Data) */
-header, footer {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    letter-spacing: 1px;
-    color: #444;
-    text-transform: uppercase;
+#terminal {
+    max-width: 800px;
 }
 
 header {
-    border-bottom: 1px solid #111;
-    padding-bottom: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #222;
+    padding-bottom: 10px;
 }
 
-footer {
-    border-top: 1px solid #111;
-    padding-top: 12px;
-    margin-top: auto;
+#specimen-counter {
+    font-weight: bold;
+    letter-spacing: 2px;
 }
 
-/* 4. Output Area */
+#status-line {
+    font-size: 0.8rem;
+    color: #555;
+}
+
 main {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding-right: 5px;
+    margin-bottom: 50px;
 }
 
 #audit-output {
-    font-size: 15px;
-    line-height: 1.6;
     margin-bottom: 30px;
-    color: #ddd;
     white-space: pre-wrap;
+    /* This ensures the italics stay as italics as requested */
 }
 
-/* 5. Input Mechanics */
 #input-area {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    margin-top: 20px;
 }
 
 textarea {
+    width: 100%;
+    height: 100px;
     background: transparent;
-    border: 1px solid #333;
+    border: none;
+    border-bottom: 1px solid #333;
     color: #fff;
     font-family: inherit;
-    font-size: 14px;
-    padding: 12px;
-    height: 120px;
-    resize: none;
+    font-size: 1rem;
     outline: none;
+    padding: 10px 0;
 }
 
-textarea:focus {
-    border-color: #777;
-}
-
-/* 6. Buttons */
 button {
     background: transparent;
     color: #fff;
     border: 1px solid #fff;
-    padding: 10px 15px;
+    padding: 8px 15px;
     cursor: pointer;
     font-family: inherit;
-    font-size: 12px;
     text-transform: uppercase;
-    transition: all 0.15s ease-in-out;
+    margin-top: 20px;
 }
 
 button:hover {
@@ -108,30 +70,29 @@ button:hover {
     color: #000;
 }
 
+/* UTILITY / CONSUMER PROTOCOL */
 .utility-btn {
     border: 1px solid #333;
-    color: #666;
-    margin-right: 8px;
-    margin-top: 10px;
+    color: #555;
+    font-size: 0.75rem;
+    margin-right: 10px;
 }
 
 .utility-btn:hover {
-    border-color: #999;
+    border-color: #fff;
     color: #fff;
-    background: transparent;
 }
 
-/* 7. States & Effects */
-.dim { color: #333; }
+footer {
+    margin-top: 40px;
+    font-size: 0.8rem;
+    color: #333;
+}
+
+#skin-suit-display {
+    color: #fff;
+}
+
 .hidden { display: none; }
-
-.flashing-amber {
-    color: #ffbf00;
-    animation: blink 0.8s infinite;
-}
-
-@keyframes blink { 50% { opacity: 0.2; } }
-
-/* Scrollbar Style */
-main::-webkit-scrollbar { width: 3px; }
-main::-webkit-scrollbar-thumb { background: #222; }
+.dim { color: #333; }
+.flashing-amber { color: #ffbf00; }
