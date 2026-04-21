@@ -1,25 +1,22 @@
-let chatHistory = [];
-let auditCount = 0;
-const boredomLimit = 6; 
+let chatHistory = [], auditCount = 0;
+const boredomLimit = 6;
 
-const btn = document.getElementById('submit-btn');
+const samples = [
+    "\"Be honest. When did you last finish something?\"",
+    "\"The Architect has processed 847 Skin Suits this week. Most lied.\"",
+    "\"Your procrastination has a name. Submit it.\"",
+    "\"The audit takes 30 seconds. Your excuses took longer.\"",
+    "\"D. Martis is watching this frequency. Don't waste his time.\""
+];
+
+let sampleIndex = 0;
+const tickerText = document.getElementById('ticker-text');
 const input = document.getElementById('user-input');
 const output = document.getElementById('audit-output');
 const skinDisplay = document.getElementById('skin-suit-display');
-const decisionBox = document.getElementById('decision-box');
-const tickerBox = document.getElementById('sample-ticker');
-const tickerText = document.getElementById('ticker-text');
-const rewardContainer = document.getElementById('reward-container');
 
-// TICKER ENGINE (RESTORED)
-const samples = [
-    "\"I checked my fridge 4 times in 10 minutes hoping for new content.\"",
-    "\"I spent 3 hours arguing about a movie I haven't seen.\"",
-    "\"I re-read an old text thread to find a reason to be offended.\"",
-    "\"I watched a 15-minute video on how to wash a car I don't own.\""
-];
-let sampleIndex = 0;
-let tickerInterval = setInterval(() => {
+// Ticker Provocations
+setInterval(() => {
     tickerText.classList.add('fade-out');
     setTimeout(() => {
         sampleIndex = (sampleIndex + 1) % samples.length;
@@ -28,74 +25,77 @@ let tickerInterval = setInterval(() => {
     }, 600);
 }, 4000);
 
-// PERSISTENCE HANDSHAKE (NEW)
+// Auto-expand the Void
+input.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+});
+
+// Load Logic (Persistent Links & Counter)
 window.onload = async () => {
     const params = new URLSearchParams(window.location.search);
     const suitId = params.get('suit');
+    
+    const cRes = await fetch('/api/count');
+    const cData = await cRes.json();
+    document.querySelector('#eligibility-header span').innerText = `${cData.count} SPECIMENS PROCESSED // WEED_SCAN`;
 
     if (suitId) {
         document.getElementById('input-section').classList.add('hidden');
-        output.innerHTML = "<span class='flashing-amber'>[RETRIEVING_ARCHIVE...]</span>";
-        
+        output.innerHTML = "<span class='flashing-amber'>[RETRIEVING_LOG...]</span>";
         const res = await fetch(`/api/suit/${suitId}`);
         if (res.ok) {
             const data = await res.json();
             output.innerHTML = data.audit.replace(/\n/g, '<br>');
             skinDisplay.innerText = suitId;
             document.getElementById('decision-box').classList.remove('hidden');
-            document.getElementById('reactivate-btn').classList.remove('hidden');
         }
     }
 };
 
 async function runAudit(type = "standard") {
-    const val = input.value;
-    if (type === "standard" && !val.trim() && auditCount === 0) return;
-    
-    clearInterval(tickerInterval);
-    tickerBox.style.display = 'none';
+    if (type === "standard" && !input.value.trim()) return;
+
+    document.getElementById('sample-ticker').style.display = 'none';
     document.getElementById('input-section').classList.add('hidden');
-    output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
+    output.innerHTML = "<span class='flashing-amber'>[CALIBRATING...]</span>";
 
-    try {
-        const res = await fetch('/api/scan', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ input: val, history: chatHistory, type: type, auditCount: auditCount })
-        });
-        
-        const data = await res.json();
-        chatHistory = data.history;
-        auditCount++;
+    const res = await fetch('/api/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: input.value, history: chatHistory, type, auditCount })
+    });
+    
+    const data = await res.json();
+    chatHistory = data.history;
+    auditCount++;
 
-        output.innerHTML = data.audit.replace(/\n/g, '<br>');
-        
-        const idMatch = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/);
-        const currentID = idMatch ? idMatch[1] : "UNKNOWN";
-        skinDisplay.innerText = currentID;
+    output.innerHTML = data.audit.replace(/\n/g, '<br>');
+    const id = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/)?.[1] || "UNKNOWN";
+    skinDisplay.innerText = id;
 
-        document.getElementById('decision-text').innerText = `DOES ${currentID} NEED ITS AUDIT DUMB_DOWN?`;
-        decisionBox.classList.remove('hidden');
-        rewardContainer.classList.remove('hidden');
-
-        if (window.MathJax) MathJax.typesetPromise([output]);
-    } catch (err) {
-        output.innerHTML = `<span style="color:red">[CRITICAL_FAILURE]</span>`;
+    // Boredom Limit Unlock
+    if (auditCount >= boredomLimit) {
+        output.innerHTML += `<br><br><span style='color:#ffaa00'>[ARCHITECT_STATUS: RECALIBRATING]<br>Sustained resistance. COLLABORATOR STATUS CONFIRMED.<br>The CC v10.7.0 is waiting at fullyfried.com.</span>`;
     }
+
+    document.getElementById('decision-box').classList.remove('hidden');
+    if (window.MathJax) MathJax.typesetPromise([output]);
 }
 
-// HANDLERS
-btn.onclick = () => runAudit("standard");
+// Global Handlers
+document.getElementById('submit-btn').onclick = () => runAudit("standard");
 document.getElementById('btn-yes').onclick = () => runAudit("dumb");
 document.getElementById('btn-dispute').onclick = () => {
-    decisionBox.classList.add('hidden');
+    document.getElementById('decision-box').classList.add('hidden');
     document.getElementById('input-section').classList.remove('hidden');
+    input.placeholder = "STATE YOUR GROUNDS...";
     input.value = "";
 };
+
 document.getElementById('copy-link-btn').onclick = () => {
-    const id = skinDisplay.innerText;
-    navigator.clipboard.writeText(`${window.location.origin}/?suit=${id}`);
+    const url = `${window.location.origin}/?suit=${skinDisplay.innerText}`;
+    navigator.clipboard.writeText(url);
     document.getElementById('copy-link-btn').innerText = "[LINK_COPIED]";
-    setTimeout(() => document.getElementById('copy-link-btn').innerText = "[COPY_ARCHIVE_LINK]", 2000);
+    setTimeout(() => document.getElementById('copy-link-btn').innerText = "[COPY_LINK]", 2000);
 };
-document.getElementById('reactivate-btn').onclick = () => window.location.href = window.location.origin;
