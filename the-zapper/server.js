@@ -29,19 +29,13 @@ app.post('/api/scan', async (req, res) => {
     const systemPrompt = buildArchitectPrompt(isDispute, auditCount);
 
     try {
-        // Updated model string for better compatibility
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // Updated to Gemini 3 Flash for 2026 compatibility
+        const model = genAI.getGenerativeModel({ model: "gemini-3-flash" });
 
-        // Gemini expects alternating user/model turns. 
-        // We'll wrap the system prompt into the first user message for simplicity.
-        let contents = [];
-        
-        if (history && history.length > 0) {
-            contents = history.map(h => ({
-                role: h.role === "assistant" ? "model" : "user",
-                parts: [{ text: h.content }]
-            }));
-        }
+        let contents = history.map(h => ({
+            role: h.role === "assistant" ? "model" : "user",
+            parts: [{ text: h.content }]
+        }));
 
         contents.push({ 
             role: "user", 
@@ -63,7 +57,7 @@ app.post('/api/scan', async (req, res) => {
 
     } catch (err) {
         console.error("Gemini Brain Failure:", err);
-        res.status(500).json({ error: "The Architect's signal is fluctuating. Try again." });
+        res.status(500).json({ error: "Architect signal lost. Try again." });
     }
 });
 
