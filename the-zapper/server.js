@@ -1,70 +1,38 @@
-// server.js (Node.js/Express)
-require('dotenv').config();
 const express = require('express');
-const { buildArchitectPrompt } = require('./prompt.js');
-// Import your LLM SDK (e.g., OpenAI) and Supabase client here
-// const { createClient } = require('@supabase/supabase-js');
-// const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+const { createClient } = require('@supabase/supabase-js');
+const { buildArchitectPrompt } = require('./prompt.js'); // Use the server mandate from the previous message
 
 const app = express();
-app.use(express.json());
-app.use(express.static('public')); // Serve your index.html and script.js from a 'public' folder
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// THE GLOBAL COUNTER (Social Proof)
-app.get('/api/count', async (req, res) => {
-    try {
-        // Mocking Supabase call for deployment readiness
-        // const { count } = await supabase.from('entropy_logs').select('*', { count: 'exact', head: true });
-        const count = 847; // Replace with actual DB count
-        res.json({ count });
-    } catch (error) {
-        res.status(500).json({ count: "OFFLINE" });
-    }
+app.use(express.json());
+app.use(express.static('public'));
+
+// Fetch specific suit from archive
+app.get('/api/suit/:id', async (req, res) => {
+    const { data } = await supabase.from('entropy_logs').select('audit').eq('id', req.params.id).single();
+    res.json(data);
 });
 
-// THE AUDIT ENDPOINT
+// Global Count
+app.get('/api/count', async (req, res) => {
+    const { count } = await supabase.from('entropy_logs').select('*', { count: 'exact', head: true });
+    res.json({ count: count || 847 });
+});
+
+// Process Scan
 app.post('/api/scan', async (req, res) => {
     const { input, history, isDispute, auditCount } = req.body;
-    
-    // Generate the secure backend prompt
-    const systemMessage = buildArchitectPrompt(isDispute, auditCount);
+    const systemPrompt = buildArchitectPrompt(isDispute, auditCount);
 
-    try {
-        // [INSERT YOUR LLM CALL HERE]
-        // Example using OpenAI formatting:
-        /*
-        const messages = [
-            { role: "system", content: systemMessage },
-            ...history,
-            { role: "user", content: input }
-        ];
-        
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4",
-            messages: messages
-        });
-        
-        const aiResponse = completion.choices[0].message.content;
-        */
-        
-        const aiResponse = "[ARCHITECT RESPONSE PLACEHOLDER]"; // Replace with real LLM output
-        
-        // Update history
-        const updatedHistory = [
-            ...history, 
-            { role: "user", content: input }, 
-            { role: "assistant", content: aiResponse }
-        ];
+    // [LLM Call goes here - Use systemPrompt + input]
+    const aiResponse = "[THE ARCHITECT'S ROAST]"; // Dummy text
+    const id = aiResponse.match(/\[IDENTIFIER:\s*(.*?)\]/)?.[1] || `ID-${Date.now()}`;
 
-        // Store log in Supabase (For shareable URLs)
-        // await supabase.from('entropy_logs').insert([{ input, response: aiResponse }]);
+    // SAVE TO SUPABASE
+    await supabase.from('entropy_logs').insert([{ id, input, audit: aiResponse }]);
 
-        res.json({ audit: aiResponse, history: updatedHistory });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "System overload." });
-    }
+    res.json({ audit: aiResponse, history: [...history, {role: "user", content: input}, {role: "assistant", content: aiResponse}] });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`APEreaction terminal active on port ${PORT}`));
+app.listen(3000);
