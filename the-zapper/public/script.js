@@ -9,7 +9,7 @@ const samples = [
 let sampleIndex = 0;
 let chatHistory = [], auditCount = 0, isDisputing = false;
 
-// THE TICKER ENGINE
+// THE TICKER
 setInterval(() => {
     const tickerText = document.getElementById('ticker-text');
     if (tickerText) {
@@ -22,11 +22,13 @@ window.onload = async () => {
     const params = new URLSearchParams(window.location.search);
     const suitId = params.get('suit');
     
+    // Global Count
     const cRes = await fetch('/api/count');
     const cData = await cRes.json();
     document.getElementById('specimen-counter').innerText = `[MARTIS] // ${cData.count} SPECIMENS`;
 
     if (suitId) {
+        // Use 'input-pane' to match the HTML
         document.getElementById('input-pane').classList.add('hidden');
         document.getElementById('audit-output').innerHTML = "<span class='flashing-amber'>[RETRIEVING...]</span>";
         
@@ -41,8 +43,9 @@ window.onload = async () => {
 };
 
 async function runAudit() {
-    const input = document.getElementById('user-input');
-    if (!isDisputing && !input.value.trim()) return;
+    const inputField = document.getElementById('user-input');
+    const val = inputField.value;
+    if (!isDisputing && !val.trim()) return;
 
     document.getElementById('input-pane').classList.add('hidden');
     document.getElementById('audit-output').innerHTML = "<span class='flashing-amber'>[CALIBRATING...]</span>";
@@ -50,7 +53,7 @@ async function runAudit() {
     const res = await fetch('/api/scan', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({input: input.value, history: chatHistory, isDispute: isDisputing, auditCount})
+        body: JSON.stringify({input: val, history: chatHistory, isDispute: isDisputing, auditCount})
     });
     
     const data = await res.json();
@@ -65,16 +68,21 @@ async function runAudit() {
 }
 
 document.getElementById('submit-btn').onclick = runAudit;
-document.getElementById('reactivate-btn').onclick = () => window.location.href = window.location.origin;
+
 document.getElementById('btn-dispute').onclick = () => {
     isDisputing = true;
     document.getElementById('decision-box').classList.add('hidden');
     document.getElementById('input-pane').classList.remove('hidden');
     document.getElementById('user-input').value = "";
 };
+
 document.getElementById('copy-link-btn').onclick = () => {
     const id = document.getElementById('skin-suit-display').innerText;
     navigator.clipboard.writeText(`${window.location.origin}/?suit=${id}`);
     document.getElementById('copy-link-btn').innerText = "[COPIED]";
     setTimeout(() => document.getElementById('copy-link-btn').innerText = "[COPY_LINK]", 2000);
+};
+
+document.getElementById('reactivate-btn').onclick = () => {
+    window.location.href = window.location.origin;
 };
