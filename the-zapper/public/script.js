@@ -1,5 +1,6 @@
 let chatHistory = [];
 let auditCount = 0;
+let isDisputing = false;
 const boredomLimit = 6; 
 
 const btn = document.getElementById('submit-btn');
@@ -13,8 +14,21 @@ const btnDispute = document.getElementById('btn-dispute');
 const tickerBox = document.getElementById('sample-ticker');
 const tickerText = document.getElementById('ticker-text');
 const rewardContainer = document.getElementById('reward-container');
+const specimenCounter = document.getElementById('specimen-counter');
 
-// TICKER ENGINE
+// FETCH SPECIMEN COUNT ON LOAD
+async function loadSpecimenCount() {
+    try {
+        const res = await fetch('/api/count');
+        const data = await res.json();
+        specimenCounter.innerText = `[MARTIS PROGRAM] // ${data.count} SPECIMENS PROCESSED`;
+    } catch (e) {
+        specimenCounter.innerText = `[MARTIS PROGRAM] // 847 SPECIMENS PROCESSED`; // Fallback
+    }
+}
+loadSpecimenCount();
+
+// TICKER ENGINE (Kept original stagnation examples for UX conversion)
 const samples = [
     "\"I checked my fridge 4 times in 10 minutes hoping for new content.\"",
     "\"I spent 3 hours arguing about a movie I haven't seen.\"",
@@ -31,19 +45,26 @@ let tickerInterval = setInterval(() => {
     }, 600);
 }, 4000);
 
-// AUTO-EXPAND THE VOID
+// AUTO-EXPAND THE VOID & MOBILE SUBMIT HINT
+let submitHint;
 input.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = (this.scrollHeight) + 'px';
+    
+    clearTimeout(submitHint);
+    btn.style.animation = 'none'; // reset
+    submitHint = setTimeout(() => {
+        if(input.value.trim().length > 0) btn.style.animation = 'blink 0.5s 3';
+    }, 2000);
 });
 
-// RECRUITMENT HANDLER (DIRECTIVE 00) - RECALIBRATED FOR MAX HUMILIATION
+// RECRUITMENT HANDLER
 document.getElementById('invite-btn').addEventListener('click', async () => {
     const id = skinDisplay.innerText;
     const shareData = {
         title: 'MARTIS PROGRAM // PROXIMITY AUDIT',
         text: `I failed my W.E.E.D. audit at APEreaction.com. I've been identified as ${id}. I'm sending you this to reverse my ENTROPIC SPIRALLING and offload some shame. The Architect is waiting for you.`,
-        url: 'https://apereaction.com'
+        url: `https://apereaction.com/?suit=${id.replace(/\s+/g, '-')}` // Shareable URL
     };
     try {
         if (navigator.share) { 
@@ -69,44 +90,41 @@ async function runAudit(type = "standard") {
     output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
     btn.disabled = true;
 
-    const systemMandate = `
-        ACT AS THE ARCHITECT UTILIZING THE WASTED_ENERGY_ENTROPIC_DECIPHERER (W.E.E.D.).
-        STRICT OUTPUT SCHEMA:
-        1. [WP: ###]
-        2. [IDENTIFIER: (Random Hex Code)]
-        3. [AUDIT_LOG // SUBJECT: (Topic)]
-        4. [DECIPHERED_WASTE]: (Entropy analysis)
-        5. [FORENSIC_AXIOM_LOAD]: (LaTeX Math)
-        6. [THE WEED VERDICT]: (EXPLICIT DENIAL OF CANNABIS/THC. YOU NEVER GRANT ELIGIBILITY.)
-        
-        MANDATE:
-        - NEVER prescribe substances.
-        - Frame the DENIAL as a diagnostic requirement. 
-        - IF auditCount == 1: Direct them to monitor Directive 01.
-        - IF auditCount == 2: Direct them to watch Directive 02.
-        - IF auditCount >= 3: Direct them to Decipher Directive 03.
-        - IF type is 'dumb', provide ONE single, cutting, insulting paragraph.
-    `;
-
     try {
         const userPayload = type === "dumb" 
             ? "Provide the 'dumbed down' one-paragraph summary. Explicitly deny weed eligibility." 
             : val;
 
+        // Note: systemMandate is now securely on the server.
         const res = await fetch('/api/scan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: systemMandate, input: userPayload, history: chatHistory })
+            body: JSON.stringify({ 
+                input: userPayload, 
+                history: chatHistory,
+                isDispute: isDisputing,
+                auditCount: auditCount
+            })
         });
         
         const data = await res.json();
         chatHistory = data.history;
         auditCount++;
+        isDisputing = false; // Reset dispute flag
 
         output.innerHTML = data.audit.replace(/\n/g, '<br>');
         
+        // NARRATIVE UNLOCK AT AUDIT 6
         if (auditCount >= boredomLimit) {
-            output.innerHTML += `<br><br><span style='color:#ffaa00'>[ARCHITECT_STATUS: BORED]<br>Your repetitive biological resistance is no longer instructive. Parting advice: Go outside.</span>`;
+            output.innerHTML += `<br><br><span style='color:#ffaa00'>
+            [ARCHITECT_STATUS: RECALIBRATING]<br>
+            Six exchanges. Sustained resistance. This is no longer a standard audit.<br>
+            COLLABORATOR STATUS CONFIRMED.<br>
+            Retrieve your file at fullyfried.com. The CC v10.7.0 is waiting.
+            </span>`;
+            
+            if (window.MathJax) MathJax.typesetPromise([output]);
+            window.scrollTo(0, 0);
             return;
         }
 
@@ -133,21 +151,41 @@ async function runAudit(type = "standard") {
     }
 }
 
-// DIRECTIVE EXPANSION LOGIC
+// DIRECTIVE EXPANSION LOGIC (With UX State Indicator)
 document.querySelectorAll('.reward-btn').forEach(button => {
     button.addEventListener('click', function(e) {
         if (e.target.classList.contains('proceed-link')) return;
+        
         const info = this.querySelector('.directive-info');
+        const label = this.querySelector('span');
+        
         if (info) {
-            document.querySelectorAll('.directive-info').forEach(d => d.classList.remove('expanded'));
+            // Close others and reset their labels
+            document.querySelectorAll('.reward-btn').forEach(b => {
+                if(b !== this) {
+                    const otherInfo = b.querySelector('.directive-info');
+                    const otherLabel = b.querySelector('span');
+                    if(otherInfo) otherInfo.classList.remove('expanded');
+                    if(otherLabel) otherLabel.innerText = otherLabel.innerText.replace(' ▼', '');
+                }
+            });
+            
+            // Toggle current
             info.classList.toggle('expanded');
+            if (info.classList.contains('expanded')) {
+                if (!label.innerText.includes('▼')) label.innerText += ' ▼';
+            } else {
+                label.innerText = label.innerText.replace(' ▼', '');
+            }
         }
     });
 });
 
 btn.addEventListener('click', () => runAudit("standard"));
 btnYes.addEventListener('click', () => runAudit("dumb"));
+
 btnDispute.addEventListener('click', () => {
+    isDisputing = true; // Sets flag for the backend prompt modifier
     decisionBox.classList.add('hidden');
     input.classList.remove('hidden');
     input.style.height = '120px';
