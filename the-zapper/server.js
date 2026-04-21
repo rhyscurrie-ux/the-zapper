@@ -29,8 +29,8 @@ app.post('/api/scan', async (req, res) => {
     const systemPrompt = buildArchitectPrompt(isDispute, auditCount);
 
     try {
-        // Updated to Gemini 3 Flash for 2026 compatibility
-        const model = genAI.getGenerativeModel({ model: "gemini-3-flash" });
+        // FIXED MODEL NAME: gemini-3-flash-preview
+        const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
         let contents = history.map(h => ({
             role: h.role === "assistant" ? "model" : "user",
@@ -57,7 +57,7 @@ app.post('/api/scan', async (req, res) => {
 
     } catch (err) {
         console.error("Gemini Brain Failure:", err);
-        res.status(500).json({ error: "Architect signal lost. Try again." });
+        res.status(500).json({ error: "Architect signal lost. Ensure GEMINI_API_KEY is valid." });
     }
 });
 
