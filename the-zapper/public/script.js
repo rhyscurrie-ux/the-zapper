@@ -38,11 +38,13 @@ async function runAudit(type = "standard") {
     const val = input.value;
     if (type === "standard" && !val.trim()) return;
 
-    // HIDE CAROUSEL & RESET FOOTER IMMEDIATELY
+    // IMMEDIATE UI CLEANUP
     clearInterval(tickerInt);
     ticker.classList.add('hidden');
     input.classList.add('hidden'); 
     btn.classList.add('hidden');
+    
+    // Clear the footer message
     skinDisplay.innerText = "[ANALYZING_SKIN_SUIT...]";
     output.innerHTML = "<span class='flashing-amber'>[CALIBRATING...]</span>";
     
@@ -61,7 +63,7 @@ async function runAudit(type = "standard") {
         output.innerHTML = data.audit.replace(/\n/g, '<br>');
         const id = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/)?.[1] || "UNKNOWN";
         
-        // Update Footer with REAL ID
+        // Final Footer Update
         skinDisplay.innerText = id;
         
         decisionBox.classList.remove('hidden');
@@ -83,6 +85,7 @@ document.getElementById('btn-dispute').onclick = () => {
     isDisputing = true;
     decisionBox.classList.add('hidden');
     input.classList.remove('hidden'); input.value = ""; btn.classList.remove('hidden');
+    skinDisplay.innerText = "[RE-EVALUATING_SUIT]";
 };
 document.getElementById('invite-btn').onclick = () => {
     const id = skinDisplay.innerText;
