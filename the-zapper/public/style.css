@@ -2,37 +2,40 @@ body {
     background-color: #000;
     color: #fff;
     font-family: 'Courier New', Courier, monospace;
-    margin: 20px;
-    line-height: 1.5;
+    margin: 15px;
+    padding: 0;
 }
 
-#terminal {
-    max-width: 850px;
+#terminal-container {
+    max-width: 800px;
 }
 
 header {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
 #specimen-counter {
     font-weight: bold;
-    letter-spacing: 1px;
 }
 
 #status-line {
-    font-size: 0.75rem;
-    color: #444;
+    font-size: 0.7rem;
+    color: #333;
+}
+
+#output-pane {
+    margin-bottom: 20px;
+    min-height: 40px;
 }
 
 #audit-output {
-    margin-bottom: 25px;
     white-space: pre-wrap;
-    min-height: 50px;
+    line-height: 1.5;
 }
 
 textarea {
     width: 100%;
-    height: 80px;
+    height: 60px;
     background: transparent;
     border: none;
     border-bottom: 1px solid #222;
@@ -40,19 +43,21 @@ textarea {
     font-family: inherit;
     font-size: 1rem;
     outline: none;
-    padding: 10px 0;
-    margin-bottom: 10px;
+    resize: none;
+}
+
+#controls {
+    margin-top: 15px;
 }
 
 button {
     background: transparent;
     color: #fff;
     border: 1px solid #fff;
-    padding: 8px 16px;
+    padding: 5px 12px;
     cursor: pointer;
     font-family: inherit;
-    text-transform: uppercase;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
 }
 
 button:hover {
@@ -61,27 +66,27 @@ button:hover {
 }
 
 #sample-ticker {
-    margin-top: 15px;
-    font-size: 0.9rem;
+    margin-top: 10px;
+    font-size: 0.85rem;
+}
+
+#decision-box {
+    margin-top: 20px;
 }
 
 .utility-btn {
-    border: 1px solid #333;
+    border-color: #333;
     color: #666;
-    font-size: 0.7rem;
-    margin-top: 20px;
-    margin-right: 10px;
+    margin-left: 10px;
 }
 
 footer {
-    margin-top: 60px;
-    border-top: 1px solid #111;
-    padding-top: 15px;
-    color: #333;
-    font-size: 0.8rem;
+    margin-top: 50px;
+    color: #222;
+    font-size: 0.75rem;
 }
 
-#skin-suit-display { color: #fff; }
+#skin-suit-display { color: #444; }
 .hidden { display: none; }
 .dim { color: #444; }
 .flashing-amber { color: #ffbf00; }
