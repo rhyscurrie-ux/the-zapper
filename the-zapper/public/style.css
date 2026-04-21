@@ -3,8 +3,7 @@
 html, body {
     background-color: #000 !important; 
     color: #00ff41 !important;
-    /* Using a crisp, modern monospace stack */
-    font-family: 'JetBrains Mono', 'Roboto Mono', 'Fira Code', monospace; 
+    font-family: 'JetBrains Mono', monospace; 
     height: 100%; width: 100%; overflow-x: hidden;
     display: flex; justify-content: center; align-items: flex-start;
 }
@@ -14,8 +13,7 @@ body { padding: 40px 20px; text-transform: uppercase; letter-spacing: 0.05em; }
 #terminal { width: 100%; max-width: 450px; display: flex; flex-direction: column; }
 
 #eligibility-header { 
-    font-weight: 900; font-size: 1.4rem; 
-    border-bottom: 3px solid #00ff41; 
+    font-weight: 900; font-size: 1.4rem; border-bottom: 3px solid #00ff41; 
     padding-bottom: 10px; margin-bottom: 30px; line-height: 1.1; 
 }
 
@@ -41,8 +39,9 @@ body { padding: 40px 20px; text-transform: uppercase; letter-spacing: 0.05em; }
 #ticker-text { transition: opacity 0.6s ease-in-out; font-style: italic; }
 .fade-out { opacity: 0 !important; }
 
+/* FIX 5: Button Full Width */
 #submit-btn { 
-    background: #00ff41; color: #000; border: none; 
+    width: 100%; background: #00ff41; color: #000; border: none; 
     padding: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; 
 }
 
@@ -53,15 +52,16 @@ body { padding: 40px 20px; text-transform: uppercase; letter-spacing: 0.05em; }
 
 #decision-text { font-weight: 900; margin-bottom: 15px; color: #00ff41; text-transform: uppercase; font-size: 0.85rem; }
 
+/* FIX 6: Decision Button Width */
+.decision-buttons { display: flex; flex-direction: column; gap: 10px; }
 .reward-btn { 
-    display: block; border: 1px solid #00ff41; color: #00ff41; 
+    width: 100%; display: block; border: 1px solid #00ff41; color: #00ff41; 
     text-decoration: none; padding: 15px; text-align: center; 
     font-size: 0.75rem; cursor: pointer; background: transparent; 
-    font-family: inherit; text-transform: uppercase; font-weight: 700; margin-bottom: 10px;
+    font-family: inherit; text-transform: uppercase; font-weight: 700;
 }
 
 #legal-footer { margin-top: 60px; font-size: 0.6rem; opacity: 0.5; border-top: 1px solid rgba(0, 255, 65, 0.2); padding-top: 20px; }
-
 #skin-suit-display { display: block; font-size: 1.6rem; font-weight: 900; color: #00ff41; margin-top: 10px; }
 
 .hidden { display: none !important; }
