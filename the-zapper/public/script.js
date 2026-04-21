@@ -5,96 +5,98 @@ const btn = document.getElementById('submit-btn'),
       ticker = document.getElementById('sample-ticker'),
       skinDisplay = document.getElementById('skin-suit-display'),
       decisionBox = document.getElementById('decision-box'),
-      rewardContainer = document.getElementById('reward-container');
+      archiveControls = document.getElementById('archive-controls'),
+      inputArea = document.getElementById('input-area');
 
+// Initial Load
 window.onload = async () => {
-    const params = new URLSearchParams(window.location.search), suitId = params.get('suit');
-    const cRes = await fetch('/api/count'), cData = await cRes.json();
+    const params = new URLSearchParams(window.location.search);
+    const suitId = params.get('suit');
+    
+    // Fetch Global Count
+    const cRes = await fetch('/api/count');
+    const cData = await cRes.json();
     document.getElementById('specimen-counter').innerText = `[MARTIS] // ${cData.count} SPECIMENS`;
 
     if (suitId) {
-        input.classList.add('hidden'); btn.classList.add('hidden'); ticker.classList.add('hidden');
-        output.innerHTML = "<span class='flashing-amber'>[RETRIEVING...]</span>";
-        const res = await fetch(`/api/suit/${suitId}`);
-        const data = await res.json();
-        output.innerHTML = data.audit.replace(/\n/g, '<br>');
-        skinDisplay.innerText = suitId;
-        if (window.MathJax) MathJax.typesetPromise([output]);
+        enterArchiveMode(suitId);
     }
 };
 
-// Ticker Logic
-const samples = ["I checked the fridge 4 times...", "I argued about a movie I haven't seen...", "I re-read old texts to feel bad..."];
-let sIdx = 0;
-let tickerInt = setInterval(() => {
-    const t = document.getElementById('ticker-text');
-    if(t) {
-        t.innerText = samples[sIdx];
-        sIdx = (sIdx + 1) % samples.length;
-    }
-}, 4000);
-
-async function runAudit(type = "standard") {
-    const val = input.value;
-    if (type === "standard" && !val.trim()) return;
-
-    // IMMEDIATE UI CLEANUP
-    clearInterval(tickerInt);
+async function enterArchiveMode(id) {
+    inputArea.classList.add('hidden');
     ticker.classList.add('hidden');
-    input.classList.add('hidden'); 
-    btn.classList.add('hidden');
+    output.innerHTML = "<span class='flashing-amber'>[RETRIEVING_SPECIMEN...]</span>";
     
-    // Clear the footer message
-    skinDisplay.innerText = "[ANALYZING_SKIN_SUIT...]";
-    output.innerHTML = "<span class='flashing-amber'>[CALIBRATING...]</span>";
-    
-    try {
-        const res = await fetch('/api/scan', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({input: val, history: chatHistory, isDispute: isDisputing, auditCount})
-        });
+    const res = await fetch(`/api/suit/${id}`);
+    if (res.ok) {
         const data = await res.json();
-        
-        chatHistory = data.history; 
-        auditCount++; 
-        isDisputing = false;
-        
         output.innerHTML = data.audit.replace(/\n/g, '<br>');
-        const id = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/)?.[1] || "UNKNOWN";
-        
-        // Final Footer Update
         skinDisplay.innerText = id;
-        
-        decisionBox.classList.remove('hidden');
-        rewardContainer.classList.remove('hidden');
-        if (auditCount >= 1) document.getElementById('reward-fb').classList.remove('hidden');
-        if (auditCount >= 2) document.getElementById('reward-amazon').classList.remove('hidden');
-        if (auditCount >= 3) document.getElementById('reward-signal').classList.remove('hidden');
-        
-        if (window.MathJax) MathJax.typesetPromise([output]);
-    } catch (e) {
-        output.innerHTML = "[SYSTEM_FAILURE]";
-        skinDisplay.innerText = "[ERROR]";
+        archiveControls.classList.remove('hidden');
+    } else {
+        output.innerHTML = "[ERROR: SPECIMEN_LOST_TO_ENTROPY]";
+        skinDisplay.innerText = "NOT_FOUND";
+        archiveControls.classList.remove('hidden'); // Still allow reactivation
     }
 }
 
+async function runAudit() {
+    const val = input.value;
+    if (!isDisputing && !val.trim()) return;
+
+    // UI Cleanup
+    ticker.classList.add('hidden');
+    inputArea.classList.add('hidden');
+    decisionBox.classList.add('hidden');
+    output.innerHTML = "<span class='flashing-amber'>[CALIBRATING...]</span>";
+    skinDisplay.innerText = "[ANALYZING_SUIT...]";
+
+    const res = await fetch('/api/scan', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({input: val, history: chatHistory, isDispute: isDisputing, auditCount})
+    });
+    
+    const data = await res.json();
+    chatHistory = data.history;
+    auditCount++;
+    isDisputing = false;
+
+    output.innerHTML = data.audit.replace(/\n/g, '<br>');
+    const id = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/)?.[1] || "UNKNOWN";
+    skinDisplay.innerText = id;
+    
+    decisionBox.classList.remove('hidden');
+    archiveControls.classList.remove('hidden');
+    
+    // Show rewards based on audit depth
+    document.getElementById('reward-container').classList.remove('hidden');
+    if (auditCount >= 1) document.getElementById('reward-fb').classList.remove('hidden');
+    if (auditCount >= 2) document.getElementById('reward-amazon').classList.remove('hidden');
+    if (auditCount >= 3) document.getElementById('reward-signal').classList.remove('hidden');
+}
+
+// Button Logic
 btn.onclick = () => runAudit();
-document.getElementById('btn-yes').onclick = () => runAudit("dumb");
+
 document.getElementById('btn-dispute').onclick = () => {
     isDisputing = true;
     decisionBox.classList.add('hidden');
-    input.classList.remove('hidden'); input.value = ""; btn.classList.remove('hidden');
-    skinDisplay.innerText = "[RE-EVALUATING_SUIT]";
+    inputArea.classList.remove('hidden');
+    input.value = "";
+    skinDisplay.innerText = "[RE-EVALUATING]";
 };
-document.getElementById('invite-btn').onclick = () => {
+
+document.getElementById('copy-link-btn').onclick = () => {
     const id = skinDisplay.innerText;
-    const url = `${window.location.origin}/?suit=${id.replace(/\s+/g, '-')}`;
-    navigator.clipboard.writeText(url); alert("ID LINK COPIED");
+    const url = `${window.location.origin}/?suit=${id}`;
+    navigator.clipboard.writeText(url).then(() => {
+        document.getElementById('copy-link-btn').innerText = "[LINK_COPIED]";
+        setTimeout(() => document.getElementById('copy-link-btn').innerText = "[COPY_ARCHIVE_LINK]", 2000);
+    });
 };
-document.querySelectorAll('.reward-btn').forEach(b => {
-    b.onclick = (e) => {
-        const i = b.querySelector('.directive-info');
-        if (i && e.target.tagName !== 'A') i.classList.toggle('expanded');
-    };
-});
+
+document.getElementById('reactivate-btn').onclick = () => {
+    window.location.href = window.location.origin; // Clears the ?suit param and resets
+};
