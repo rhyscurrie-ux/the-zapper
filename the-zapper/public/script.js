@@ -37,17 +37,21 @@ input.addEventListener('input', function() {
     this.style.height = (this.scrollHeight) + 'px';
 });
 
-// RECRUITMENT HANDLER (DIRECTIVE 00)
+// RECRUITMENT HANDLER (DIRECTIVE 00) - RECALIBRATED FOR MAX HUMILIATION
 document.getElementById('invite-btn').addEventListener('click', async () => {
     const id = skinDisplay.innerText;
     const shareData = {
         title: 'MARTIS PROGRAM // PROXIMITY AUDIT',
-        text: `[AUDIT_LOG]: My stagnation has been identified as ${id}. Recalibrate your own debt at APEreaction.com.`,
+        text: `I failed my W.E.E.D. audit at APEreaction.com. I've been identified as ${id}. I'm sending you this to reverse my ENTROPIC SPIRALLING and offload some shame. The Architect is waiting for you.`,
         url: 'https://apereaction.com'
     };
     try {
-        if (navigator.share) { await navigator.share(shareData); } 
-        else { await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`); alert("[INVITATION_COPIED_TO_CLIPBOARD]"); }
+        if (navigator.share) { 
+            await navigator.share(shareData); 
+        } else { 
+            await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`); 
+            alert("[INVITATION_COPIED_TO_CLIPBOARD]"); 
+        }
     } catch (err) { console.log(err); }
 });
 
@@ -78,10 +82,10 @@ async function runAudit(type = "standard") {
         MANDATE:
         - NEVER prescribe substances.
         - Frame the DENIAL as a diagnostic requirement. 
-        - IF auditCount == 1, mention DIRECTIVE 01: MONITOR PUBLIC EMBARRASSMENT.
-        - IF auditCount == 2, mention DIRECTIVE 02: TRACK BLUNDER MONETIZATION.
-        - IF auditCount >= 3, mention DIRECTIVE 03: DECIPHER THE BREADCRUMBS.
-        - IF type is 'dumb', provide ONE single, cutting paragraph.
+        - IF auditCount == 1: Direct them to monitor Directive 01.
+        - IF auditCount == 2: Direct them to watch Directive 02.
+        - IF auditCount >= 3: Direct them to Decipher Directive 03.
+        - IF type is 'dumb', provide ONE single, cutting, insulting paragraph.
     `;
 
     try {
