@@ -1,12 +1,13 @@
 let chatHistory = [], auditCount = 0;
 const boredomLimit = 6;
 
+// RESTORED: These are the original, boring, hyper-specific "Martis" observations.
 const samples = [
-    "\"Be honest. When did you last finish something?\"",
-    "\"The Architect has processed 847 Skin Suits this week. Most lied.\"",
-    "\"Your procrastination has a name. Submit it.\"",
-    "\"The audit takes 30 seconds. Your excuses took longer.\"",
-    "\"D. Martis is watching this frequency. Don't waste his time.\""
+    "\"I checked the fridge 4 times in 10 minutes hoping for new content.\"",
+    "\"I keep a spreadsheet of my neighbors' cars.\"",
+    "\"I haven't told anyone about the zapper.\"",
+    "\"I reuse single-use plastics when no one is looking.\"",
+    "\"I sometimes agree with the architect.\""
 ];
 
 let sampleIndex = 0;
@@ -15,7 +16,7 @@ const input = document.getElementById('user-input');
 const output = document.getElementById('audit-output');
 const skinDisplay = document.getElementById('skin-suit-display');
 
-// Ticker Provocations
+// THE MUNDANE TICKER
 setInterval(() => {
     tickerText.classList.add('fade-out');
     setTimeout(() => {
@@ -25,17 +26,11 @@ setInterval(() => {
     }, 600);
 }, 4000);
 
-// Auto-expand the Void
-input.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
-});
-
-// Load Logic (Persistent Links & Counter)
 window.onload = async () => {
     const params = new URLSearchParams(window.location.search);
     const suitId = params.get('suit');
     
+    // Global Counter (Social Proof)
     const cRes = await fetch('/api/count');
     const cData = await cRes.json();
     document.querySelector('#eligibility-header span').innerText = `${cData.count} SPECIMENS PROCESSED // WEED_SCAN`;
@@ -49,6 +44,7 @@ window.onload = async () => {
             output.innerHTML = data.audit.replace(/\n/g, '<br>');
             skinDisplay.innerText = suitId;
             document.getElementById('decision-box').classList.remove('hidden');
+            document.getElementById('reactivate-btn').classList.remove('hidden');
         }
     }
 };
@@ -58,7 +54,7 @@ async function runAudit(type = "standard") {
 
     document.getElementById('sample-ticker').style.display = 'none';
     document.getElementById('input-section').classList.add('hidden');
-    output.innerHTML = "<span class='flashing-amber'>[CALIBRATING...]</span>";
+    output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
 
     const res = await fetch('/api/scan', {
         method: 'POST',
@@ -74,16 +70,16 @@ async function runAudit(type = "standard") {
     const id = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/)?.[1] || "UNKNOWN";
     skinDisplay.innerText = id;
 
-    // Boredom Limit Unlock
+    // Narrative Payoff (Boredom Limit)
     if (auditCount >= boredomLimit) {
-        output.innerHTML += `<br><br><span style='color:#ffaa00'>[ARCHITECT_STATUS: RECALIBRATING]<br>Sustained resistance. COLLABORATOR STATUS CONFIRMED.<br>The CC v10.7.0 is waiting at fullyfried.com.</span>`;
+        output.innerHTML += `<br><br><span style='color:#ffaa00'>[ARCHITECT_STATUS: BORED]<br>Your repetitive biological resistance is no longer instructive. Go outside.</span>`;
     }
 
     document.getElementById('decision-box').classList.remove('hidden');
     if (window.MathJax) MathJax.typesetPromise([output]);
 }
 
-// Global Handlers
+// HANDLERS
 document.getElementById('submit-btn').onclick = () => runAudit("standard");
 document.getElementById('btn-yes').onclick = () => runAudit("dumb");
 document.getElementById('btn-dispute').onclick = () => {
@@ -99,3 +95,5 @@ document.getElementById('copy-link-btn').onclick = () => {
     document.getElementById('copy-link-btn').innerText = "[LINK_COPIED]";
     setTimeout(() => document.getElementById('copy-link-btn').innerText = "[COPY_LINK]", 2000);
 };
+
+document.getElementById('reactivate-btn').onclick = () => window.location.href = window.location.origin;
