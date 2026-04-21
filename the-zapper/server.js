@@ -11,27 +11,26 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 app.use(express.json());
 app.use(express.static('public'));
 
-// 1. Specimen Count with Verbose Error Logging
+// FORCED COUNT LOGIC
 app.get('/api/count', async (req, res) => {
     try {
+        // We select just the 'id' to minimize data transfer, but get the total count
         const { count, error } = await supabase
             .from('entropy_logs')
-            .select('*', { count: 'exact', head: true });
+            .select('id', { count: 'exact', head: true });
         
         if (error) {
-            console.error("❌ SUPABASE COUNT ERROR:", error.message);
-            return res.json({ count: 847, error: error.message });
+            console.error("❌ COUNT FETCH ERROR:", error.message);
+            return res.json({ count: 847 }); // Fallback to Martis default
         }
         
-        console.log(`✅ Specimen Count Retreived: ${count}`);
-        res.json({ count: count || 847 });
+        console.log(`📊 Current Archive Depth: ${count}`);
+        res.json({ count: count || 0 });
     } catch (e) {
-        console.error("❌ CRITICAL SERVER ERROR (COUNT):", e.message);
         res.json({ count: 847 });
     }
 });
 
-// 2. Archive Retrieval
 app.get('/api/suit/:id', async (req, res) => {
     const { data, error } = await supabase
         .from('entropy_logs')
@@ -39,51 +38,34 @@ app.get('/api/suit/:id', async (req, res) => {
         .eq('id', req.params.id)
         .single();
     
-    if (error || !data) {
-        console.warn(`⚠️ Suit ID [${req.params.id}] not found in archive.`);
-        return res.status(404).json({ error: "Log not found" });
-    }
+    if (error || !data) return res.status(404).json({ error: "Log not found" });
     res.json(data);
 });
 
-// 3. The Audit Engine with Verbose Insert Logging
 app.post('/api/scan', async (req, res) => {
     const { input, history, isDispute, auditCount } = req.body;
     const systemPrompt = buildArchitectPrompt(isDispute, auditCount);
 
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
-
         let contents = history.map(h => ({
             role: h.role === "assistant" ? "model" : "user",
             parts: [{ text: h.content }]
         }));
-
-        contents.push({ 
-            role: "user", 
-            parts: [{ text: `${systemPrompt}\n\nUSER_CONFESSION: ${input}` }] 
-        });
+        contents.push({ role: "user", parts: [{ text: `${systemPrompt}\n\nUSER_CONFESSION: ${input}` }] });
 
         const result = await model.generateContent({ contents });
         const aiResponse = result.response.text();
 
-        // Identifier Extraction
         const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(.*?)\]/);
         const suitId = idMatch ? idMatch[1].trim().replace(/\s+/g, '-') : `ID-${Date.now()}`;
 
-        console.log(`🚀 AI Response Generated. Attempting to archive Suit: ${suitId}`);
-
-        // VERBOSE INSERT
+        // DB INSERT
         const { error: dbError } = await supabase
             .from('entropy_logs')
             .insert([{ id: suitId, input: input, audit: aiResponse }]);
 
-        if (dbError) {
-            console.error("❌ SUPABASE INSERT FAILURE:", dbError.message);
-            console.error("Payload Attempted:", { id: suitId, input_length: input.length });
-        } else {
-            console.log(`✅ Archive Success: Suit ${suitId} stored.`);
-        }
+        if (dbError) console.error("❌ INSERT ERROR:", dbError.message);
 
         res.json({ 
             audit: aiResponse, 
@@ -91,8 +73,8 @@ app.post('/api/scan', async (req, res) => {
         });
 
     } catch (err) {
-        console.error("❌ ARCHITECT BRAIN FAILURE:", err.message);
-        res.status(500).json({ error: "The Architect's signal is fluctuating. Check logs." });
+        console.error("❌ BRAIN ERROR:", err.message);
+        res.status(500).json({ error: "Architect signal lost." });
     }
 });
 
