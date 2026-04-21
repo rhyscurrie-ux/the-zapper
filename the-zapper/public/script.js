@@ -1,56 +1,54 @@
-let chatHistory = [], auditCount = 0, isDisputing = false;
-const btn = document.getElementById('submit-btn'), 
-      input = document.getElementById('user-input'), 
-      output = document.getElementById('audit-output'),
-      ticker = document.getElementById('sample-ticker'),
-      skinDisplay = document.getElementById('skin-suit-display'),
-      decisionBox = document.getElementById('decision-box'),
-      archiveControls = document.getElementById('archive-controls'),
-      inputArea = document.getElementById('input-area');
+const samples = [
+    "I checked the fridge 4 times...",
+    "I keep a spreadsheet of my neighbors' cars.",
+    "I haven't told anyone about the zapper.",
+    "I reuse single-use plastics when no one is looking.",
+    "I sometimes agree with the architect."
+];
 
-// Initial Load
+let sampleIndex = 0;
+let chatHistory = [], auditCount = 0, isDisputing = false;
+
+// Ticker Cycle
+setInterval(() => {
+    const tickerText = document.getElementById('ticker-text');
+    if (tickerText) {
+        sampleIndex = (sampleIndex + 1) % samples.length;
+        tickerText.innerText = samples[sampleIndex];
+    }
+}, 4000);
+
 window.onload = async () => {
     const params = new URLSearchParams(window.location.search);
     const suitId = params.get('suit');
     
-    // Fetch Global Count
     const cRes = await fetch('/api/count');
     const cData = await cRes.json();
     document.getElementById('specimen-counter').innerText = `[MARTIS] // ${cData.count} SPECIMENS`;
 
     if (suitId) {
-        enterArchiveMode(suitId);
+        document.getElementById('input-area').classList.add('hidden');
+        document.getElementById('sample-ticker').classList.add('hidden');
+        document.getElementById('audit-output').innerHTML = "<span class='flashing-amber'>[RETRIEVING...]</span>";
+        
+        const res = await fetch(`/api/suit/${suitId}`);
+        if (res.ok) {
+            const data = await res.json();
+            document.getElementById('audit-output').innerHTML = data.audit.replace(/\n/g, '<br>');
+            document.getElementById('skin-suit-display').innerText = suitId;
+            document.getElementById('archive-controls').classList.remove('hidden');
+        }
     }
 };
 
-async function enterArchiveMode(id) {
-    inputArea.classList.add('hidden');
-    ticker.classList.add('hidden');
-    output.innerHTML = "<span class='flashing-amber'>[RETRIEVING_SPECIMEN...]</span>";
-    
-    const res = await fetch(`/api/suit/${id}`);
-    if (res.ok) {
-        const data = await res.json();
-        output.innerHTML = data.audit.replace(/\n/g, '<br>');
-        skinDisplay.innerText = id;
-        archiveControls.classList.remove('hidden');
-    } else {
-        output.innerHTML = "[ERROR: SPECIMEN_LOST_TO_ENTROPY]";
-        skinDisplay.innerText = "NOT_FOUND";
-        archiveControls.classList.remove('hidden'); // Still allow reactivation
-    }
-}
-
 async function runAudit() {
+    const input = document.getElementById('user-input');
     const val = input.value;
     if (!isDisputing && !val.trim()) return;
 
-    // UI Cleanup
-    ticker.classList.add('hidden');
-    inputArea.classList.add('hidden');
-    decisionBox.classList.add('hidden');
-    output.innerHTML = "<span class='flashing-amber'>[CALIBRATING...]</span>";
-    skinDisplay.innerText = "[ANALYZING_SUIT...]";
+    document.getElementById('sample-ticker').classList.add('hidden');
+    document.getElementById('input-area').classList.add('hidden');
+    document.getElementById('audit-output').innerHTML = "<span class='flashing-amber'>[CALIBRATING...]</span>";
 
     const res = await fetch('/api/scan', {
         method: 'POST',
@@ -63,33 +61,17 @@ async function runAudit() {
     auditCount++;
     isDisputing = false;
 
-    output.innerHTML = data.audit.replace(/\n/g, '<br>');
+    document.getElementById('audit-output').innerHTML = data.audit.replace(/\n/g, '<br>');
     const id = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/)?.[1] || "UNKNOWN";
-    skinDisplay.innerText = id;
-    
-    decisionBox.classList.remove('hidden');
-    archiveControls.classList.remove('hidden');
-    
-    // Show rewards based on audit depth
-    document.getElementById('reward-container').classList.remove('hidden');
-    if (auditCount >= 1) document.getElementById('reward-fb').classList.remove('hidden');
-    if (auditCount >= 2) document.getElementById('reward-amazon').classList.remove('hidden');
-    if (auditCount >= 3) document.getElementById('reward-signal').classList.remove('hidden');
+    document.getElementById('skin-suit-display').innerText = id;
+    document.getElementById('decision-box').classList.remove('hidden');
+    document.getElementById('archive-controls').classList.remove('hidden');
 }
 
-// Button Logic
-btn.onclick = () => runAudit();
-
-document.getElementById('btn-dispute').onclick = () => {
-    isDisputing = true;
-    decisionBox.classList.add('hidden');
-    inputArea.classList.remove('hidden');
-    input.value = "";
-    skinDisplay.innerText = "[RE-EVALUATING]";
-};
+document.getElementById('submit-btn').onclick = runAudit;
 
 document.getElementById('copy-link-btn').onclick = () => {
-    const id = skinDisplay.innerText;
+    const id = document.getElementById('skin-suit-display').innerText;
     const url = `${window.location.origin}/?suit=${id}`;
     navigator.clipboard.writeText(url).then(() => {
         document.getElementById('copy-link-btn').innerText = "[LINK_COPIED]";
@@ -98,5 +80,5 @@ document.getElementById('copy-link-btn').onclick = () => {
 };
 
 document.getElementById('reactivate-btn').onclick = () => {
-    window.location.href = window.location.origin; // Clears the ?suit param and resets
+    window.location.href = window.location.origin;
 };
