@@ -210,7 +210,7 @@ async function runAudit(type = 'standard') {
             .replace(/\n/g, '<br>');
 
         // Extract Skin Suit ID from response text and stamp the footer
-        const idMatch = auditText.match(/\[IDENTIFIER:\s*(.*?)\]/);
+        const idMatch = auditText.match(/\[IDENTIFIER:\s*([^\]\n]+)/);
         if (idMatch) {
             const resolvedId = idMatch[1].trim();
             skinDisplay.innerText = resolvedId;
@@ -239,16 +239,42 @@ async function runAudit(type = 'standard') {
                 Retrieve the CC at fullyfried.com. Use the tools.
                 </span>`;
             if (window.MathJax) await MathJax.typesetPromise([output]);
-            unlockDirectives(auditCount);
+            // Unlock all directives at Narrative Unlock regardless of WP
+            rewardContainer.classList.remove('hidden');
+            document.getElementById('reward-fb').classList.remove('hidden');
+            document.getElementById('reward-amazon').classList.remove('hidden');
+            document.getElementById('reward-signal').classList.remove('hidden');
             renderDecisionBox(currentSuitId);
             return;
         }
 
-        // Sequential directive unlock
-        unlockDirectives(auditCount);
+        // Sequential directive unlock — gated by WP per CP v2.7
+        // Directive 00 (share) always visible after reward container shows
+        // Directive 01 (FB): WP 50+
+        // Directive 02 (Amazon): WP 75+
+        // Directive 03 (Signal): WP 100+ / Centrifuge
+        if (currentWP >= 50) {
+            rewardContainer.classList.remove('hidden');
+            document.getElementById('reward-fb').classList.remove('hidden');
+        }
+        if (currentWP >= 75) {
+            document.getElementById('reward-amazon').classList.remove('hidden');
+        }
+        if (currentWP >= 100) {
+            document.getElementById('reward-signal').classList.remove('hidden');
+        }
 
-        // CP v2.7 decision box
-        renderDecisionBox(currentSuitId);
+        // Dossier link and decision box only appear at Centrifuge (WP 100+)
+        if (currentWP >= 100) {
+            renderDecisionBox(currentSuitId);
+        } else {
+            // Below threshold — show input again for next round
+            decisionBox.classList.add('hidden');
+            inputSection.classList.remove('hidden');
+            input.value = '';
+            input.placeholder = 'Confess your stagnation to the Architect...';
+            input.style.height = '120px';
+        }
 
     } catch (err) {
         output.innerHTML = `<span style='color:#ff0000'>[CORE_CRASH]: ${err.message}</span>`;
