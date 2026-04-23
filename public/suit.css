@@ -1,0 +1,267 @@
+/* suit.css — Specimen Dossier Page
+   Aesthetic: Static classified dossier. Less live terminal, more cold archive record.
+   Shares font and colour palette with style.css but uses tighter, document-style layout. */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    background-color: #000;
+    color: #00ff41;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    min-height: 100%;
+    width: 100%;
+}
+
+body {
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* ── DOSSIER CONTAINER ──────────────────────────────────────────────────────── */
+#dossier {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────────────────────── */
+#dossier-header {
+    font-weight: 900;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 3px solid #00ff41;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+    line-height: 1.2;
+}
+
+#dossier-header span {
+    display: block;
+    font-size: 0.55rem;
+    font-weight: 400;
+    opacity: 0.6;
+    margin-top: 5px;
+    letter-spacing: 0.1em;
+}
+
+/* ── LOADING / ERROR ─────────────────────────────────────────────────────────── */
+#loading-state {
+    font-size: 0.9rem;
+    padding: 20px 0;
+}
+
+#error-state p {
+    font-size: 0.85rem;
+    color: #ff0000;
+    line-height: 1.5;
+}
+
+/* ── IDENTITY BLOCK ──────────────────────────────────────────────────────────── */
+#identity-block {
+    margin-bottom: 24px;
+}
+
+.identity-id {
+    font-size: 2.4rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    color: #00ff41;
+    margin: 8px 0 16px 0;
+    line-height: 1;
+}
+
+.field-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.field-unit {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 100px;
+}
+
+.field-label {
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    opacity: 0.5;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.field-value {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #ffaa00;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ── DIVIDER ─────────────────────────────────────────────────────────────────── */
+.divider {
+    border-top: 1px solid rgba(0, 255, 65, 0.15);
+    margin: 24px 0;
+}
+
+/* ── SECTIONS ────────────────────────────────────────────────────────────────── */
+section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.confession-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: rgba(0, 255, 65, 0.7);
+    font-style: italic;
+    text-transform: none;
+    padding-left: 12px;
+    border-left: 2px solid rgba(0, 255, 65, 0.2);
+}
+
+.audit-excerpt {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: #00ff41;
+    text-transform: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 12px;
+    border: 1px solid rgba(0, 255, 65, 0.1);
+    background: rgba(0, 255, 65, 0.02);
+}
+
+.audit-excerpt::-webkit-scrollbar { width: 3px; }
+.audit-excerpt::-webkit-scrollbar-thumb { background: #003300; }
+
+.redaction-note {
+    font-size: 0.55rem;
+    opacity: 0.35;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.section-desc {
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: rgba(0, 255, 65, 0.6);
+    text-transform: none;
+}
+
+/* ── ACTION BUTTONS ──────────────────────────────────────────────────────────── */
+.action-btn {
+    display: inline-block;
+    border: 1px solid #00ff41;
+    color: #00ff41;
+    background: transparent;
+    padding: 14px 20px;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background 0.15s, color 0.15s;
+}
+
+.action-btn:hover {
+    background: #00ff41;
+    color: #000;
+}
+
+.disabled-btn {
+    border-color: rgba(0, 255, 65, 0.2);
+    color: rgba(0, 255, 65, 0.2);
+    cursor: not-allowed;
+    font-size: 0.65rem;
+}
+
+.disabled-btn:hover {
+    background: transparent;
+    color: rgba(0, 255, 65, 0.2);
+}
+
+.secondary-btn {
+    border-color: rgba(0, 255, 65, 0.3);
+    color: rgba(0, 255, 65, 0.5);
+    font-size: 0.65rem;
+}
+
+.secondary-btn:hover {
+    background: rgba(0, 255, 65, 0.08);
+    color: #00ff41;
+}
+
+.reveal-link {
+    background: #00ff41;
+    color: #000;
+    width: 100%;
+    font-size: 0.8rem;
+}
+
+.reveal-link:hover {
+    background: #00cc33;
+    color: #000;
+}
+
+.reveal-warning {
+    font-size: 0.7rem;
+    color: #ffaa00;
+    line-height: 1.5;
+    text-transform: none;
+    padding: 10px;
+    border: 1px solid rgba(255, 170, 0, 0.3);
+    background: rgba(255, 170, 0, 0.03);
+}
+
+/* ── NAV SECTION ─────────────────────────────────────────────────────────────── */
+#nav-section {
+    flex-direction: row;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ── ANIMATIONS ──────────────────────────────────────────────────────────────── */
+.flashing-amber {
+    color: #ffaa00;
+    font-weight: 900;
+    animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────────────────────── */
+#dossier-footer {
+    margin-top: 60px;
+    font-size: 0.55rem;
+    opacity: 0.35;
+    border-top: 1px solid rgba(0, 255, 65, 0.1);
+    padding-top: 20px;
+    text-transform: none;
+    line-height: 1.7;
+}
+
+#dossier-footer span {
+    display: block;
+    margin-top: 6px;
+    opacity: 0.7;
+}
+
+/* ── UTILITIES ───────────────────────────────────────────────────────────────── */
+.hidden { display: none !important; }

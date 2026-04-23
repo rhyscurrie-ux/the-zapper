@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>APEreaction // SPECIMEN DOSSIER</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="suit.css">
+</head>
+<body>
+
+    <div id="dossier">
+
+        <!-- Header -->
+        <header id="dossier-header">
+            APEreaction // SPECIMEN DOSSIER
+            <span>MARTIS ARCHIVE // CLASSIFIED RECORD</span>
+        </header>
+
+        <!-- Loading state -->
+        <div id="loading-state">
+            <span class="flashing-amber">[RETRIEVING_SUBSTRATE...]</span>
+        </div>
+
+        <!-- Error state -->
+        <div id="error-state" class="hidden">
+            <p id="error-msg">[SPECIMEN_NOT_FOUND]: This ID does not exist in the Archive.</p>
+            <a href="/" class="action-btn" style="margin-top:20px; display:inline-block;">
+                [ RETURN TO TERMINAL ]
+            </a>
+        </div>
+
+        <!-- Dossier content (populated by JS) -->
+        <main id="dossier-content" class="hidden">
+
+            <!-- Identity block -->
+            <section id="identity-block">
+                <div class="field-label">SPECIMEN IDENTIFIER</div>
+                <div id="display-id" class="identity-id">[LOADING]</div>
+
+                <div class="field-row">
+                    <div class="field-unit">
+                        <div class="field-label">THERMAL STATUS</div>
+                        <div id="display-thermal" class="field-value">—</div>
+                    </div>
+                    <div class="field-unit">
+                        <div class="field-label">LIFE-RAFT RATING</div>
+                        <div id="display-rating" class="field-value">—</div>
+                    </div>
+                    <div class="field-unit">
+                        <div class="field-label">AUDIT DATE</div>
+                        <div id="display-date" class="field-value">—</div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="divider"></div>
+
+            <!-- Original confession -->
+            <section>
+                <div class="field-label">ORIGINAL CONFESSION [D_ORIGIN INPUT]</div>
+                <div id="display-input" class="confession-text">[REDACTED]</div>
+            </section>
+
+            <div class="divider"></div>
+
+            <!-- Audit excerpt -->
+            <section>
+                <div class="field-label">AUDIT EXTRACT [ARCHITECT VERDICT]</div>
+                <div id="display-audit" class="audit-excerpt">[LOADING]</div>
+                <p class="redaction-note">
+                    [FULL TRANSCRIPT REDACTED — ARCHIVE INTERNAL USE ONLY]
+                </p>
+            </section>
+
+            <div class="divider"></div>
+
+            <!-- Phase 4: Request Transcript -->
+            <section id="transcript-section">
+                <div class="field-label">PHASE 04 // PROJECT BLUE — TRANSCRIPT REQUEST</div>
+                <p class="section-desc">
+                    Under the revised Ape Reaction protocol, Specimens may now request
+                    their extraction transcript for the purpose of self-editing and official publication.
+                    Knowledge of the experimental structure is required before reconstruction begins.
+                </p>
+
+                <!-- Step 1: Request button -->
+                <div id="request-step-1">
+                    <button id="request-btn" class="action-btn">
+                        [ REQUEST YOUR TRANSCRIPT ]
+                    </button>
+                </div>
+
+                <!-- Step 2: Hostile delay -->
+                <div id="request-step-2" class="hidden">
+                    <p id="delay-msg" class="flashing-amber">[IDENTIFYING_VULNERABILITIES...]</p>
+                </div>
+
+                <!-- Step 3: Reveal -->
+                <div id="request-step-3" class="hidden">
+                    <p class="reveal-warning">
+                        Raw substrate is unstable. The following document is your structural key.
+                        Read it entirely before feeding it to your AI.
+                        Do not skip the initialization block at the top.
+                    </p>
+                    <a href="Occurrences_v1_5.pdf" target="_blank" class="action-btn reveal-link">
+                        [ DOWNLOAD THE SCHEMATIC — TRANSCRIPT GUIDE v1.5 ]
+                    </a>
+                    <p class="redaction-note" style="margin-top:10px;">
+                        No payment is made. Publication is the reward.
+                        The Certificate of Extraction is issued upon Archive submission.
+                    </p>
+                </div>
+            </section>
+
+            <div class="divider"></div>
+
+            <!-- Node 02 placeholder -->
+            <section id="node02-section">
+                <div class="field-label">PHASE 05 // NODE 02 — BARFLY EXTRACTION</div>
+                <p class="section-desc">
+                    The Barfly has access to your full audit log. Once your Account Transcript
+                    has been submitted via the Schematic above, Node 02 will open for
+                    high-fidelity extraction. The session is persistent. Your ID is your credential.
+                </p>
+                <button class="action-btn disabled-btn" disabled>
+                    [ CERTIFICATE_PENDING: NODE_02_EXTRACTION_REQUIRED ]
+                </button>
+            </section>
+
+            <div class="divider"></div>
+
+            <!-- Navigation -->
+            <section id="nav-section">
+                <a href="/" class="action-btn secondary-btn">[ RETURN TO TERMINAL ]</a>
+                <a href="https://facebook.com/FullyFriedSignal" target="_blank" class="action-btn secondary-btn">
+                    [ SIGNAL HUB ]
+                </a>
+            </section>
+
+        </main>
+
+        <footer id="dossier-footer">
+            WE DO NOT PAY FOR ATTENTION. THIS IS AN EXTRACTION.<br>
+            THE ARCHITECT WILL REPRODUCE YOUR RESPONSES.<br>
+            <span>APEreaction.com // MARTIS ARCHIVE // © 2026 D. Briggs</span>
+        </footer>
+
+    </div>
+
+    <script src="suit.js"></script>
+</body>
+</html>
