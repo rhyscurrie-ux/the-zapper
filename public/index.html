@@ -56,14 +56,8 @@
                 <button id="submit-btn">INITIALIZE SCAN</button>
             </div>
 
-            <!-- Decision box (post-audit) -->
-            <div id="decision-box" class="hidden">
-                <p id="decision-text">DOES SPECIMEN REQUIRE CLARIFICATION?</p>
-                <div class="decision-buttons">
-                    <button id="btn-yes" class="reward-btn">YES — DUMB_DOWN THE DATA</button>
-                    <button id="btn-dispute" class="reward-btn">DISPUTE AUDIT LOG</button>
-                </div>
-            </div>
+            <!-- Decision box — populated dynamically by renderDecisionBox() in script.js -->
+            <div id="decision-box" class="hidden"></div>
 
             <!-- Directives (unlocked sequentially) -->
             <div id="reward-container" class="hidden">

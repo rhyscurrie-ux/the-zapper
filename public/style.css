@@ -260,3 +260,25 @@ mjx-container {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #000; }
 ::-webkit-scrollbar-thumb { background: #003300; }
+
+/* ── DECISION BOX — CP v2.7 ─────────────────────────────────────────────────── */
+.decision-header {
+    font-weight: 900;
+    font-size: 0.75rem;
+    color: #00ff41;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 15px;
+    border-top: 1px solid rgba(0, 255, 65, 0.2);
+    padding-top: 20px;
+}
+
+.dossier-link {
+    background: #00ff41;
+    color: #000 !important;
+    font-weight: 900;
+}
+
+.dossier-link:hover {
+    background: #00cc33;
+}

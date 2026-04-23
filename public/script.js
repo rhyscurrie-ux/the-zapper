@@ -10,14 +10,13 @@ let currentWP = 0;
 const BOREDOM_LIMIT = 6;
 
 // ── DOM REFS ──────────────────────────────────────────────────────────────────
-const input        = document.getElementById('user-input');
-const output       = document.getElementById('audit-output');
-const submitBtn    = document.getElementById('submit-btn');
-const tickerText   = document.getElementById('ticker-text');
-const inputSection = document.getElementById('input-section');
-const decisionBox  = document.getElementById('decision-box');
-const decisionText = document.getElementById('decision-text');
-const skinDisplay  = document.getElementById('skin-suit-display');
+const input           = document.getElementById('user-input');
+const output          = document.getElementById('audit-output');
+const submitBtn       = document.getElementById('submit-btn');
+const tickerText      = document.getElementById('ticker-text');
+const inputSection    = document.getElementById('input-section');
+const decisionBox     = document.getElementById('decision-box');
+const skinDisplay     = document.getElementById('skin-suit-display');
 const rewardContainer = document.getElementById('reward-container');
 const specimenCount   = document.getElementById('specimen-count');
 
@@ -100,23 +99,47 @@ document.getElementById('invite-btn').addEventListener('click', async () => {
     }
 });
 
+// ── DECISION BOX — CP v2.7 ───────────────────────────────────────────────────
+// Replaces legacy Dumb Down / Dispute with Dossier link + Dispute only.
+// Uses innerHTML replacement so must re-wire the dispute listener each time.
+function renderDecisionBox(suitId) {
+    decisionBox.innerHTML = `
+        <p class="decision-header">
+            RECORD PERSISTED TO ARCHIVE &nbsp;//&nbsp;
+            <span style="color:#fff; font-weight:900;">${suitId}</span>
+        </p>
+        <div class="decision-buttons">
+            <a href="/${suitId}" class="reward-btn dossier-link" style="text-decoration:none; text-align:center; display:block;">
+                [ ACCESS SPECIMEN DOSSIER ]
+            </a>
+            <button id="btn-dispute" class="reward-btn">
+                [ DISPUTE_FINDINGS ]
+            </button>
+        </div>
+    `;
+
+    // Re-wire dispute button after innerHTML replacement
+    document.getElementById('btn-dispute').addEventListener('click', () => {
+        decisionBox.classList.add('hidden');
+        inputSection.classList.remove('hidden');
+        input.value = '';
+        input.style.height = '120px';
+        input.placeholder = 'STATE YOUR GROUNDS...';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        input.focus();
+        submitBtn.dataset.mode = 'dispute';
+    });
+
+    decisionBox.classList.remove('hidden');
+}
+
 // ── CORE AUDIT FUNCTION ───────────────────────────────────────────────────────
 async function runAudit(type = 'standard') {
     if (isDisabled) return;
 
-    // Manage input source
     if (type === 'standard') {
         if (!input.value.trim()) return;
         lastInput = input.value.trim();
-    }
-
-    // Dispute gate — no API call for known keywords
-    if (type === 'standard') {
-        const lower = lastInput.toLowerCase();
-        if (lower.includes('dispute') || lower.includes('appeal') || lower.includes('protest')) {
-            // Let it through as a dispute — server will handle [DISPUTE_PROTOCOL]
-            // but we flag it in the fetch body
-        }
     }
 
     // Lock UI
@@ -125,11 +148,15 @@ async function runAudit(type = 'standard') {
     clearInterval(tickerInterval);
     inputSection.classList.add('hidden');
     decisionBox.classList.add('hidden');
+
+    // Clear output and show calibration state
     output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
 
-    const isDispute = type === 'dispute';
-    const userPayload = type === 'dumb'
-        ? 'Provide the dumbed-down one-paragraph summary. Explicitly deny weed eligibility.'
+    const isDispute = (type === 'dispute') || (submitBtn.dataset.mode === 'dispute');
+    submitBtn.dataset.mode = 'standard'; // reset flag
+
+    const userPayload = isDispute
+        ? `[DISPUTE_PROTOCOL]: ${lastInput}`
         : lastInput;
 
     try {
@@ -162,45 +189,47 @@ async function runAudit(type = 'standard') {
             return;
         }
 
-        // Update history and count
+        // Update state
         chatHistory = data.history || chatHistory;
         auditCount++;
+        if (data.suitId) currentSuitId = data.suitId;
 
-        // Store suit ID
-        if (data.suitId) {
-            currentSuitId = data.suitId;
-        }
-
-        // Parse WP from response and persist to sessionStorage for dossier page
+        // Parse WP from response
         const wpMatch = data.audit.match(/\[WP:\s*(\d+)\]/i);
-        if (wpMatch) {
-            currentWP = parseInt(wpMatch[1], 10);
-        }
-        if (currentSuitId) {
-            sessionStorage.setItem('ape_suit_id', currentSuitId);
-            sessionStorage.setItem('ape_wp_' + currentSuitId, currentWP);
-        }
+        if (wpMatch) currentWP = parseInt(wpMatch[1], 10);
 
-        // Render audit response
-        output.innerHTML = data.audit.replace(/\n/g, '<br>');
+        // ── RENDER AUDIT OUTPUT ───────────────────────────────────────────────
+        // Escape HTML entities first so raw text displays correctly,
+        // then restore line breaks as <br> for layout.
+        // This prevents the AI's brackets and symbols breaking the DOM.
+        const auditText = data.audit || '[SYSTEM_SILENCE]';
+        output.innerHTML = auditText
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\n/g, '<br>');
 
-        // Extract and display Skin Suit ID
-        const idMatch = data.audit.match(/\[IDENTIFIER:\s*(.*?)\]/);
+        // Extract Skin Suit ID from response text and stamp the footer
+        const idMatch = auditText.match(/\[IDENTIFIER:\s*(.*?)\]/);
         if (idMatch) {
-            skinDisplay.innerText = idMatch[1].trim();
+            const resolvedId = idMatch[1].trim();
+            skinDisplay.innerText = resolvedId;
+            currentSuitId = resolvedId;
+        } else if (currentSuitId) {
+            skinDisplay.innerText = currentSuitId;
         }
 
-        // MathJax render
+        // MathJax render — LaTeX axioms
         if (window.MathJax) {
             await MathJax.typesetPromise([output]);
         }
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // Boredom limit — Narrative Unlock
+        // Narrative Unlock at boredom limit
         if (auditCount >= BOREDOM_LIMIT) {
             output.innerHTML += `
-                <br><br>
-                <span style='color:#ffaa00'>
+                <br><br><span style='color:#ffaa00'>
                 [ARCHITECT_STATUS: RECALIBRATING]<br>
                 Six exchanges. Sustained resistance detected.<br>
                 This is no longer a standard audit.<br>
@@ -210,16 +239,16 @@ async function runAudit(type = 'standard') {
                 Retrieve the CC at fullyfried.com. Use the tools.
                 </span>`;
             if (window.MathJax) await MathJax.typesetPromise([output]);
-            // No further input after Narrative Unlock
+            unlockDirectives(auditCount);
+            renderDecisionBox(currentSuitId);
             return;
         }
 
-        // Unlock directives sequentially
+        // Sequential directive unlock
         unlockDirectives(auditCount);
 
-        // Set decision box text and show
-        decisionText.innerText = `DOES ${skinDisplay.innerText || 'SPECIMEN'} REQUIRE CLARIFICATION?`;
-        decisionBox.classList.remove('hidden');
+        // CP v2.7 decision box
+        renderDecisionBox(currentSuitId);
 
     } catch (err) {
         output.innerHTML = `<span style='color:#ff0000'>[CORE_CRASH]: ${err.message}</span>`;
@@ -229,31 +258,13 @@ async function runAudit(type = 'standard') {
     }
 }
 
-// ── BUTTON BINDINGS ───────────────────────────────────────────────────────────
-submitBtn.addEventListener('click', () => runAudit('standard'));
-
-document.getElementById('btn-yes').addEventListener('click', () => runAudit('dumb'));
-
-document.getElementById('btn-dispute').addEventListener('click', () => {
-    decisionBox.classList.add('hidden');
-    inputSection.classList.remove('hidden');
-    input.value = '';
-    input.style.height = '120px';
-    input.placeholder = 'STATE YOUR GROUNDS...';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    input.focus();
-    // Next submission will be treated as dispute
-    submitBtn.onclick = () => {
-        lastInput = `[DISPUTE_PROTOCOL]: ${input.value.trim()}`;
-        input.value = '';
-        runAudit('dispute');
-        // Reset onclick after one use
-        submitBtn.onclick = null;
-        submitBtn.addEventListener('click', () => runAudit('standard'));
-    };
+// ── SUBMIT ────────────────────────────────────────────────────────────────────
+submitBtn.addEventListener('click', () => {
+    const mode = submitBtn.dataset.mode || 'standard';
+    runAudit(mode);
 });
 
-// ── ENTER KEY SUPPORT (desktop) ───────────────────────────────────────────────
+// ── ENTER KEY (desktop) ───────────────────────────────────────────────────────
 input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey && !isDisabled) {
         e.preventDefault();
