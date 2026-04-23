@@ -103,6 +103,43 @@ function initTranscriptRequest() {
     });
 }
 
+// ── NODE 02 UNLOCK LOGIC ─────────────────────────────────────────────────────
+function initNode02(suitId) {
+    const node02Section = document.getElementById('node02-section');
+    const placeholderBtn = node02Section.querySelector('.disabled-btn');
+
+    // Read WP from sessionStorage — set when Centrifuge fired in script.js
+    const storedWP = parseInt(sessionStorage.getItem('ape_wp_' + suitId) || '0', 10);
+    const storedId = sessionStorage.getItem('ape_suit_id');
+
+    // Only unlock if this is the same session AND WP >= 100
+    if (storedId === suitId && storedWP >= 100) {
+        // Replace the greyed-out placeholder with the live unlock
+        placeholderBtn.style.display = 'none';
+
+        const unlockBlock = document.createElement('div');
+        unlockBlock.innerHTML = `
+            <p class="reveal-warning" style="margin-bottom:14px;">
+                ARCHITECT'S NOTE: The Initializer is the frequency.
+                If your internal processor is too weak to decipher the logic,
+                feed this schematic to your local LLM.
+                Force your own machine to audit you before you arrive at Node 02.
+                The Barfly will know if you haven't done the labor.
+            </p>
+            <a href="Account_Architect_AI_Initializer.pdf" target="_blank" class="action-btn reveal-link" style="margin-bottom:10px; display:block;">
+                [ SYSTEM_INITIALIZER_DECRYPTED: STUDY_THE_INSTRUMENT ]
+            </a>
+            <p class="redaction-note">
+                Deploy this into your own AI systems before arriving at Node 02.
+                Open ChatGPT, Claude, or Gemini. Paste the entire document as your first message.
+                Instruct your machine to audit you using its directives.
+                The Barfly's session will begin where your preparation ends.
+            </p>
+        `;
+        node02Section.appendChild(unlockBlock);
+    }
+}
+
 // ── MAIN INIT ─────────────────────────────────────────────────────────────────
 async function init() {
     const suitId = getSuitIdFromUrl();
@@ -135,6 +172,7 @@ async function init() {
         loadingState.classList.add('hidden');
         populateDossier(data, suitId);
         initTranscriptRequest();
+        initNode02(suitId);
         dossierContent.classList.remove('hidden');
 
     } catch (err) {

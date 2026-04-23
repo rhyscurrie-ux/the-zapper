@@ -5,6 +5,7 @@ let auditCount = 0;
 let lastInput = "";
 let currentSuitId = "";
 let isDisabled = false;
+let currentWP = 0;
 
 const BOREDOM_LIMIT = 6;
 
@@ -168,6 +169,16 @@ async function runAudit(type = 'standard') {
         // Store suit ID
         if (data.suitId) {
             currentSuitId = data.suitId;
+        }
+
+        // Parse WP from response and persist to sessionStorage for dossier page
+        const wpMatch = data.audit.match(/\[WP:\s*(\d+)\]/i);
+        if (wpMatch) {
+            currentWP = parseInt(wpMatch[1], 10);
+        }
+        if (currentSuitId) {
+            sessionStorage.setItem('ape_suit_id', currentSuitId);
+            sessionStorage.setItem('ape_wp_' + currentSuitId, currentWP);
         }
 
         // Render audit response
