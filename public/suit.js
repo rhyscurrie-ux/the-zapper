@@ -104,16 +104,13 @@ function initTranscriptRequest() {
 }
 
 // ── NODE 02 UNLOCK LOGIC ─────────────────────────────────────────────────────
-function initNode02(suitId) {
+// wpTotal is read from the database response — persistent across sessions
+function initNode02(suitId, wpTotal) {
     const node02Section = document.getElementById('node02-section');
     const placeholderBtn = node02Section.querySelector('.disabled-btn');
 
-    // Read WP from sessionStorage — set when Centrifuge fired in script.js
-    const storedWP = parseInt(sessionStorage.getItem('ape_wp_' + suitId) || '0', 10);
-    const storedId = sessionStorage.getItem('ape_suit_id');
-
-    // Only unlock if this is the same session AND WP >= 100
-    if (storedId === suitId && storedWP >= 100) {
+    // Unlock if database confirms WP >= 100
+    if (wpTotal >= 100) {
         // Replace the greyed-out placeholder with the live unlock
         placeholderBtn.style.display = 'none';
 
@@ -172,7 +169,7 @@ async function init() {
         loadingState.classList.add('hidden');
         populateDossier(data, suitId);
         initTranscriptRequest();
-        initNode02(suitId);
+        initNode02(suitId, data.wp_total || 0);
         dossierContent.classList.remove('hidden');
 
     } catch (err) {
