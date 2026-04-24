@@ -164,6 +164,7 @@ app.post('/api/scan', async (req, res) => {
 // Must come before the catch-all fallback.
 // Matches any path starting with /SS- and serves the specimen dossier page.
 app.get('/SS-:id', (req, res) => {
+    console.log('[DOSSIER_ROUTE] hit:', req.params.id);
     res.sendFile(path.join(__dirname, 'public', 'suit.html'));
 });
 
