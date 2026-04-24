@@ -25,15 +25,42 @@ app.get('/api/count', async (req, res) => {
 });
 
 // ── ID PAGE LOOKUP ────────────────────────────────────────────────────────────
+// GAP 4 FIX: ORDER BY created_at DESC + LIMIT 1 — returns most recent audit row
+// GAP 2 FIX (Option B): Second query aggregates MAX(wp_total) across all rows
+//   for this SS-ID, so peak WP gates Node 02 correctly even across sessions.
 app.get('/api/suit/:id', async (req, res) => {
     try {
+        const suitId = req.params.id;
+
+        // Most recent audit row — for display (thermal status, rating, excerpt, date)
         const { data, error } = await supabase
             .from('entropy_logs')
-            .select('suit_id, input, audit, created_at')
-            .eq('suit_id', req.params.id)
+            .select('suit_id, input, audit, created_at, wp_total')
+            .eq('suit_id', suitId)
+            .order('created_at', { ascending: false })
+            .limit(1)
             .single();
-        if (error || !data) return res.status(404).json({ error: 'Specimen not found in Archive.' });
-        res.json(data);
+
+        if (error || !data) {
+            return res.status(404).json({ error: 'Specimen not found in Archive.' });
+        }
+
+        // Peak WP across all sessions for this SS-ID — gates Node 02 unlock
+        const { data: wpData, error: wpError } = await supabase
+            .from('entropy_logs')
+            .select('wp_total')
+            .eq('suit_id', suitId)
+            .order('wp_total', { ascending: false })
+            .limit(1)
+            .single();
+
+        const peakWP = (!wpError && wpData) ? (wpData.wp_total || 0) : (data.wp_total || 0);
+
+        res.json({
+            ...data,
+            wp_total: peakWP   // override with peak — dossier uses this for Node 02 gate
+        });
+
     } catch (e) {
         res.status(500).json({ error: 'Archive lookup failed.' });
     }
@@ -65,7 +92,7 @@ app.post('/api/scan', async (req, res) => {
 
         contents.push({ role: 'user', parts: [{ text: userText }] });
 
-        // v1beta REST call — gemini-2.5-flash confirmed on key
+        // v1beta REST call — gemini-2.5-flash
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
         const response = await fetch(apiUrl, {
@@ -96,14 +123,21 @@ app.post('/api/scan', async (req, res) => {
             ? idMatch[1].trim().replace(/\s+/g, '-')
             : `SS-${Date.now()}`;
 
-        // Non-blocking Supabase log
+        // Parse WP score from AI response before storing
+        const wpMatch = aiResponse.match(/\[WP:\s*(\d+)\]/i);
+        const wpTotal = wpMatch ? parseInt(wpMatch[1], 10) : 0;
+        console.log('[WP_PARSE]', { wpMatch: wpMatch?.[1], wpTotal });
+
+        // Non-blocking Supabase insert — every audit gets its own row (Option B append strategy)
+        // Peak WP is resolved at read-time in /api/suit/:id via MAX query
         supabase.from('entropy_logs')
             .insert([{
                 suit_id: suitId,
                 input: input,
                 audit: aiResponse,
                 audit_count: auditCount || 0,
-                is_dispute: isDispute || false
+                is_dispute: isDispute || false,
+                wp_total: wpTotal
             }])
             .then(({ error }) => {
                 if (error) console.error('Supabase insert error:', error.message);
@@ -112,6 +146,7 @@ app.post('/api/scan', async (req, res) => {
         res.json({
             audit: aiResponse,
             suitId,
+            wpTotal,
             history: [
                 ...(history || []),
                 { role: 'user', content: input },
