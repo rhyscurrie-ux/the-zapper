@@ -103,7 +103,7 @@ app.post('/api/scan', async (req, res) => {
                 contents,
                 generationConfig: {
                     temperature: 1.2,
-                    maxOutputTokens: 1024
+                    maxOutputTokens: 2048
                 }
             })
         });
@@ -126,6 +126,7 @@ app.post('/api/scan', async (req, res) => {
         // Parse WP score from AI response before storing
         const wpMatch = aiResponse.match(/\[WP:\s*(\d+)\]/i);
         const wpTotal = wpMatch ? parseInt(wpMatch[1], 10) : 0;
+        console.log('[WP_PARSE]', { wpMatch: wpMatch?.[1], wpTotal });
 
         // Non-blocking Supabase insert — every audit gets its own row (Option B append strategy)
         // Peak WP is resolved at read-time in /api/suit/:id via MAX query
@@ -157,6 +158,13 @@ app.post('/api/scan', async (req, res) => {
         console.error('Handler crash:', err.message);
         res.status(500).json({ audit: `[CORE_CRASH]: ${err.message}` });
     }
+});
+
+// ── DOSSIER ROUTE ─────────────────────────────────────────────────────────────
+// Must come before the catch-all fallback.
+// Matches any path starting with /SS- and serves the specimen dossier page.
+app.get('/SS-:id', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'suit.html'));
 });
 
 // ── FALLBACK ──────────────────────────────────────────────────────────────────
