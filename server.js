@@ -76,7 +76,7 @@ app.post('/api/scan', async (req, res) => {
                 contents,
                 generationConfig: {
                     temperature: 1.2,
-                    maxOutputTokens: 1024
+                    maxOutputTokens: 2048
                 }
             })
         });
