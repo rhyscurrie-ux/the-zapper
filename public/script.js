@@ -1,4 +1,4 @@
-// script.js — APEreaction v13.5 // CP v2.7 compliant
+// script.js — APEreaction v13.5 // CP v2.8 compliant
 
 let chatHistory = [];
 let auditCount = 0;
@@ -32,15 +32,17 @@ async function loadCount() {
 }
 loadCount();
 
-// ── TICKER ENGINE ─────────────────────────────────────────────────────────────
+// ── TICKER ENGINE — CP v2.8 HIGH-HEAT SAMPLES ─────────────────────────────────
+// Replaces legacy low-heat samples. Bridges the "wasted time" Reels hook
+// directly to the forensic posture of the Auditor. Six categories:
+// Direct Reel Tie-in / Stagnation / Validation Trap / Avoidance / The Mask / The Placeholder
 const samples = [
-    '"I checked the fridge 4 times in 10 minutes hoping for new content."',
-    '"I keep a spreadsheet of my neighbors\' cars."',
-    '"I haven\'t told anyone about the zapper."',
-    '"I reuse single-use plastics when no one is looking."',
-    '"I sometimes agree with the architect."',
-    '"I spent four hours reorganizing a playlist I never listen to."',
-    '"I watched a tutorial on a skill I have no intention of learning."'
+    '"I spent four hours yesterday scrolling through people I don\'t like, living lives I don\'t want."',
+    '"I have spent 15 years \'waiting for the right time\' to start the only project that matters."',
+    '"I measure my worth in notifications from an algorithm that doesn\'t know my name."',
+    '"I have 42 \'saved\' videos on how to be productive, yet I haven\'t produced anything in months."',
+    '"My social mask is so thick I\'ve forgotten which side of the glass I\'m standing on."',
+    '"I\'m just a biological placeholder for a version of myself that never arrived."'
 ];
 
 let sampleIndex = 0;
@@ -99,9 +101,7 @@ document.getElementById('invite-btn').addEventListener('click', async () => {
     }
 });
 
-// ── DECISION BOX — CP v2.7 ───────────────────────────────────────────────────
-// Replaces legacy Dumb Down / Dispute with Dossier link + Dispute only.
-// Uses innerHTML replacement so must re-wire the dispute listener each time.
+// ── DECISION BOX — CP v2.8 ───────────────────────────────────────────────────
 function renderDecisionBox(suitId) {
     decisionBox.innerHTML = `
         <p class="decision-header">
@@ -199,9 +199,6 @@ async function runAudit(type = 'standard') {
         if (wpMatch) currentWP = parseInt(wpMatch[1], 10);
 
         // ── RENDER AUDIT OUTPUT ───────────────────────────────────────────────
-        // Escape HTML entities first so raw text displays correctly,
-        // then restore line breaks as <br> for layout.
-        // This prevents the AI's brackets and symbols breaking the DOM.
         const auditText = data.audit || '[SYSTEM_SILENCE]';
         output.innerHTML = auditText
             .replace(/&/g, '&amp;')
@@ -248,9 +245,9 @@ async function runAudit(type = 'standard') {
             return;
         }
 
-        // Sequential directive unlock — gated by WP per CP v2.7
-        // Directive 00 (share) always visible after reward container shows
-        // Directive 01 (FB): WP 50+
+        // Sequential directive unlock — gated by WP per CP v2.8
+        // Directive 00 (share): always visible after reward container shows
+        // Directive 01 (FB):     WP 50+
         // Directive 02 (Amazon): WP 75+
         // Directive 03 (Signal): WP 100+ / Centrifuge
         if (currentWP >= 50) {
@@ -268,11 +265,12 @@ async function runAudit(type = 'standard') {
         if (currentWP >= 100) {
             renderDecisionBox(currentSuitId);
         } else {
-            // Below threshold — show input again for next round
+            // Below threshold — return input for next round
             decisionBox.classList.add('hidden');
             inputSection.classList.remove('hidden');
             input.value = '';
-            input.placeholder = 'Confess your stagnation to the Architect...';
+            // CP v2.8: extraction-register placeholder, not help-desk register
+            input.placeholder = 'PROVIDE EVIDENCE OF YOUR STAGNATION...';
             input.style.height = '120px';
         }
 
