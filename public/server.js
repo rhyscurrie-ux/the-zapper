@@ -8,7 +8,10 @@ const app = express();
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Static middleware with index:false — prevents index.html being served as
+// a catch-all for unmatched paths, allowing SS- routes to reach Express.
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 // ── SPECIMEN COUNT (social proof display) ─────────────────────────────────────
 app.get('/api/count', async (req, res) => {
@@ -161,11 +164,15 @@ app.post('/api/scan', async (req, res) => {
 });
 
 // ── DOSSIER ROUTE ─────────────────────────────────────────────────────────────
-// Must come before the catch-all fallback.
 // Matches any path starting with /SS- and serves the specimen dossier page.
 app.get('/SS-:id', (req, res) => {
     console.log('[DOSSIER_ROUTE] hit:', req.params.id);
     res.sendFile(path.join(__dirname, 'public', 'suit.html'));
+});
+
+// ── ROOT ──────────────────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // ── FALLBACK ──────────────────────────────────────────────────────────────────
