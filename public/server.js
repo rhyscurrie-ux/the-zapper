@@ -8,20 +8,6 @@ const app = express();
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 app.use(express.json());
-
-// ── CDN CACHE BYPASS ──────────────────────────────────────────────────────────
-// Tells Fastly (Railway CDN) never to cache HTML routes.
-// Applies to all paths without a file extension (i.e. not .css .js .pdf etc)
-app.use((req, res, next) => {
-    if (!req.path.includes('.')) {
-        res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-        res.set('Surrogate-Control', 'no-store');
-    }
-    next();
-});
-
-// Static middleware with index:false — prevents index.html being served as
-// a catch-all for unmatched paths, allowing SS- routes to reach Express.
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 // ── SPECIMEN COUNT (social proof display) ─────────────────────────────────────
@@ -175,11 +161,9 @@ app.post('/api/scan', async (req, res) => {
 });
 
 // ── DOSSIER ROUTE ─────────────────────────────────────────────────────────────
-// Matches any path starting with /SS- and serves the specimen dossier page.
-app.get('/SS-:id', (req, res) => {
+// Uses /suit/:id pattern to avoid Railway CDN intercepting /SS-:id paths.
+app.get('/suit/:id', (req, res) => {
     console.log('[DOSSIER_ROUTE] hit:', req.params.id);
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-    res.set('Surrogate-Control', 'no-store');
     res.sendFile(path.join(__dirname, 'public', 'suit.html'));
 });
 
