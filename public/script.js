@@ -33,9 +33,6 @@ async function loadCount() {
 loadCount();
 
 // ── TICKER ENGINE — CP v2.8 HIGH-HEAT SAMPLES ─────────────────────────────────
-// Replaces legacy low-heat samples. Bridges the "wasted time" Reels hook
-// directly to the forensic posture of the Auditor. Six categories:
-// Direct Reel Tie-in / Stagnation / Validation Trap / Avoidance / The Mask / The Placeholder
 const samples = [
     '"I spent four hours yesterday scrolling through people I don\'t like, living lives I don\'t want."',
     '"I have spent 15 years \'waiting for the right time\' to start the only project that matters."',
@@ -73,14 +70,6 @@ document.querySelectorAll('.reward-btn').forEach(button => {
     });
 });
 
-// ── DIRECTIVE UNLOCK ──────────────────────────────────────────────────────────
-function unlockDirectives(count) {
-    rewardContainer.classList.remove('hidden');
-    if (count >= 1) document.getElementById('reward-fb').classList.remove('hidden');
-    if (count >= 2) document.getElementById('reward-amazon').classList.remove('hidden');
-    if (count >= 3) document.getElementById('reward-signal').classList.remove('hidden');
-}
-
 // ── SHARE / DIRECTIVE 00 ──────────────────────────────────────────────────────
 document.getElementById('invite-btn').addEventListener('click', async () => {
     const id = skinDisplay.innerText || 'UNKNOWN_SPECIMEN';
@@ -102,6 +91,7 @@ document.getElementById('invite-btn').addEventListener('click', async () => {
 });
 
 // ── DECISION BOX — CP v2.8 ───────────────────────────────────────────────────
+// Dossier link now uses /suit/ prefix to bypass Railway CDN interception.
 function renderDecisionBox(suitId) {
     decisionBox.innerHTML = `
         <p class="decision-header">
@@ -109,7 +99,7 @@ function renderDecisionBox(suitId) {
             <span style="color:#fff; font-weight:900;">${suitId}</span>
         </p>
         <div class="decision-buttons">
-            <a href="/${suitId}" class="reward-btn dossier-link" style="text-decoration:none; text-align:center; display:block;">
+            <a href="/suit/${suitId}" class="reward-btn dossier-link" style="text-decoration:none; text-align:center; display:block;">
                 [ ACCESS SPECIMEN DOSSIER ]
             </a>
             <button id="btn-dispute" class="reward-btn">
@@ -236,7 +226,6 @@ async function runAudit(type = 'standard') {
                 Retrieve the CC at fullyfried.com. Use the tools.
                 </span>`;
             if (window.MathJax) await MathJax.typesetPromise([output]);
-            // Unlock all directives at Narrative Unlock regardless of WP
             rewardContainer.classList.remove('hidden');
             document.getElementById('reward-fb').classList.remove('hidden');
             document.getElementById('reward-amazon').classList.remove('hidden');
@@ -246,10 +235,6 @@ async function runAudit(type = 'standard') {
         }
 
         // Sequential directive unlock — gated by WP per CP v2.8
-        // Directive 00 (share): always visible after reward container shows
-        // Directive 01 (FB):     WP 50+
-        // Directive 02 (Amazon): WP 75+
-        // Directive 03 (Signal): WP 100+ / Centrifuge
         if (currentWP >= 50) {
             rewardContainer.classList.remove('hidden');
             document.getElementById('reward-fb').classList.remove('hidden');
@@ -265,11 +250,9 @@ async function runAudit(type = 'standard') {
         if (currentWP >= 100) {
             renderDecisionBox(currentSuitId);
         } else {
-            // Below threshold — return input for next round
             decisionBox.classList.add('hidden');
             inputSection.classList.remove('hidden');
             input.value = '';
-            // CP v2.8: extraction-register placeholder, not help-desk register
             input.placeholder = 'PROVIDE EVIDENCE OF YOUR STAGNATION...';
             input.style.height = '120px';
         }
