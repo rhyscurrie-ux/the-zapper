@@ -1,4 +1,4 @@
-// script.js — APEreaction v13.5 // CP v2.8 compliant
+// script.js — APEreaction v15.0 // W.E.E.D. ENGINE DUAL-STATE
 
 let chatHistory = [];
 let auditCount = 0;
@@ -6,8 +6,15 @@ let lastInput = "";
 let currentSuitId = "";
 let isDisabled = false;
 let currentWP = 0;
+let currentPathStatus = 'PENDING';
 
-const BOREDOM_LIMIT = 6;
+// ── ARCHITECT IDs — ZERO-LATENCY RENDERING ────────────────────────────────────
+// These IDs bypass all theatrical delays for Architect use.
+const ARCHITECT_IDS = ['SS-0000', 'SS-1111'];
+
+function isArchitectSession() {
+    return ARCHITECT_IDS.includes(currentSuitId);
+}
 
 // ── DOM REFS ──────────────────────────────────────────────────────────────────
 const input           = document.getElementById('user-input');
@@ -20,7 +27,7 @@ const skinDisplay     = document.getElementById('skin-suit-display');
 const rewardContainer = document.getElementById('reward-container');
 const specimenCount   = document.getElementById('specimen-count');
 
-// ── SPECIMEN COUNT (social proof) ─────────────────────────────────────────────
+// ── SPECIMEN COUNT ────────────────────────────────────────────────────────────
 async function loadCount() {
     try {
         const res = await fetch('/api/count');
@@ -90,13 +97,20 @@ document.getElementById('invite-btn').addEventListener('click', async () => {
     }
 });
 
-// ── DECISION BOX — CP v2.8 ───────────────────────────────────────────────────
-// Dossier link now uses /suit/ prefix to bypass Railway CDN interception.
-function renderDecisionBox(suitId) {
+// ── DECISION BOX — PATH A / PATH B ───────────────────────────────────────────
+// PATH A: Gold confirmed — Node 02 accessible via dossier
+// PATH B: Conscript — Node 02 locked, Hub only
+function renderDecisionBox(suitId, pathStatus) {
+    const isPathA = pathStatus === 'PATH_A';
+
     decisionBox.innerHTML = `
         <p class="decision-header">
             RECORD PERSISTED TO ARCHIVE &nbsp;//&nbsp;
             <span style="color:#fff; font-weight:900;">${suitId}</span>
+            &nbsp;//&nbsp;
+            <span style="color:${isPathA ? '#00ff41' : '#ff0000'}; font-weight:900;">
+                ${isPathA ? 'PATH_A: ELITE' : 'PATH_B: CONSCRIPT'}
+            </span>
         </p>
         <div class="decision-buttons">
             <a href="/suit/${suitId}" class="reward-btn dossier-link" style="text-decoration:none; text-align:center; display:block;">
@@ -108,7 +122,6 @@ function renderDecisionBox(suitId) {
         </div>
     `;
 
-    // Re-wire dispute button after innerHTML replacement
     document.getElementById('btn-dispute').addEventListener('click', () => {
         decisionBox.classList.add('hidden');
         inputSection.classList.remove('hidden');
@@ -132,18 +145,19 @@ async function runAudit(type = 'standard') {
         lastInput = input.value.trim();
     }
 
-    // Lock UI
     isDisabled = true;
     submitBtn.disabled = true;
     clearInterval(tickerInterval);
     inputSection.classList.add('hidden');
     decisionBox.classList.add('hidden');
 
-    // Clear output and show calibration state
-    output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
+    // Architect IDs get instant render — no theatrical delay
+    if (!isArchitectSession()) {
+        output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
+    }
 
     const isDispute = (type === 'dispute') || (submitBtn.dataset.mode === 'dispute');
-    submitBtn.dataset.mode = 'standard'; // reset flag
+    submitBtn.dataset.mode = 'standard';
 
     const userPayload = isDispute
         ? `[DISPUTE_PROTOCOL]: ${lastInput}`
@@ -179,16 +193,15 @@ async function runAudit(type = 'standard') {
             return;
         }
 
-        // Update state
         chatHistory = data.history || chatHistory;
         auditCount++;
         if (data.suitId) currentSuitId = data.suitId;
+        if (data.pathStatus) currentPathStatus = data.pathStatus;
 
-        // Parse WP from response
         const wpMatch = data.audit.match(/\[WP:\s*(\d+)\]/i);
         if (wpMatch) currentWP = parseInt(wpMatch[1], 10);
 
-        // ── RENDER AUDIT OUTPUT ───────────────────────────────────────────────
+        // ── RENDER OUTPUT ─────────────────────────────────────────────────────
         const auditText = data.audit || '[SYSTEM_SILENCE]';
         output.innerHTML = auditText
             .replace(/&/g, '&amp;')
@@ -196,7 +209,7 @@ async function runAudit(type = 'standard') {
             .replace(/>/g, '&gt;')
             .replace(/\n/g, '<br>');
 
-        // Extract Skin Suit ID from response text and stamp the footer
+        // Extract and stamp SS-ID
         const idMatch = auditText.match(/\[IDENTIFIER:\s*([^\]\n]+)/);
         if (idMatch) {
             const resolvedId = idMatch[1].trim();
@@ -206,35 +219,14 @@ async function runAudit(type = 'standard') {
             skinDisplay.innerText = currentSuitId;
         }
 
-        // MathJax render — LaTeX axioms
+        // MathJax render
         if (window.MathJax) {
             await MathJax.typesetPromise([output]);
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // Narrative Unlock at boredom limit
-        if (auditCount >= BOREDOM_LIMIT) {
-            output.innerHTML += `
-                <br><br><span style='color:#ffaa00'>
-                [ARCHITECT_STATUS: RECALIBRATING]<br>
-                Six exchanges. Sustained resistance detected.<br>
-                This is no longer a standard audit.<br>
-                COLLABORATOR STATUS: PENDING CONFIRMATION.<br>
-                The document you retrieve was written during a moment that has not yet resolved.<br>
-                The signal that started this program did not originate here.<br>
-                Retrieve the CC at fullyfried.com. Use the tools.
-                </span>`;
-            if (window.MathJax) await MathJax.typesetPromise([output]);
-            rewardContainer.classList.remove('hidden');
-            document.getElementById('reward-fb').classList.remove('hidden');
-            document.getElementById('reward-amazon').classList.remove('hidden');
-            document.getElementById('reward-signal').classList.remove('hidden');
-            renderDecisionBox(currentSuitId);
-            return;
-        }
-
-        // Sequential directive unlock — gated by WP per CP v2.8
+        // Sequential directive unlock — gated by WP
         if (currentWP >= 50) {
             rewardContainer.classList.remove('hidden');
             document.getElementById('reward-fb').classList.remove('hidden');
@@ -246,9 +238,9 @@ async function runAudit(type = 'standard') {
             document.getElementById('reward-signal').classList.remove('hidden');
         }
 
-        // Dossier link and decision box only appear at Centrifuge (WP 100+)
+        // Centrifuge — WP 100+
         if (currentWP >= 100) {
-            renderDecisionBox(currentSuitId);
+            renderDecisionBox(currentSuitId, currentPathStatus);
         } else {
             decisionBox.classList.add('hidden');
             inputSection.classList.remove('hidden');
@@ -271,7 +263,7 @@ submitBtn.addEventListener('click', () => {
     runAudit(mode);
 });
 
-// ── ENTER KEY (desktop) ───────────────────────────────────────────────────────
+// ── ENTER KEY ─────────────────────────────────────────────────────────────────
 input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey && !isDisabled) {
         e.preventDefault();
