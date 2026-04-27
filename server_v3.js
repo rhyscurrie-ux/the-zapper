@@ -8,7 +8,7 @@ const app = express();
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 // ── SPECIMEN COUNT (social proof display) ─────────────────────────────────────
 app.get('/api/count', async (req, res) => {
@@ -25,14 +25,10 @@ app.get('/api/count', async (req, res) => {
 });
 
 // ── ID PAGE LOOKUP ────────────────────────────────────────────────────────────
-// GAP 4 FIX: ORDER BY created_at DESC + LIMIT 1 — returns most recent audit row
-// GAP 2 FIX (Option B): Second query aggregates MAX(wp_total) across all rows
-//   for this SS-ID, so peak WP gates Node 02 correctly even across sessions.
 app.get('/api/suit/:id', async (req, res) => {
     try {
         const suitId = req.params.id;
 
-        // Most recent audit row — for display (thermal status, rating, excerpt, date)
         const { data, error } = await supabase
             .from('entropy_logs')
             .select('suit_id, input, audit, created_at, wp_total')
@@ -45,7 +41,6 @@ app.get('/api/suit/:id', async (req, res) => {
             return res.status(404).json({ error: 'Specimen not found in Archive.' });
         }
 
-        // Peak WP across all sessions for this SS-ID — gates Node 02 unlock
         const { data: wpData, error: wpError } = await supabase
             .from('entropy_logs')
             .select('wp_total')
@@ -56,10 +51,7 @@ app.get('/api/suit/:id', async (req, res) => {
 
         const peakWP = (!wpError && wpData) ? (wpData.wp_total || 0) : (data.wp_total || 0);
 
-        res.json({
-            ...data,
-            wp_total: peakWP   // override with peak — dossier uses this for Node 02 gate
-        });
+        res.json({ ...data, wp_total: peakWP });
 
     } catch (e) {
         res.status(500).json({ error: 'Archive lookup failed.' });
@@ -79,20 +71,17 @@ app.post('/api/scan', async (req, res) => {
     }
 
     try {
-        // Build conversation contents from history
         const contents = (history || []).map(h => ({
             role: h.role === 'assistant' ? 'model' : 'user',
             parts: [{ text: h.content }]
         }));
 
-        // Append dispute flag to input if needed
         const userText = isDispute
             ? `[DISPUTE_PROTOCOL]: ${input}`
             : input;
 
         contents.push({ role: 'user', parts: [{ text: userText }] });
 
-        // v1beta REST call — gemini-2.5-flash
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
         const response = await fetch(apiUrl, {
@@ -117,19 +106,15 @@ app.post('/api/scan', async (req, res) => {
 
         const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || '[SYSTEM_SILENCE]';
 
-        // Extract Skin Suit ID from response
         const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(.*?)\]/);
         const suitId = idMatch
             ? idMatch[1].trim().replace(/\s+/g, '-')
             : `SS-${Date.now()}`;
 
-        // Parse WP score from AI response before storing
         const wpMatch = aiResponse.match(/\[WP:\s*(\d+)\]/i);
         const wpTotal = wpMatch ? parseInt(wpMatch[1], 10) : 0;
         console.log('[WP_PARSE]', { wpMatch: wpMatch?.[1], wpTotal });
 
-        // Non-blocking Supabase insert — every audit gets its own row (Option B append strategy)
-        // Peak WP is resolved at read-time in /api/suit/:id via MAX query
         supabase.from('entropy_logs')
             .insert([{
                 suit_id: suitId,
@@ -158,6 +143,20 @@ app.post('/api/scan', async (req, res) => {
         console.error('Handler crash:', err.message);
         res.status(500).json({ audit: `[CORE_CRASH]: ${err.message}` });
     }
+});
+
+// ── DOSSIER ROUTE ─────────────────────────────────────────────────────────────
+// Uses /suit/:id to avoid Railway CDN intercepting /SS-:id paths.
+// Logs the resolved file path so we can confirm which file is being sent.
+app.get('/suit/:id', (req, res) => {
+    const filePath = path.join(__dirname, 'public', 'suit.html');
+    console.log('[DOSSIER_ROUTE] hit:', req.params.id, '| sending:', filePath);
+    res.sendFile(filePath);
+});
+
+// ── ROOT ──────────────────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // ── FALLBACK ──────────────────────────────────────────────────────────────────
