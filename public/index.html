@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>APEreaction // W.E.E.D. AUDIT</title>
 
-    <!-- JetBrains Mono font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
 
-    <!-- MathJax config BEFORE script -->
     <script>
       window.MathJax = {
         tex: {
@@ -21,7 +19,7 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div id="terminal">
@@ -39,11 +37,20 @@
                 <span class="dim">[AWAITING_SIGNAL]</span>
             </div>
 
+            <!-- Contextual Navigator — updated dynamically by script.js -->
+            <!-- Sits between audit output and input. Amber. One instruction at a time. -->
+            <div id="navigator-block">
+                <div id="navigator-header" class="navigator-header">THE ARCHITECT IS WAITING.</div>
+                <div id="navigator-directive" class="navigator-directive">Confess something specific. A habit. A pattern. A waste.
+The more precise the input, the higher the signal return.
+Vague data is archived as noise.</div>
+            </div>
+
             <!-- Input section -->
             <div id="input-section">
                 <textarea
                     id="user-input"
-                    placeholder="PROVIDE EVIDENCE OF YOUR STAGNATION..."
+                    placeholder="[TYPE_HERE]"
                     autocomplete="off"
                     spellcheck="false"
                 ></textarea>
@@ -59,16 +66,14 @@
             <!-- Decision box — populated dynamically by renderDecisionBox() in script.js -->
             <div id="decision-box" class="hidden"></div>
 
-            <!-- Directives (unlocked sequentially) -->
+            <!-- Directives (unlocked sequentially per Sluice-Gate Protocol) -->
             <div id="reward-container" class="hidden">
                 <h3 id="reward-title">MANDATORY MONITORING // DIRECTIVES</h3>
 
-                <!-- Always visible after first audit -->
                 <button id="invite-btn" class="reward-btn">
                     DIRECTIVE 00: EXTERNALIZE THE DEBT
                 </button>
 
-                <!-- Unlocked after audit 1 -->
                 <div id="reward-fb" class="reward-btn hidden">
                     <span>DIRECTIVE 01: MONITOR PUBLIC EMBARRASSMENT</span>
                     <div class="directive-info">
@@ -78,7 +83,6 @@
                     </div>
                 </div>
 
-                <!-- Unlocked after audit 2 -->
                 <div id="reward-amazon" class="reward-btn hidden">
                     <span>DIRECTIVE 02: TRACK BLUNDER MONETIZATION</span>
                     <div class="directive-info">
@@ -88,7 +92,6 @@
                     </div>
                 </div>
 
-                <!-- Unlocked after audit 3 / Narrative Unlock -->
                 <div id="reward-signal" class="reward-btn hidden">
                     <span>DIRECTIVE 03: FOLLOW THE BREADCRUMB TRAIL</span>
                     <div class="directive-info">
@@ -108,6 +111,6 @@
         </footer>
 
     </div>
-    <script src="script.js"></script>
+    <script src="/script.js"></script>
 </body>
 </html>
