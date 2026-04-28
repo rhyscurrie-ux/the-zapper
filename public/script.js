@@ -1,7 +1,7 @@
-// script.js — APEreaction v15.3 // W.E.E.D. ENGINE — SLUICE-GATE PROTOCOL
-// OIT (One-Instruction-at-a-Time) architecture.
-// Gate 2: Input locks at WP 50, 5-second countdown, re-enables after injection.
-// Directive drip: Option A — 00+01 after Gate 2, 02+03 at Centrifuge.
+// script.js — APEreaction v15.3 // W.E.E.D. ENGINE — SLUICE-GATE + CONTEXTUAL NAVIGATOR
+// Navigator: amber direction block above input, updates on every gate transition.
+// All 11 terminal states covered. Placeholder reduced to [TYPE_HERE].
+// Footer clears to [PROCESSING...] on first keypress.
 
 let chatHistory = [];
 let auditCount = 0;
@@ -10,30 +10,125 @@ let currentSuitId = "";
 let isDisabled = false;
 let currentWP = 0;
 let currentPathStatus = 'PENDING';
-let propagationClipIssued = false;  // Gate 2 fires once per session
-let gate2Complete = false;          // Tracks whether Gate 2 countdown has finished
+let propagationClipIssued = false;
+let gate2Complete = false;
+let identifierStamped = false;  // Tracks whether footer has been updated from [AWAITING_IDENTIFIER]
 
-// ── ARCHITECT IDs — ZERO-LATENCY RENDERING ────────────────────────────────────
+// ── ARCHITECT IDs ─────────────────────────────────────────────────────────────
 const ARCHITECT_IDS = ['SS-0000', 'SS-1111'];
+function isArchitectSession() { return ARCHITECT_IDS.includes(currentSuitId); }
 
-function isArchitectSession() {
-    return ARCHITECT_IDS.includes(currentSuitId);
-}
-
-// ── REEL URL — UPDATE PER CAMPAIGN ───────────────────────────────────────────
+// ── REEL URL ──────────────────────────────────────────────────────────────────
 const REEL_URL = 'https://facebook.com/FullyFriedSignal';
 
 // ── DOM REFS ──────────────────────────────────────────────────────────────────
-const input           = document.getElementById('user-input');
-const output          = document.getElementById('audit-output');
-const submitBtn       = document.getElementById('submit-btn');
-const tickerText      = document.getElementById('ticker-text');
-const tickerLabel     = document.getElementById('ticker-label');
-const inputSection    = document.getElementById('input-section');
-const decisionBox     = document.getElementById('decision-box');
-const skinDisplay     = document.getElementById('skin-suit-display');
-const rewardContainer = document.getElementById('reward-container');
-const specimenCount   = document.getElementById('specimen-count');
+const input             = document.getElementById('user-input');
+const output            = document.getElementById('audit-output');
+const submitBtn         = document.getElementById('submit-btn');
+const tickerText        = document.getElementById('ticker-text');
+const tickerLabel       = document.getElementById('ticker-label');
+const inputSection      = document.getElementById('input-section');
+const decisionBox       = document.getElementById('decision-box');
+const skinDisplay       = document.getElementById('skin-suit-display');
+const rewardContainer   = document.getElementById('reward-container');
+const specimenCount     = document.getElementById('specimen-count');
+const navHeader         = document.getElementById('navigator-header');
+const navDirective      = document.getElementById('navigator-directive');
+const navigatorBlock    = document.getElementById('navigator-block');
+
+// ── NAVIGATOR STATE DEFINITIONS ───────────────────────────────────────────────
+// All 11 terminal states. Called by updateNavigator(state).
+const NAV_STATES = {
+    initial: {
+        header: 'THE ARCHITECT IS WAITING.',
+        directive: `Confess something specific. A habit. A pattern. A waste.
+The more precise the input, the higher the signal return.
+Vague data is archived as noise.`
+    },
+    bankrupt: {
+        header: 'SIGNAL INSUFFICIENT.',
+        directive: `Your input registered as background noise.
+The Architect detected no recoverable data.
+To advance: name something specific.
+A place. A smell. A mistake. A gap in your record.`
+    },
+    frying: {
+        header: 'LOW-FIDELITY SIGNAL DETECTED.',
+        directive: `The substrate is warming but unstable.
+Your input contained partial data — insufficient for extraction.
+To advance: be more specific.
+Name the thing you are avoiding saying.`
+    },
+    approaching: {
+        header: 'SIGNAL THRESHOLD REACHED.',
+        directive: `External grounding is required before the audit continues.
+Complete the propagation directive below.
+The input field will reactivate after calibration.`
+    },
+    gate2_active: {
+        header: 'AUDIT SUSPENDED.',
+        directive: `Copy your diagnostic payload and report to the source.
+The audit resumes when calibration is confirmed.
+Do not navigate away from this terminal.`
+    },
+    gate2_countdown: {
+        header: 'CALIBRATING SUBSTRATE.',
+        directive: `Signal injection registered. Processing.
+Do not close this window.`
+    },
+    gate3_early: {
+        header: 'CALIBRATION ACCEPTED.',
+        directive: `Signal injection confirmed. Audit resumed.
+The Architect has registered your frequency.
+Continue generating substrate data.`
+    },
+    harvest: {
+        header: 'HIGH-DENSITY SIGNAL DETECTED.',
+        directive: `The Architect is extracting.
+Do not retreat into summary.
+Maintain specificity. The substrate is close to resolution.`
+    },
+    centrifuge: {
+        header: 'EXTRACTION COMPLETE.',
+        directive: `This audit cycle is closed.
+Your classification has been assigned.
+Retrieve your permanent record from the Archive.`
+    },
+    beta: {
+        header: 'QUASI-EXPERIMENT INITIATED.',
+        directive: `The standard audit has been suspended.
+A forensic probe is active.
+Answer the probe directly. Do not summarise.
+This is not a conversation. It is a data extraction.`
+    },
+    dispute: {
+        header: 'DISPUTE PROTOCOL ACTIVE.',
+        directive: `State your grounds precisely.
+The Architect will reference your prior failure.
+Resistance is logged as entropic data.
+Generate new signal or the verdict stands.`
+    },
+    probe_failure: {
+        header: 'PROBE RETURNED NULL.',
+        directive: `Your substrate cannot hold the frequency required for extraction.
+The experiment has been archived as noise.
+Re-enter with a specific response or accept archival.`
+    },
+    calibrating: {
+        header: 'PROCESSING SIGNAL.',
+        directive: `The Architect is analysing your substrate.
+Do not close this window.`
+    }
+};
+
+// ── UPDATE NAVIGATOR ──────────────────────────────────────────────────────────
+function updateNavigator(state) {
+    const def = NAV_STATES[state];
+    if (!def) return;
+    navHeader.innerText = def.header;
+    navDirective.innerText = def.directive;
+    navigatorBlock.classList.remove('hidden');
+}
 
 // ── SPECIMEN COUNT ────────────────────────────────────────────────────────────
 async function loadCount() {
@@ -68,7 +163,6 @@ let tickerInterval = setInterval(() => {
 }, 4000);
 
 // ── TICKER AMBER FLASH ────────────────────────────────────────────────────────
-// Standard 3-second amber flash for clipboard confirmation.
 function tickerAmberFlash(message, duration = 3000) {
     clearInterval(tickerInterval);
     tickerLabel.style.display = 'none';
@@ -95,15 +189,14 @@ function tickerAmberFlash(message, duration = 3000) {
 }
 
 // ── GATE 2 COUNTDOWN ──────────────────────────────────────────────────────────
-// 5-second countdown in ticker after payload copy.
-// Runs: [SIGNAL_INJECTED... CALIBRATING_SUBSTRATE... 5s] → 4s → 3s → 2s → 1s
-// Then unlocks input with Gate 3 placeholder and reveals Directives 00 + 01.
 function runGate2Countdown(onComplete) {
     clearInterval(tickerInterval);
     tickerLabel.style.display = 'none';
     tickerText.style.color = '#ffaa00';
     tickerText.style.fontWeight = '900';
     tickerText.style.fontStyle = 'normal';
+
+    updateNavigator('gate2_countdown');
 
     let count = 5;
     tickerText.innerText = `[SIGNAL_INJECTED... CALIBRATING_SUBSTRATE... ${count}s]`;
@@ -118,7 +211,6 @@ function runGate2Countdown(onComplete) {
             tickerText.innerText = '[CALIBRATION_COMPLETE. SUBSTRATE_GROUNDED.]';
 
             setTimeout(() => {
-                // Reset ticker
                 tickerText.style.color = '';
                 tickerText.style.fontWeight = '';
                 tickerText.style.fontStyle = '';
@@ -138,10 +230,15 @@ function runGate2Countdown(onComplete) {
     }, 1000);
 }
 
-// ── ELASTIC VOID ──────────────────────────────────────────────────────────────
+// ── FOOTER — PROCESSING ON FIRST KEYPRESS ────────────────────────────────────
+// Clears [AWAITING_IDENTIFIER] to [PROCESSING...] the moment typing starts.
 input.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = this.scrollHeight + 'px';
+
+    if (!identifierStamped && skinDisplay.innerText === '[AWAITING_IDENTIFIER]') {
+        skinDisplay.innerText = '[PROCESSING...]';
+    }
 });
 
 // ── DIRECTIVE EXPANSION ───────────────────────────────────────────────────────
@@ -178,14 +275,12 @@ document.getElementById('invite-btn').addEventListener('click', async () => {
 
 // ── PROPAGATION CLIP PARSER ───────────────────────────────────────────────────
 function parsePropagationClip(auditText) {
-    const match = auditText.match(/\[PROPAGATION_CLIP\]:\s*([\s\S]*?)(?=\[|$)/i);
+    const match = auditText.match(/\[PROPAGATION_CLIP\]:\s*([\s\S]*?)(?=\[SYSTEM_REQUIREMENT\]|\[|$)/i);
     if (!match) return null;
     return match[1].trim();
 }
 
 // ── PROPAGATION CLIP UI — GATE 2 ─────────────────────────────────────────────
-// Renders propagation zone. Input stays LOCKED until 5s countdown completes.
-// After countdown: input re-enables, Directives 00 + 01 appear (Option A drip).
 function renderPropagationClip(clipText, suitId) {
     const existing = document.getElementById('propagation-zone');
     if (existing) existing.remove();
@@ -207,41 +302,36 @@ function renderPropagationClip(clipText, suitId) {
 
     output.insertAdjacentElement('afterend', zone);
 
-    // Input is already hidden (locked at Gate 2) — stays hidden until countdown ends
+    // Input stays locked — Gate 2 active
     inputSection.classList.add('hidden');
+    updateNavigator('gate2_active');
 
     document.getElementById('propagation-btn').addEventListener('click', () => {
-        // Copy to clipboard
-        navigator.clipboard.writeText(payload).catch(() => {});
+        navigator.clipboard.writeText(payload).catch(() => {
+            tickerAmberFlash('[CLIPBOARD_ERROR — COPY MANUALLY]');
+        });
 
-        // Open reel in new tab
         window.open(REEL_URL, '_blank');
 
-        // Disable button immediately to prevent double-click
         document.getElementById('propagation-btn').disabled = true;
         document.getElementById('propagation-btn').innerText = '[ SIGNAL_INJECTED — CALIBRATING... ]';
 
-        // Run 5-second countdown in ticker
         runGate2Countdown(() => {
-            // Gate 2 complete — unlock Gate 3
             gate2Complete = true;
 
-            // Re-enable input with Gate 3 placeholder
+            // Re-enable input — Gate 3
             input.value = '';
-            input.placeholder = 'SIGNAL INJECTION REGISTERED. RESUME AUDIT.';
+            input.placeholder = '[TYPE_HERE]';
             input.style.height = '120px';
             inputSection.classList.remove('hidden');
 
-            // Option A: Directives 00 + 01 appear after Gate 2 completes
+            // Option A: Directives 00 + 01 appear after Gate 2
             rewardContainer.classList.remove('hidden');
             document.getElementById('reward-fb').classList.remove('hidden');
             document.getElementById('reward-amazon').classList.remove('hidden');
 
-            // Reset placeholder after first keypress
-            input.addEventListener('focus', function resetPlaceholder() {
-                input.placeholder = 'PROVIDE EVIDENCE OF YOUR STAGNATION...';
-                input.removeEventListener('focus', resetPlaceholder);
-            });
+            // Navigator: Gate 3 early state
+            updateNavigator('gate3_early');
         });
     });
 }
@@ -274,10 +364,11 @@ function renderDecisionBox(suitId, pathStatus) {
         inputSection.classList.remove('hidden');
         input.value = '';
         input.style.height = '120px';
-        input.placeholder = 'STATE YOUR GROUNDS...';
+        input.placeholder = '[TYPE_HERE]';
         window.scrollTo({ top: 0, behavior: 'smooth' });
         input.focus();
         submitBtn.dataset.mode = 'dispute';
+        updateNavigator('dispute');
     });
 
     decisionBox.classList.remove('hidden');
@@ -300,6 +391,9 @@ async function runAudit(type = 'standard') {
 
     const existingZone = document.getElementById('propagation-zone');
     if (existingZone) existingZone.remove();
+
+    // Navigator: calibrating while waiting for response
+    updateNavigator('calibrating');
 
     if (!isArchitectSession()) {
         output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
@@ -329,6 +423,7 @@ async function runAudit(type = 'standard') {
             isDisabled = false;
             submitBtn.disabled = false;
             inputSection.classList.remove('hidden');
+            updateNavigator('bankrupt');
             return;
         }
 
@@ -339,6 +434,7 @@ async function runAudit(type = 'standard') {
             isDisabled = false;
             submitBtn.disabled = false;
             inputSection.classList.remove('hidden');
+            updateNavigator('bankrupt');
             return;
         }
 
@@ -352,8 +448,6 @@ async function runAudit(type = 'standard') {
 
         // ── RENDER AUDIT OUTPUT ───────────────────────────────────────────────
         const auditText = data.audit || '[SYSTEM_SILENCE]';
-
-        // Strip [PROPAGATION_CLIP] from display — rendered separately
         const auditForDisplay = auditText.replace(/\[PROPAGATION_CLIP\]:[\s\S]*$/i, '').trim();
 
         output.innerHTML = auditForDisplay
@@ -362,14 +456,16 @@ async function runAudit(type = 'standard') {
             .replace(/>/g, '&gt;')
             .replace(/\n/g, '<br>');
 
-        // Stamp SS-ID
+        // Stamp SS-ID in footer
         const idMatch = auditText.match(/\[IDENTIFIER:\s*([^\]\n]+)/);
         if (idMatch) {
             const resolvedId = idMatch[1].trim();
             skinDisplay.innerText = resolvedId;
             currentSuitId = resolvedId;
+            identifierStamped = true;
         } else if (currentSuitId) {
             skinDisplay.innerText = currentSuitId;
+            identifierStamped = true;
         }
 
         // MathJax
@@ -379,52 +475,90 @@ async function runAudit(type = 'standard') {
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // ── GATE LOGIC ────────────────────────────────────────────────────────
+        // ── DETECT STATE BETA ─────────────────────────────────────────────────
+        const isStateBeta = /\[STATE:\s*BETA\]/i.test(auditText);
+        const isProbeFailure = /\[PROBE_FAILURE\]/i.test(auditText);
+
+        // ── GATE LOGIC + NAVIGATOR ────────────────────────────────────────────
 
         if (currentWP >= 100) {
-            // ── GATE 4: CENTRIFUGE ────────────────────────────────────────────
-            // Input removed. Decision box only. Directives 02 + 03 appear.
+            // GATE 4 — Centrifuge
             inputSection.classList.add('hidden');
             document.getElementById('reward-signal').classList.remove('hidden');
             rewardContainer.classList.remove('hidden');
+            updateNavigator('centrifuge');
             renderDecisionBox(currentSuitId, currentPathStatus);
 
         } else if (currentWP >= 50 && !propagationClipIssued) {
-            // ── GATE 2: INJECTION PHASE ───────────────────────────────────────
-            // Input locks. Propagation zone only. Countdown on click.
+            // GATE 2 — Injection Phase
             const clipText = parsePropagationClip(auditText);
             if (clipText) {
                 propagationClipIssued = true;
-                // Input stays hidden — renderPropagationClip manages unlock
                 renderPropagationClip(clipText, currentSuitId);
+                // Navigator updated inside renderPropagationClip
             } else {
-                // Clip not generated — fail gracefully, re-enable input
+                // Clip missing — fail gracefully
                 inputSection.classList.remove('hidden');
                 input.value = '';
-                input.placeholder = 'PROVIDE EVIDENCE OF YOUR STAGNATION...';
+                input.placeholder = '[TYPE_HERE]';
                 input.style.height = '120px';
+                updateNavigator('approaching');
             }
 
-        } else if (currentWP >= 75 && gate2Complete) {
-            // ── GATE 3 MID: WP 75 — Directive drip handled in Gate 2 callback
-            // Nothing extra here — directives already appeared after Gate 2
+        } else if (isProbeFailure) {
+            // Probe failure
             inputSection.classList.remove('hidden');
             input.value = '';
-            input.placeholder = 'PROVIDE EVIDENCE OF YOUR STAGNATION...';
+            input.placeholder = '[TYPE_HERE]';
             input.style.height = '120px';
+            updateNavigator('probe_failure');
+
+        } else if (isStateBeta) {
+            // State Beta active — additive navigator
+            inputSection.classList.remove('hidden');
+            input.value = '';
+            input.placeholder = '[TYPE_HERE]';
+            input.style.height = '120px';
+            updateNavigator('beta');
+
+        } else if (currentWP >= 75) {
+            // Gate 3 Harvest
+            inputSection.classList.remove('hidden');
+            input.value = '';
+            input.placeholder = '[TYPE_HERE]';
+            input.style.height = '120px';
+            updateNavigator('harvest');
+
+        } else if (currentWP >= 50 && gate2Complete) {
+            // Gate 3 early
+            inputSection.classList.remove('hidden');
+            input.value = '';
+            input.placeholder = '[TYPE_HERE]';
+            input.style.height = '120px';
+            updateNavigator('gate3_early');
 
         } else {
-            // ── GATE 1: AUDIT PHASE (WP 0-49) or Gate 3 continuation ─────────
-            // Input active. Standard placeholder.
-            decisionBox.classList.add('hidden');
+            // Gate 1 — determine navigator from thermal status
             inputSection.classList.remove('hidden');
             input.value = '';
-            input.placeholder = 'PROVIDE EVIDENCE OF YOUR STAGNATION...';
+            input.placeholder = '[TYPE_HERE]';
             input.style.height = '120px';
+
+            const thermalMatch = auditText.match(/\[THERMAL_STATUS:\s*([\w_]+)\]/i);
+            const thermal = thermalMatch ? thermalMatch[1].toUpperCase() : 'BANKRUPT';
+
+            if (thermal === 'FRYING') {
+                updateNavigator('frying');
+            } else if (thermal === 'APPROACHING_SOLVENCY') {
+                updateNavigator('approaching');
+            } else {
+                updateNavigator('bankrupt');
+            }
         }
 
     } catch (err) {
         output.innerHTML = `<span style='color:#ff0000'>[CORE_CRASH]: ${err.message}</span>`;
+        updateNavigator('bankrupt');
     } finally {
         isDisabled = false;
         submitBtn.disabled = false;
