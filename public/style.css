@@ -332,3 +332,32 @@ mjx-container {
     background: #ffaa00;
     color: #000;
 }
+
+/* ── CONTEXTUAL NAVIGATOR — TERMINAL ─────────────────────────────────────── */
+/* Amber direction block above input. One instruction at a time. */
+#navigator-block {
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    border-left: 3px solid #ffaa00;
+    background: rgba(255, 170, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.navigator-header {
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: #ffaa00;
+    text-transform: uppercase;
+}
+
+.navigator-directive {
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: rgba(255, 170, 0, 0.75);
+    text-transform: none;
+    white-space: pre-line;
+    font-style: normal;
+}
