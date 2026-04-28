@@ -282,3 +282,53 @@ mjx-container {
 .dossier-link:hover {
     background: #00cc33;
 }
+
+/* ── PROPAGATION ZONE — RE-ENTRY LOOP ─────────────────────────────────────── */
+#propagation-zone {
+    margin-top: 24px;
+    border: 1px solid rgba(255, 170, 0, 0.4);
+    background: rgba(255, 170, 0, 0.03);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.propagation-header {
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #ffaa00;
+    opacity: 0.7;
+    text-transform: uppercase;
+}
+
+.propagation-clip-text {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: #ffaa00;
+    text-transform: none;
+    font-style: italic;
+    padding-left: 10px;
+    border-left: 2px solid rgba(255, 170, 0, 0.3);
+}
+
+.propagation-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid #ffaa00;
+    color: #ffaa00;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.propagation-btn:hover {
+    background: #ffaa00;
+    color: #000;
+}
