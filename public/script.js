@@ -1,4 +1,4 @@
-// script.js — APEreaction v15.0 // W.E.E.D. ENGINE DUAL-STATE
+// script.js — APEreaction v15.1 // W.E.E.D. ENGINE DUAL-STATE + RE-ENTRY LOOP
 
 let chatHistory = [];
 let auditCount = 0;
@@ -7,20 +7,26 @@ let currentSuitId = "";
 let isDisabled = false;
 let currentWP = 0;
 let currentPathStatus = 'PENDING';
+let propagationClipIssued = false;  // Tracks whether clip has fired this session
 
 // ── ARCHITECT IDs — ZERO-LATENCY RENDERING ────────────────────────────────────
-// These IDs bypass all theatrical delays for Architect use.
 const ARCHITECT_IDS = ['SS-0000', 'SS-1111'];
 
 function isArchitectSession() {
     return ARCHITECT_IDS.includes(currentSuitId);
 }
 
+// ── REEL URL — UPDATE PER CAMPAIGN ───────────────────────────────────────────
+// Facebook reel URL for the current Phase 1 campaign.
+// Update this when launching a new reel. One URL per campaign.
+const REEL_URL = 'https://facebook.com/FullyFriedSignal';
+
 // ── DOM REFS ──────────────────────────────────────────────────────────────────
 const input           = document.getElementById('user-input');
 const output          = document.getElementById('audit-output');
 const submitBtn       = document.getElementById('submit-btn');
 const tickerText      = document.getElementById('ticker-text');
+const tickerLabel     = document.getElementById('ticker-label');
 const inputSection    = document.getElementById('input-section');
 const decisionBox     = document.getElementById('decision-box');
 const skinDisplay     = document.getElementById('skin-suit-display');
@@ -59,6 +65,35 @@ let tickerInterval = setInterval(() => {
     }, 600);
 }, 4000);
 
+// ── TICKER AMBER FLASH ────────────────────────────────────────────────────────
+// Used for clipboard confirmation — replaces browser alerts.
+// Shows message in amber for 3 seconds then restores normal ticker.
+function tickerAmberFlash(message) {
+    clearInterval(tickerInterval);
+    tickerLabel.style.display = 'none';
+    tickerText.classList.remove('fade-out');
+    tickerText.style.color = '#ffaa00';
+    tickerText.style.fontWeight = '900';
+    tickerText.style.fontStyle = 'normal';
+    tickerText.innerText = message;
+
+    setTimeout(() => {
+        tickerText.style.color = '';
+        tickerText.style.fontWeight = '';
+        tickerText.style.fontStyle = '';
+        tickerLabel.style.display = '';
+        // Resume ticker
+        tickerInterval = setInterval(() => {
+            tickerText.classList.add('fade-out');
+            setTimeout(() => {
+                sampleIndex = (sampleIndex + 1) % samples.length;
+                tickerText.innerText = samples[sampleIndex];
+                tickerText.classList.remove('fade-out');
+            }, 600);
+        }, 4000);
+    }, 3000);
+}
+
 // ── ELASTIC VOID ──────────────────────────────────────────────────────────────
 input.addEventListener('input', function() {
     this.style.height = 'auto';
@@ -90,16 +125,61 @@ document.getElementById('invite-btn').addEventListener('click', async () => {
             await navigator.share(shareData);
         } else {
             await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-            alert('[INVITATION_COPIED_TO_CLIPBOARD]');
+            tickerAmberFlash('[INVITATION_COPIED_TO_CLIPBOARD]');
         }
     } catch (err) {
         console.log('Share failed:', err);
     }
 });
 
+// ── PROPAGATION CLIP PARSER ───────────────────────────────────────────────────
+// Extracts [PROPAGATION_CLIP]: content from AI response.
+function parsePropagationClip(auditText) {
+    const match = auditText.match(/\[PROPAGATION_CLIP\]:\s*([\s\S]*?)(?=\[|$)/i);
+    if (!match) return null;
+    return match[1].trim();
+}
+
+// ── PROPAGATION CLIP UI ───────────────────────────────────────────────────────
+// Renders the Re-Entry Loop box below the audit output.
+// Copy button writes clip + dossier URL to clipboard, opens reel in new tab.
+// Feedback via amber ticker flash — no alerts, no browser dialogs.
+function renderPropagationClip(clipText, suitId) {
+    // Remove any existing propagation box
+    const existing = document.getElementById('propagation-zone');
+    if (existing) existing.remove();
+
+    const dossierUrl = `${window.location.origin}/suit/${suitId}`;
+    const payload = `${clipText}\n\nAudit record: ${dossierUrl}`;
+
+    const zone = document.createElement('div');
+    zone.id = 'propagation-zone';
+    zone.innerHTML = `
+        <div class="propagation-header">
+            SUBSTRATE PROPAGATION REQUIRED // RE-ENTRY LOOP
+        </div>
+        <div class="propagation-clip-text">${clipText}</div>
+        <button id="propagation-btn" class="propagation-btn">
+            [ COPY PAYLOAD + OPEN SOURCE ]
+        </button>
+    `;
+
+    // Insert after audit output, before input section
+    output.insertAdjacentElement('afterend', zone);
+
+    document.getElementById('propagation-btn').addEventListener('click', () => {
+        navigator.clipboard.writeText(payload).then(() => {
+            tickerAmberFlash('[SIGNAL_LOCKED — PASTE AT SOURCE]');
+            setTimeout(() => {
+                window.open(REEL_URL, '_blank');
+            }, 400);
+        }).catch(() => {
+            tickerAmberFlash('[CLIPBOARD_ERROR — COPY MANUALLY]');
+        });
+    });
+}
+
 // ── DECISION BOX — PATH A / PATH B ───────────────────────────────────────────
-// PATH A: Gold confirmed — Node 02 accessible via dossier
-// PATH B: Conscript — Node 02 locked, Hub only
 function renderDecisionBox(suitId, pathStatus) {
     const isPathA = pathStatus === 'PATH_A';
 
@@ -151,7 +231,10 @@ async function runAudit(type = 'standard') {
     inputSection.classList.add('hidden');
     decisionBox.classList.add('hidden');
 
-    // Architect IDs get instant render — no theatrical delay
+    // Remove any previous propagation zone
+    const existingZone = document.getElementById('propagation-zone');
+    if (existingZone) existingZone.remove();
+
     if (!isArchitectSession()) {
         output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
     }
@@ -201,15 +284,19 @@ async function runAudit(type = 'standard') {
         const wpMatch = data.audit.match(/\[WP:\s*(\d+)\]/i);
         if (wpMatch) currentWP = parseInt(wpMatch[1], 10);
 
-        // ── RENDER OUTPUT ─────────────────────────────────────────────────────
+        // ── RENDER AUDIT OUTPUT ───────────────────────────────────────────────
         const auditText = data.audit || '[SYSTEM_SILENCE]';
-        output.innerHTML = auditText
+
+        // Strip [PROPAGATION_CLIP] section from display — rendered separately in UI
+        const auditForDisplay = auditText.replace(/\[PROPAGATION_CLIP\]:[\s\S]*$/i, '').trim();
+
+        output.innerHTML = auditForDisplay
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/\n/g, '<br>');
 
-        // Extract and stamp SS-ID
+        // Stamp SS-ID in footer
         const idMatch = auditText.match(/\[IDENTIFIER:\s*([^\]\n]+)/);
         if (idMatch) {
             const resolvedId = idMatch[1].trim();
@@ -226,7 +313,16 @@ async function runAudit(type = 'standard') {
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // Sequential directive unlock — gated by WP
+        // ── PROPAGATION CLIP — fires once, first turn WP >= 50 ───────────────
+        if (currentWP >= 50 && !propagationClipIssued) {
+            const clipText = parsePropagationClip(auditText);
+            if (clipText) {
+                propagationClipIssued = true;
+                renderPropagationClip(clipText, currentSuitId);
+            }
+        }
+
+        // Sequential directive unlock
         if (currentWP >= 50) {
             rewardContainer.classList.remove('hidden');
             document.getElementById('reward-fb').classList.remove('hidden');
@@ -238,7 +334,7 @@ async function runAudit(type = 'standard') {
             document.getElementById('reward-signal').classList.remove('hidden');
         }
 
-        // Centrifuge — WP 100+
+        // Centrifuge
         if (currentWP >= 100) {
             renderDecisionBox(currentSuitId, currentPathStatus);
         } else {
