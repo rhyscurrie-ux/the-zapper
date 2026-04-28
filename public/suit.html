@@ -14,18 +14,15 @@
 
     <div id="dossier">
 
-        <!-- Header -->
         <header id="dossier-header">
             APEreaction // SPECIMEN DOSSIER
             <span>MARTIS ARCHIVE // CLASSIFIED RECORD</span>
         </header>
 
-        <!-- Loading state -->
         <div id="loading-state">
             <span class="flashing-amber">[RETRIEVING_SUBSTRATE...]</span>
         </div>
 
-        <!-- Error state -->
         <div id="error-state" class="hidden">
             <p id="error-msg">[SPECIMEN_NOT_FOUND]: This ID does not exist in the Archive.</p>
             <a href="/" class="action-btn" style="margin-top:20px; display:inline-block;">
@@ -33,7 +30,6 @@
             </a>
         </div>
 
-        <!-- Dossier content (populated by JS) -->
         <main id="dossier-content" class="hidden">
 
             <!-- Identity block -->
@@ -56,6 +52,16 @@
                     </div>
                 </div>
             </section>
+
+            <div class="divider"></div>
+
+            <!-- Dossier Navigator — updated by suit.js based on path_status and wp_total -->
+            <div id="dossier-navigator">
+                <div id="dossier-nav-header" class="navigator-header">ARCHIVE RECORD LOCATED.</div>
+                <div id="dossier-nav-directive" class="navigator-directive">Your audit is incomplete.
+Return to the terminal and continue generating signal.
+This record will update as your frequency develops.</div>
+            </div>
 
             <div class="divider"></div>
 
@@ -87,19 +93,16 @@
                     Knowledge of the experimental structure is required before reconstruction begins.
                 </p>
 
-                <!-- Step 1: Request button -->
                 <div id="request-step-1">
                     <button id="request-btn" class="action-btn">
                         [ REQUEST YOUR TRANSCRIPT ]
                     </button>
                 </div>
 
-                <!-- Step 2: Hostile delay -->
                 <div id="request-step-2" class="hidden">
                     <p id="delay-msg" class="flashing-amber">[IDENTIFYING_VULNERABILITIES...]</p>
                 </div>
 
-                <!-- Step 3: Reveal -->
                 <div id="request-step-3" class="hidden">
                     <p class="reveal-warning">
                         Raw substrate is unstable. The following document is your structural key.
@@ -118,7 +121,7 @@
 
             <div class="divider"></div>
 
-            <!-- Node 02 placeholder -->
+            <!-- Node 02 -->
             <section id="node02-section">
                 <div class="field-label">PHASE 05 // NODE 02 — BARFLY EXTRACTION</div>
                 <p class="section-desc">
