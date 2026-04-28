@@ -1,6 +1,6 @@
-// suit.js — Specimen Dossier Page Logic // v15.0
-// Node 02 unlock: WP >= 100 AND path_status = PATH_A
-// PATH B: Conscript message, Node 02 locked
+// suit.js — Specimen Dossier Page Logic // v15.3
+// Dossier Navigator: amber direction block below identity block.
+// 7 states based on path_status, wp_total, and transcript phase.
 
 // ── HOSTILE DELAY MESSAGES ────────────────────────────────────────────────────
 const delayMessages = [
@@ -14,13 +14,77 @@ const delayMessages = [
     '[THERMAL_LOAD_ANALYSIS_IN_PROGRESS...]'
 ];
 
+// ── DOSSIER NAVIGATOR STATES ─────────────────────────────────────────────────
+const DOSSIER_NAV_STATES = {
+    loading: {
+        header: 'RETRIEVING SUBSTRATE...',
+        directive: ''
+    },
+    incomplete: {
+        header: 'ARCHIVE RECORD LOCATED.',
+        directive: `Your audit is incomplete.
+Return to the terminal and continue generating signal.
+This record will update as your frequency develops.`
+    },
+    conscript: {
+        header: 'CONSCRIPT STATUS CONFIRMED.',
+        directive: `Your frequency was insufficient for extraction.
+Node 02 is inaccessible at your current signal density.
+Return to the terminal and generate recoverable data.
+The Centrifuge does not negotiate.`
+    },
+    elite: {
+        header: 'ELITE EXTRACTION CONFIRMED.',
+        directive: `Your frequency has been integrated into the substrate.
+Study the Initializer below before proceeding to Node 02.
+The Barfly has already seen your Tier 1 log.
+Arrive prepared or do not arrive.`
+    },
+    transcript_pending: {
+        header: 'PHASE 04 // PROJECT BLUE',
+        directive: `Your raw transcript is unstable.
+The Schematic below is required before reconstruction begins.
+Read it entirely before feeding it to your AI.`
+    },
+    transcript_verifying: {
+        header: 'VERIFYING EXTRACTION CREDENTIALS...',
+        directive: ''
+    },
+    transcript_revealed: {
+        header: 'SCHEMATIC DECRYPTED.',
+        directive: `Download the document.
+Read it in full before proceeding.
+Do not skip the initialisation block at the top.
+Your Account Transcript will not pass Archive review without it.`
+    }
+};
+
+// ── UPDATE DOSSIER NAVIGATOR ──────────────────────────────────────────────────
+function updateDossierNavigator(state) {
+    const navHeader    = document.getElementById('dossier-nav-header');
+    const navDirective = document.getElementById('dossier-nav-directive');
+    const navBlock     = document.getElementById('dossier-navigator');
+
+    const def = DOSSIER_NAV_STATES[state];
+    if (!def) return;
+
+    navHeader.innerText = def.header;
+    navDirective.innerText = def.directive;
+
+    if (def.directive === '') {
+        navDirective.style.display = 'none';
+    } else {
+        navDirective.style.display = '';
+    }
+
+    navBlock.classList.remove('hidden');
+}
+
 // ── PARSE SS-ID FROM URL ──────────────────────────────────────────────────────
 function getSuitIdFromUrl() {
-    // Supports /suit/SS-1234 and /?id=SS-1234
     const path = window.location.pathname;
     const segments = path.split('/').filter(Boolean);
     if (segments.length > 0) return segments[segments.length - 1];
-
     const params = new URLSearchParams(window.location.search);
     return params.get('id') || null;
 }
@@ -50,9 +114,7 @@ function formatDate(isoString) {
         return new Date(isoString).toLocaleDateString('en-NZ', {
             year: 'numeric', month: 'short', day: 'numeric'
         }).toUpperCase();
-    } catch {
-        return '—';
-    }
+    } catch { return '—'; }
 }
 
 // ── POPULATE DOSSIER ──────────────────────────────────────────────────────────
@@ -73,15 +135,21 @@ function populateDossier(data, suitId) {
 
 // ── HOSTILE DELAY TRANSCRIPT REQUEST ─────────────────────────────────────────
 function initTranscriptRequest() {
-    const requestBtn  = document.getElementById('request-btn');
-    const step1       = document.getElementById('request-step-1');
-    const step2       = document.getElementById('request-step-2');
-    const step3       = document.getElementById('request-step-3');
-    const delayMsg    = document.getElementById('delay-msg');
+    const requestBtn = document.getElementById('request-btn');
+    const step1      = document.getElementById('request-step-1');
+    const step2      = document.getElementById('request-step-2');
+    const step3      = document.getElementById('request-step-3');
+    const delayMsg   = document.getElementById('delay-msg');
+
+    // Navigator: transcript pending on load
+    updateDossierNavigator('transcript_pending');
 
     requestBtn.addEventListener('click', () => {
         step1.classList.add('hidden');
         step2.classList.remove('hidden');
+
+        // Navigator: verifying
+        updateDossierNavigator('transcript_verifying');
 
         let msgIndex = 0;
         const msgInterval = setInterval(() => {
@@ -94,22 +162,23 @@ function initTranscriptRequest() {
             clearInterval(msgInterval);
             step2.classList.add('hidden');
             step3.classList.remove('hidden');
+
+            // Navigator: transcript revealed
+            updateDossierNavigator('transcript_revealed');
         }, delay);
     });
 }
 
-// ── NODE 02 UNLOCK LOGIC — v15.0 ─────────────────────────────────────────────
-// Requires BOTH: wp_total >= 100 AND path_status === 'PATH_A'
-// PATH B: Conscript message displayed, Node 02 remains locked.
+// ── NODE 02 UNLOCK LOGIC — v15.3 ─────────────────────────────────────────────
 function initNode02(suitId, wpTotal, pathStatus) {
-    const node02Section = document.getElementById('node02-section');
+    const node02Section  = document.getElementById('node02-section');
     const placeholderBtn = node02Section.querySelector('.disabled-btn');
 
-    const isPathA = pathStatus === 'PATH_A';
+    const isPathA         = pathStatus === 'PATH_A';
     const centrifugeReached = wpTotal >= 100;
 
     if (centrifugeReached && isPathA) {
-        // ── PATH A: ELITE GRADUATION — unlock AA Initializer ─────────────────
+        // PATH A — Elite unlock
         if (placeholderBtn) placeholderBtn.style.display = 'none';
 
         const unlockBlock = document.createElement('div');
@@ -135,7 +204,7 @@ function initNode02(suitId, wpTotal, pathStatus) {
         node02Section.appendChild(unlockBlock);
 
     } else if (centrifugeReached && !isPathA) {
-        // ── PATH B: CONSCRIPT — Node 02 locked, frequency too weak ───────────
+        // PATH B — Conscript
         if (placeholderBtn) placeholderBtn.style.display = 'none';
 
         const conscriptBlock = document.createElement('div');
@@ -155,9 +224,7 @@ function initNode02(suitId, wpTotal, pathStatus) {
             </a>
         `;
         node02Section.appendChild(conscriptBlock);
-
     }
-    // Below WP 100: placeholder button remains as-is
 }
 
 // ── MAIN INIT ─────────────────────────────────────────────────────────────────
@@ -169,6 +236,9 @@ async function init() {
     const errorMsg       = document.getElementById('error-msg');
     const dossierContent = document.getElementById('dossier-content');
 
+    // Navigator: loading state
+    updateDossierNavigator('loading');
+
     if (!suitId) {
         loadingState.classList.add('hidden');
         errorMsg.innerText = '[NO_IDENTIFIER]: Navigate to APEreaction.com/suit/[YOUR-SS-ID] to access your dossier.';
@@ -179,20 +249,29 @@ async function init() {
     try {
         const res = await fetch(`/api/suit/${encodeURIComponent(suitId)}`);
 
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data = await res.json();
 
-        if (data.error) {
-            throw new Error(data.error);
-        }
+        if (data.error) throw new Error(data.error);
 
         loadingState.classList.add('hidden');
         populateDossier(data, suitId);
+
+        const wpTotal    = data.wp_total || 0;
+        const pathStatus = data.path_status || 'PENDING';
+
+        // ── SET DOSSIER NAVIGATOR STATE ───────────────────────────────────────
+        if (wpTotal >= 100 && pathStatus === 'PATH_A') {
+            updateDossierNavigator('elite');
+        } else if (wpTotal >= 100 && pathStatus === 'PATH_B') {
+            updateDossierNavigator('conscript');
+        } else {
+            updateDossierNavigator('incomplete');
+        }
+
         initTranscriptRequest();
-        initNode02(suitId, data.wp_total || 0, data.path_status || 'PENDING');
+        initNode02(suitId, wpTotal, pathStatus);
         dossierContent.classList.remove('hidden');
 
     } catch (err) {
