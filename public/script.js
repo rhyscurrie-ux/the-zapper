@@ -300,15 +300,11 @@ function renderPropagationClip(clipText, suitId) {
 
     const zone = document.createElement('div');
     zone.id = 'propagation-zone';
-    zone.innerHTML = `
-        <div class="propagation-header">
-            SUBSTRATE PROPAGATION REQUIRED // RE-ENTRY LOOP
-        </div>
-        <div class="propagation-clip-text">${clipText}</div>
-        <button id="propagation-btn" class="propagation-btn">
-            [ COPY PAYLOAD + OPEN SOURCE ]
-        </button>
-    `;
+    zone.innerHTML =
+        '<div class="propagation-header">SUBSTRATE PROPAGATION REQUIRED // RE-ENTRY LOOP</div>' +
+        '<div class="propagation-clip-text">' + clipText + '</div>' +
+        '<button id="propagation-btn" class="propagation-btn">[ COPY PAYLOAD + OPEN SOURCE ]</button>' +
+        '<a id="propagation-link" href="' + REEL_URL + '" target="_blank" class="propagation-link hidden">[ OPEN SOURCE — PASTE PAYLOAD ]</a>';
 
     output.insertAdjacentElement('afterend', zone);
 
@@ -317,48 +313,62 @@ function renderPropagationClip(clipText, suitId) {
     updateNavigator('gate2_active');
 
     document.getElementById('propagation-btn').addEventListener('click', () => {
-        // Step 1: Copy payload to clipboard immediately
-        navigator.clipboard.writeText(payload).catch(() => {
-            tickerAmberFlash('[CLIPBOARD_ERROR — COPY MANUALLY]');
-        });
+        // Step 1: Copy payload to clipboard
+        navigator.clipboard.writeText(payload).catch(() => {});
 
-        // Step 2: Disable button — countdown runs first, FB opens at completion
-        document.getElementById('propagation-btn').disabled = true;
-        document.getElementById('propagation-btn').innerText = '[ SIGNAL_INJECTED — CALIBRATING... ]';
+        // Step 2: Run countdown in the button itself — always visible
+        const btn = document.getElementById('propagation-btn');
+        btn.disabled = true;
 
-        // Step 3: Run visible countdown — open Facebook AFTER countdown completes
-        runGate2Countdown(() => {
-            // Open Facebook at countdown completion — Specimen has seen the full sequence
-            window.open(REEL_URL, '_blank');
-            gate2Complete = true;
+        let count = 5;
+        btn.innerText = '[ SIGNAL_INJECTED — CALIBRATING... ' + count + 's ]';
 
-            // Always unlock Directives 00 + 01 after Gate 2
-            rewardContainer.classList.remove('hidden');
-            document.getElementById('reward-fb').classList.remove('hidden');
-            document.getElementById('reward-amazon').classList.remove('hidden');
-
-            // Check if WP already at 100+ — if so fire Gate 4
-            // Brief delay lets Specimen see CALIBRATION_COMPLETE before decision box
-            if (currentWP >= 100) {
-                setTimeout(() => {
-                    // Remove propagation zone — no longer needed
-                    const pZone = document.getElementById('propagation-zone');
-                    if (pZone) pZone.remove();
-                    inputSection.classList.add('hidden');
-                    document.getElementById('reward-signal').classList.remove('hidden');
-                    updateNavigator('centrifuge');
-                    renderDecisionBox(currentSuitId, currentPathStatus);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }, 1500);
+        const countdown = setInterval(() => {
+            count--;
+            if (count > 0) {
+                btn.innerText = '[ SIGNAL_INJECTED — CALIBRATING... ' + count + 's ]';
             } else {
-                // Gate 3 — re-enable input normally
-                input.value = '';
-                input.placeholder = '[TYPE_HERE]';
-                input.style.height = '120px';
-                inputSection.classList.remove('hidden');
-                updateNavigator('gate3_early');
+                clearInterval(countdown);
+                btn.style.color = '#00ff41';
+                btn.style.borderColor = '#00ff41';
+                btn.innerText = '[ CALIBRATION_COMPLETE. SUBSTRATE_GROUNDED. ]';
+
+                // Show the FB link — user-clickable, not programmatic open
+                const link = document.getElementById('propagation-link');
+                if (link) link.classList.remove('hidden');
+
+                // Fire Gate 2 complete logic after brief display
+                setTimeout(() => {
+                    gate2Complete = true;
+
+                    // Unlock Directives 00 + 01
+                    rewardContainer.classList.remove('hidden');
+                    document.getElementById('reward-fb').classList.remove('hidden');
+                    document.getElementById('reward-amazon').classList.remove('hidden');
+
+                    if (currentWP >= 100) {
+                        setTimeout(() => {
+                            const pZone = document.getElementById('propagation-zone');
+                            if (pZone) pZone.remove();
+                            inputSection.classList.add('hidden');
+                            document.getElementById('reward-signal').classList.remove('hidden');
+                            updateNavigator('centrifuge');
+                            renderDecisionBox(currentSuitId, currentPathStatus);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }, 1500);
+                    } else {
+                        // Gate 3 — re-enable input
+                        const pZone = document.getElementById('propagation-zone');
+                        if (pZone) pZone.remove();
+                        input.value = '';
+                        input.placeholder = '[TYPE_HERE]';
+                        input.style.height = '120px';
+                        inputSection.classList.remove('hidden');
+                        updateNavigator('gate3_early');
+                    }
+                }, 1500);
             }
-        });
+        }, 1000);
     });
 }
 
