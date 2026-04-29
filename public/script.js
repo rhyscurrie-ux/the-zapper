@@ -476,8 +476,8 @@ async function runAudit(type = 'standard') {
         }
 
         // ── RENDER IDENTIFIER BLOCK (Turn 1 only) ────────────────────────────
-        // Parsed from AI response, SS-ID substituted, rendered as amber block
-        // below audit output. Appears once per session only.
+        // Fixed bottom bar. White text. SPECIMEN FILE // SS-XXXX header.
+        // Full on first render, collapsible after. Persists for session.
         if (!identifierBlockIssued) {
             const idBlockMatch = auditText.match(/\[IDENTIFIER_ISSUED\]:([\s\S]*?)\[END_IDENTIFIER_ISSUED\]/i);
             if (idBlockMatch) {
@@ -485,15 +485,41 @@ async function runAudit(type = 'standard') {
                     .replace(/\[SS-ID\]/g, currentSuitId)
                     .replace(/APEreaction\.com\/suit\/\[SS-ID\]/g,
                         window.location.origin + '/suit/' + currentSuitId);
-                const idBlock = document.createElement('div');
-                idBlock.id = 'identifier-block';
-                idBlock.className = 'identifier-disclosure';
-                idBlock.innerHTML = blockText
+
+                const idBar = document.createElement('div');
+                idBar.id = 'identifier-block';
+                idBar.className = 'specimen-file-bar';
+
+                const headerBtn = document.createElement('button');
+                headerBtn.className = 'specimen-file-header';
+                headerBtn.innerHTML = \`SPECIMEN FILE // \${currentSuitId} <span class="specimen-file-chevron">▲</span>\`;
+
+                const bodyDiv = document.createElement('div');
+                bodyDiv.className = 'specimen-file-body';
+                bodyDiv.innerHTML = blockText
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     .replace(/\n/g, '<br>');
-                output.insertAdjacentElement('afterend', idBlock);
+
+                idBar.appendChild(headerBtn);
+                idBar.appendChild(bodyDiv);
+
+                // Insert as fixed bar — append to body so it sits above footer
+                document.body.appendChild(idBar);
+
+                // Collapse/expand toggle
+                headerBtn.addEventListener('click', () => {
+                    const isOpen = !bodyDiv.classList.contains('collapsed');
+                    if (isOpen) {
+                        bodyDiv.classList.add('collapsed');
+                        headerBtn.querySelector('.specimen-file-chevron').innerText = '▼';
+                    } else {
+                        bodyDiv.classList.remove('collapsed');
+                        headerBtn.querySelector('.specimen-file-chevron').innerText = '▲';
+                    }
+                });
+
                 identifierBlockIssued = true;
             }
         }
