@@ -570,15 +570,17 @@ async function runAudit(type = 'standard') {
             updateNavigator('centrifuge');
             renderDecisionBox(currentSuitId, currentPathStatus);
 
-        } else if (currentWP >= 50 && !propagationClipIssued) {
+        } else if (currentWP >= 50 && !propagationClipIssued && auditCount > 1) {
             // GATE 2 — Injection Phase
+            // auditCount > 1 guard: defers Gate 2 to Turn 2 if WP 50 hit on Turn 1.
+            // Ensures clip references the Specimen's actual story, not first-touch summary.
             const clipText = parsePropagationClip(auditText);
             if (clipText) {
                 propagationClipIssued = true;
                 renderPropagationClip(clipText, currentSuitId);
                 // Navigator updated inside renderPropagationClip
             } else {
-                // Clip missing — fail gracefully
+                // Clip missing — fail gracefully, resume audit
                 inputSection.classList.remove('hidden');
                 input.value = '';
                 input.placeholder = '[TYPE_HERE]';
