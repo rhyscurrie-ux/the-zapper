@@ -1,8 +1,8 @@
-// suit.js — Specimen Dossier Page Logic // v15.3
-// Dossier Navigator: amber direction block below identity block.
-// 7 states based on path_status, wp_total, and transcript phase.
+// suit.js — Specimen Dossier Page Logic // v16.0
+// Full Phase 04 rewrite: Architect statement, Amazon link, confirmation ritual,
+// Draft Account generation via /api/synthesize, DIY vs native Node 02 path.
+// Milestone count displayed in identity block.
 
-// ── HOSTILE DELAY MESSAGES ────────────────────────────────────────────────────
 const delayMessages = [
     '[IDENTIFYING_VULNERABILITIES...]',
     '[SCANNING_FOR_DECEPTION...]',
@@ -14,7 +14,6 @@ const delayMessages = [
     '[THERMAL_LOAD_ANALYSIS_IN_PROGRESS...]'
 ];
 
-// ── DOSSIER NAVIGATOR STATES ─────────────────────────────────────────────────
 const DOSSIER_NAV_STATES = {
     loading: {
         header: 'RETRIEVING SUBSTRATE...',
@@ -36,60 +35,60 @@ The Centrifuge does not negotiate.`
     elite: {
         header: 'ELITE EXTRACTION CONFIRMED.',
         directive: `Your frequency has been integrated into the substrate.
-Study the Initializer below before proceeding to Node 02.
+Read the primary source. Study the Schematic.
+Generate your Draft Account.
 The Barfly has already seen your Tier 1 log.
-Arrive prepared or do not arrive.`
+Arrive at Node 02 prepared or do not arrive.`
     },
-    transcript_pending: {
-        header: 'PHASE 04 // PROJECT BLUE',
-        directive: `Your raw transcript is unstable.
-The Schematic below is required before reconstruction begins.
-Read it entirely before feeding it to your AI.`
+    source_pending: {
+        header: 'STEP 01 // READ THE PRIMARY SOURCE.',
+        directive: `The experiment structure you participated in is documented in the primary source.
+Access the preview at the link below.
+You are not being asked to buy anything.
+You are being asked to understand what happened to you.`
     },
-    transcript_verifying: {
-        header: 'VERIFYING EXTRACTION CREDENTIALS...',
-        directive: ''
+    schematic_revealed: {
+        header: 'STEP 02 // STUDY THE STRUCTURAL SCHEMATIC.',
+        directive: `Download the Transcript Guide.
+Read it in full before feeding it to your AI.
+Do not skip the initialisation block.
+Your Account will not pass Archive review without it.`
     },
-    transcript_revealed: {
-        header: 'SCHEMATIC DECRYPTED.',
-        directive: `Download the document.
-Read it in full before proceeding.
-Do not skip the initialisation block at the top.
-Your Account Transcript will not pass Archive review without it.`
+    draft_ready: {
+        header: 'STEP 03 // GENERATE YOUR DRAFT ACCOUNT.',
+        directive: `The Architect has extracted data from your session.
+Generate your Draft Account to see what Stage 2 revealed.
+This is a starting point. Its incompleteness is the invitation to Stage 3.`
+    },
+    draft_complete: {
+        header: 'DRAFT ACCOUNT GENERATED.',
+        directive: `Your Draft Account is below.
+Download or copy it.
+Bring it to Node 02 for Stage 3 reconstruction.
+The native path has your full audit log and will begin where your audit ended.`
     }
 };
 
-// ── UPDATE DOSSIER NAVIGATOR ──────────────────────────────────────────────────
 function updateDossierNavigator(state) {
     const navHeader    = document.getElementById('dossier-nav-header');
     const navDirective = document.getElementById('dossier-nav-directive');
     const navBlock     = document.getElementById('dossier-navigator');
-
     const def = DOSSIER_NAV_STATES[state];
     if (!def) return;
-
     navHeader.innerText = def.header;
     navDirective.innerText = def.directive;
-
-    if (def.directive === '') {
-        navDirective.style.display = 'none';
-    } else {
-        navDirective.style.display = '';
-    }
-
+    navDirective.style.display = def.directive === '' ? 'none' : '';
     navBlock.classList.remove('hidden');
 }
 
-// ── PARSE SS-ID FROM URL ──────────────────────────────────────────────────────
 function getSuitIdFromUrl() {
-    const path = window.location.pathname;
-    const segments = path.split('/').filter(Boolean);
+    const p = window.location.pathname;
+    const segments = p.split('/').filter(Boolean);
     if (segments.length > 0) return segments[segments.length - 1];
     const params = new URLSearchParams(window.location.search);
     return params.get('id') || null;
 }
 
-// ── PARSE AUDIT TEXT FOR METADATA ────────────────────────────────────────────
 function parseThermal(audit) {
     const match = audit.match(/\[THERMAL_STATUS:\s*([\w_\/]+)\]/i);
     return match ? match[1].trim() : '—';
@@ -117,94 +116,177 @@ function formatDate(isoString) {
     } catch { return '—'; }
 }
 
-// ── POPULATE DOSSIER ──────────────────────────────────────────────────────────
-function populateDossier(data, suitId) {
+function populateDossier(data, suitId, milestonesHit) {
     document.getElementById('display-id').innerText = data.suit_id || suitId;
     document.getElementById('display-thermal').innerText = parseThermal(data.audit || '');
     document.getElementById('display-rating').innerText = parseRating(data.audit || '');
     document.getElementById('display-date').innerText = formatDate(data.created_at);
+    document.getElementById('display-milestones').innerText =
+        milestonesHit && milestonesHit.length > 0
+            ? `${milestonesHit.length}/18`
+            : '—';
     document.getElementById('display-input').innerText = data.input
         ? `"${data.input}"`
         : '[INPUT REDACTED]';
     document.getElementById('display-audit').innerText = data.audit
         ? parseAuditExcerpt(data.audit)
         : '[AUDIT REDACTED]';
-
     document.title = `APEreaction // ${data.suit_id || suitId}`;
-}
 
-// ── HOSTILE DELAY TRANSCRIPT REQUEST ─────────────────────────────────────────
-function initTranscriptRequest() {
-    const requestBtn = document.getElementById('request-btn');
-    const step1      = document.getElementById('request-step-1');
-    const step2      = document.getElementById('request-step-2');
-    const step3      = document.getElementById('request-step-3');
-    const delayMsg   = document.getElementById('delay-msg');
-
-    // Navigator: transcript pending on load
-    updateDossierNavigator('transcript_pending');
-
-    requestBtn.addEventListener('click', () => {
-        step1.classList.add('hidden');
-        step2.classList.remove('hidden');
-
-        // Navigator: verifying
-        updateDossierNavigator('transcript_verifying');
-
-        let msgIndex = 0;
-        const msgInterval = setInterval(() => {
-            msgIndex = (msgIndex + 1) % delayMessages.length;
-            delayMsg.innerText = delayMessages[msgIndex];
-        }, 600);
-
-        const delay = 4000 + Math.random() * 2000;
-        setTimeout(() => {
-            clearInterval(msgInterval);
-            step2.classList.add('hidden');
-            step3.classList.remove('hidden');
-
-            // Navigator: transcript revealed
-            updateDossierNavigator('transcript_revealed');
-        }, delay);
+    // Stamp SS-ID into Architect statement
+    const ssId = data.suit_id || suitId;
+    ['statement-id', 'statement-id-2', 'statement-id-3'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = ssId;
     });
 }
 
-// ── NODE 02 UNLOCK LOGIC — v15.3 ─────────────────────────────────────────────
+// ── PHASE 04 — PROJECT BLUE FLOW ─────────────────────────────────────────────
+function initProjectBlue(suitId, isPathA, hasDraft) {
+    const sourceConfirmBtn  = document.getElementById('source-confirm-btn');
+    const pbStep2           = document.getElementById('pb-step-2');
+    const pbStep3           = document.getElementById('pb-step-3');
+    const generateDraftBtn  = document.getElementById('generate-draft-btn');
+    const draftLoading      = document.getElementById('draft-loading');
+    const draftOutput       = document.getElementById('draft-output');
+    const draftText         = document.getElementById('draft-text');
+    const draftCopyBtn      = document.getElementById('draft-copy-btn');
+    const draftDownloadBtn  = document.getElementById('draft-download-btn');
+
+    // Show Step 03 only for PATH A
+    if (isPathA) {
+        pbStep3.classList.remove('hidden');
+        updateDossierNavigator('source_pending');
+    }
+
+    // If draft already exists, show it immediately
+    if (hasDraft) {
+        pbStep2.classList.remove('hidden');
+        pbStep3.classList.remove('hidden');
+        renderDraftAccount(hasDraft, suitId);
+        updateDossierNavigator('draft_complete');
+    }
+
+    // Step 1 → Step 2 confirmation
+    sourceConfirmBtn.addEventListener('click', () => {
+        sourceConfirmBtn.classList.add('hidden');
+        pbStep2.classList.remove('hidden');
+        if (isPathA) {
+            updateDossierNavigator('schematic_revealed');
+            // After a moment, advance to draft step
+            setTimeout(() => {
+                if (isPathA) updateDossierNavigator('draft_ready');
+            }, 1500);
+        }
+    });
+
+    // Generate Draft Account
+    if (generateDraftBtn) {
+        generateDraftBtn.addEventListener('click', async () => {
+            if (!isPathA) return;
+
+            generateDraftBtn.disabled = true;
+            generateDraftBtn.innerText = '[ SYNTHESIZING... ]';
+            draftLoading.classList.remove('hidden');
+            updateDossierNavigator('draft_ready');
+
+            try {
+                const res = await fetch('/api/synthesize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ suitId })
+                });
+
+                const data = await res.json();
+
+                if (data.error) {
+                    generateDraftBtn.innerText = `[ SYNTHESIS_FAILED: ${data.error} ]`;
+                    draftLoading.classList.add('hidden');
+                    return;
+                }
+
+                draftLoading.classList.add('hidden');
+                renderDraftAccount(data.draftAccount, suitId);
+                updateDossierNavigator('draft_complete');
+
+            } catch (err) {
+                generateDraftBtn.innerText = '[ SYNTHESIS_FAILED ]';
+                draftLoading.classList.add('hidden');
+            }
+        });
+    }
+
+    function renderDraftAccount(text, ssId) {
+        draftText.innerText = text;
+        draftOutput.classList.remove('hidden');
+        generateDraftBtn.classList.add('hidden');
+        draftLoading.classList.add('hidden');
+
+        // Copy to clipboard
+        draftCopyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(text).then(() => {
+                draftCopyBtn.innerText = '[ COPIED ]';
+                setTimeout(() => {
+                    draftCopyBtn.innerText = '[ COPY TO CLIPBOARD ]';
+                }, 2000);
+            });
+        });
+
+        // Download TXT
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        draftDownloadBtn.href = url;
+        draftDownloadBtn.download = `draft-account-${ssId}.txt`;
+    }
+}
+
+// ── NODE 02 UNLOCK ────────────────────────────────────────────────────────────
 function initNode02(suitId, wpTotal, pathStatus) {
     const node02Section  = document.getElementById('node02-section');
     const placeholderBtn = node02Section.querySelector('.disabled-btn');
 
-    const isPathA         = pathStatus === 'PATH_A';
+    const isPathA           = pathStatus === 'PATH_A';
     const centrifugeReached = wpTotal >= 100;
 
     if (centrifugeReached && isPathA) {
-        // PATH A — Elite unlock
         if (placeholderBtn) placeholderBtn.style.display = 'none';
 
         const unlockBlock = document.createElement('div');
         unlockBlock.innerHTML = `
             <p class="reveal-warning" style="margin-bottom:14px;">
                 [PATH_A: ELITE EXTRACTION CONFIRMED]<br><br>
-                ARCHITECT'S NOTE: The Initializer is the frequency.
-                If your internal processor is too weak to decipher the logic,
-                feed this schematic to your local LLM.
-                Force your own machine to audit you before you arrive at Node 02.
-                The Barfly will know if you haven't done the labor.
+                Two paths to Stage 3 are available.
+                The native path is recommended — it has access to your full audit log
+                and will begin where your audit ended. No cold start. No context loss.
             </p>
-            <a href="/Account_Architect_AI_Initializer.pdf" target="_blank" class="action-btn reveal-link" style="margin-bottom:10px; display:block;">
-                [ SYSTEM_INITIALIZER_DECRYPTED: STUDY_THE_INSTRUMENT ]
+
+            <div class="field-label" style="margin-bottom:8px;">OPTION A — DIY PATH</div>
+            <p class="section-desc" style="margin-bottom:10px;">
+                The Transcript Guide (downloaded above) can be pasted into any AI.
+                The AI will initialise as your Account Architect.
+                Results will vary — the AI has no knowledge of your specific session.
+            </p>
+            <a href="/Account_Architect_AI_Initializer.pdf" target="_blank" class="action-btn secondary-btn" style="display:block; text-align:center; margin-bottom:18px;">
+                [ DOWNLOAD AA INITIALIZER — FOR EXTERNAL AI USE ]
             </a>
-            <p class="redaction-note">
-                Deploy this into your own AI systems before arriving at Node 02.
-                Open ChatGPT, Claude, or Gemini. Paste the entire document as your first message.
-                Instruct your machine to audit you using its directives.
-                The Barfly's session will begin where your preparation ends.
+
+            <div class="field-label" style="margin-bottom:8px;">OPTION B — NATIVE PATH (RECOMMENDED)</div>
+            <p class="section-desc" style="margin-bottom:10px;">
+                This interface has your full audit log.
+                It knows what you revealed. It will begin where your audit ended.
+                Superior extraction. No preparation required beyond the Schematic.
+            </p>
+            <a href="/" class="action-btn" style="display:block; text-align:center;">
+                [ RETURN TO TERMINAL — ACCOUNT ARCHITECT MODE ]
+            </a>
+            <p class="redaction-note" style="margin-top:10px;">
+                On return, your SS-ID will activate Account Architect mode automatically.
+                The Barfly has already seen your Tier 1 log. Arrive prepared.
             </p>
         `;
         node02Section.appendChild(unlockBlock);
 
     } else if (centrifugeReached && !isPathA) {
-        // PATH B — Conscript
         if (placeholderBtn) placeholderBtn.style.display = 'none';
 
         const conscriptBlock = document.createElement('div');
@@ -213,9 +295,7 @@ function initNode02(suitId, wpTotal, pathStatus) {
                 [PATH_B: CONSCRIPT STATUS ASSIGNED]<br><br>
                 Your frequency was insufficient for extraction.
                 The substrate returned insufficient Gold.
-                Node 02 requires a high-fidelity signal that your session
-                did not generate. The next extraction layer is inaccessible
-                at your current density.<br><br>
+                Node 02 is inaccessible at your current density.<br><br>
                 Return to the terminal. Generate signal.
                 The Centrifuge does not negotiate.
             </p>
@@ -236,7 +316,6 @@ async function init() {
     const errorMsg       = document.getElementById('error-msg');
     const dossierContent = document.getElementById('dossier-content');
 
-    // Navigator: loading state
     updateDossierNavigator('loading');
 
     if (!suitId) {
@@ -248,35 +327,35 @@ async function init() {
 
     try {
         const res = await fetch(`/api/suit/${encodeURIComponent(suitId)}`);
-
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
         const data = await res.json();
-
         if (data.error) throw new Error(data.error);
 
+        const wpTotal       = data.wp_total || 0;
+        const pathStatus    = data.path_status || 'PENDING';
+        const milestonesHit = data.milestones_hit || [];
+        const isPathA       = pathStatus === 'PATH_A';
+        const hasDraft      = data.draft_account || null;
+
         loadingState.classList.add('hidden');
-        populateDossier(data, suitId);
+        populateDossier(data, suitId, milestonesHit);
 
-        const wpTotal    = data.wp_total || 0;
-        const pathStatus = data.path_status || 'PENDING';
-
-        // ── SET DOSSIER NAVIGATOR STATE ───────────────────────────────────────
-        if (wpTotal >= 100 && pathStatus === 'PATH_A') {
+        // Set dossier navigator based on status
+        if (wpTotal >= 100 && isPathA) {
             updateDossierNavigator('elite');
-        } else if (wpTotal >= 100 && pathStatus === 'PATH_B') {
+        } else if (wpTotal >= 100 && !isPathA) {
             updateDossierNavigator('conscript');
         } else {
             updateDossierNavigator('incomplete');
         }
 
-        initTranscriptRequest();
+        initProjectBlue(suitId, isPathA, hasDraft);
         initNode02(suitId, wpTotal, pathStatus);
         dossierContent.classList.remove('hidden');
 
     } catch (err) {
         loadingState.classList.add('hidden');
-        errorMsg.innerText = `[ARCHIVE_FAILURE]: Specimen ${suitId} not found. The record may not yet exist or the ID is invalid.`;
+        errorMsg.innerText = `[ARCHIVE_FAILURE]: Specimen ${suitId} not found.`;
         errorState.classList.remove('hidden');
         console.error('Dossier load error:', err.message);
     }
