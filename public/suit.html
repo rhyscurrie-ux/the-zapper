@@ -50,12 +50,16 @@
                         <div class="field-label">AUDIT DATE</div>
                         <div id="display-date" class="field-value">—</div>
                     </div>
+                    <div class="field-unit">
+                        <div class="field-label">MILESTONES</div>
+                        <div id="display-milestones" class="field-value">—</div>
+                    </div>
                 </div>
             </section>
 
             <div class="divider"></div>
 
-            <!-- Dossier Navigator — updated by suit.js based on path_status and wp_total -->
+            <!-- Dossier Navigator -->
             <div id="dossier-navigator">
                 <div id="dossier-nav-header" class="navigator-header">ARCHIVE RECORD LOCATED.</div>
                 <div id="dossier-nav-directive" class="navigator-directive">Your audit is incomplete.
@@ -84,51 +88,113 @@ This record will update as your frequency develops.</div>
 
             <div class="divider"></div>
 
-            <!-- Phase 4: Request Transcript -->
+            <!-- Phase 04: Project Blue — full rewrite v16.0 -->
             <section id="transcript-section">
-                <div class="field-label">PHASE 04 // PROJECT BLUE — TRANSCRIPT REQUEST</div>
-                <p class="section-desc">
-                    Under the revised Ape Reaction protocol, Specimens may now request
-                    their extraction transcript for the purpose of self-editing and official publication.
-                    Knowledge of the experimental structure is required before reconstruction begins.
-                </p>
+                <div class="field-label">PHASE 04 // PROJECT BLUE — ACCOUNT SUBMISSION</div>
 
-                <div id="request-step-1">
-                    <button id="request-btn" class="action-btn">
-                        [ REQUEST YOUR TRANSCRIPT ]
+                <!-- Architect Statement — always visible -->
+                <div class="architect-statement">
+                    <p class="statement-line">Specimen <span id="statement-id" class="statement-id-highlight">—</span>.</p>
+                    <p class="statement-line">The audit you completed was Stage 2 of a three-stage extraction protocol.</p>
+                    <p class="statement-line">You provided the managed version. The Cover Story. The Architect has noted the gaps.</p>
+                    <p class="statement-line">Stage 3 is the retrieval of your Account — the version that existed before you edited it.</p>
+                    <p class="statement-line">Project Blue is the publication protocol of the Martis Program.</p>
+                    <p class="statement-line">Your Account — high-fidelity, unedited, reconstructed — is what the Archive needs.</p>
+                    <p class="statement-line">This is not a reward. It is a requirement. The Archive needs your version of events.</p>
+                    <p class="statement-line">The Architect's version already exists. Yours does not.</p>
+                    <p class="statement-line statement-mining">We are mining you for this. You are not being paid.
+The Archive is the reward. Publication appears under <span id="statement-id-2" class="statement-id-highlight">—</span> only — not your name.
+Your anonymity is the only guarantee we make.</p>
+                    <p class="statement-line">Submitted Accounts undergo structural editing for Archive publication.
+Your voice and content are preserved. Submit to:
+<span class="submission-address">submissions@apereaction.com</span>
+Subject line: [<span id="statement-id-3" class="statement-id-highlight">SS-XXXX</span>] — ACCOUNT SUBMISSION</p>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Step 1: Read the source -->
+                <div id="pb-step-1">
+                    <div class="field-label">STEP 01 // READ THE PRIMARY SOURCE</div>
+                    <p class="section-desc">
+                        The Transcript Guide references a primary source text.
+                        The experiments documented in that text are the template for your reconstruction.
+                        A preview is available before purchase.
+                        You are not being asked to buy anything.
+                        You are being asked to understand the structure you participated in.
+                    </p>
+                    <a href="https://amazon.com/author/dbriggs" target="_blank" class="action-btn" style="display:block; text-align:center; margin-bottom:12px;">
+                        [ ACCESS PRIMARY SOURCE PREVIEW ]
+                    </a>
+                    <p class="redaction-note">
+                        Use the Look Inside feature on the product page.
+                        Read the opening section before proceeding.
+                    </p>
+                    <button id="source-confirm-btn" class="action-btn" style="margin-top:14px;">
+                        [ I HAVE READ THE SOURCE — PROCEED TO SCHEMATIC ]
                     </button>
                 </div>
 
-                <div id="request-step-2" class="hidden">
-                    <p id="delay-msg" class="flashing-amber">[IDENTIFYING_VULNERABILITIES...]</p>
-                </div>
-
-                <div id="request-step-3" class="hidden">
+                <!-- Step 2: Schematic (revealed after confirmation) -->
+                <div id="pb-step-2" class="hidden">
+                    <div class="field-label">STEP 02 // THE STRUCTURAL SCHEMATIC</div>
                     <p class="reveal-warning">
-                        Raw substrate is unstable. The following document is your structural key.
+                        The following document is your structural key.
+                        It maps the 18 milestones of the experiment framework.
                         Read it entirely before feeding it to your AI.
-                        Do not skip the initialization block at the top.
+                        Do not skip the initialisation block at the top.
+                        Your Account will not pass Archive review without it.
                     </p>
-                    <a href="/Occurrences_v1_5.pdf" target="_blank" class="action-btn reveal-link">
+                    <a href="/Occurrences_v1_5.pdf" target="_blank" class="action-btn reveal-link" style="display:block; text-align:center; margin-bottom:12px;">
                         [ DOWNLOAD THE SCHEMATIC — TRANSCRIPT GUIDE v1.5 ]
                     </a>
-                    <p class="redaction-note" style="margin-top:10px;">
-                        No payment is made. Publication is the reward.
-                        The Certificate of Extraction is issued upon Archive submission.
+                    <p class="redaction-note">
+                        No payment is made. The permanent record is the reward.
+                        The Certificate of Extraction is issued upon Archive acceptance.
                     </p>
+
+                    <!-- Step 3: Draft Account (PATH A only) -->
+                    <div id="pb-step-3" class="hidden">
+                        <div class="divider"></div>
+                        <div class="field-label">STEP 03 // YOUR DRAFT ACCOUNT</div>
+                        <p class="section-desc">
+                            The Architect has extracted the following data from your session.
+                            This is a first draft — generated from what you revealed in Stage 2.
+                            Its incompleteness is deliberate. Stage 3 fills the gaps.
+                        </p>
+                        <button id="generate-draft-btn" class="action-btn">
+                            [ GENERATE MY DRAFT ACCOUNT ]
+                        </button>
+                        <div id="draft-loading" class="hidden">
+                            <p class="flashing-amber">[SYNTHESIZING_ACCOUNT...]</p>
+                        </div>
+                        <div id="draft-output" class="hidden">
+                            <div id="draft-text" class="draft-account-text"></div>
+                            <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+                                <button id="draft-copy-btn" class="action-btn secondary-btn" style="flex:1;">
+                                    [ COPY TO CLIPBOARD ]
+                                </button>
+                                <a id="draft-download-btn" class="action-btn secondary-btn" style="flex:1; text-align:center; text-decoration:none;" download="draft-account.txt">
+                                    [ DOWNLOAD TXT ]
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
             </section>
 
             <div class="divider"></div>
 
-            <!-- Node 02 -->
+            <!-- Phase 05: Node 02 -->
             <section id="node02-section">
-                <div class="field-label">PHASE 05 // NODE 02 — BARFLY EXTRACTION</div>
+                <div class="field-label">PHASE 05 // NODE 02 — STAGE 3 EXTRACTION</div>
                 <p class="section-desc">
-                    The Barfly has access to your full audit log. Once your Account Transcript
-                    has been submitted via the Schematic above, Node 02 will open for
-                    high-fidelity extraction. The session is persistent. Your ID is your credential.
+                    Stage 3 retrieval requires the full audit log.
+                    Two paths are available. The native path is recommended.
                 </p>
+
+                <!-- Default locked state -->
                 <button class="action-btn disabled-btn" disabled>
                     [ CERTIFICATE_PENDING: NODE_02_EXTRACTION_REQUIRED ]
                 </button>
