@@ -481,10 +481,7 @@ async function runAudit(type = 'standard') {
         if (!identifierBlockIssued) {
             const idBlockMatch = auditText.match(/\[IDENTIFIER_ISSUED\]:([\s\S]*?)\[END_IDENTIFIER_ISSUED\]/i);
             if (idBlockMatch) {
-                const blockText = idBlockMatch[1].trim()
-                    .replace(/\[SS-ID\]/g, currentSuitId)
-                    .replace(/APEreaction\.com\/suit\/\[SS-ID\]/g,
-                        window.location.origin + '/suit/' + currentSuitId);
+                const dossierUrl = window.location.origin + '/suit/' + currentSuitId;
 
                 const idBar = document.createElement('div');
                 idBar.id = 'identifier-block';
@@ -492,19 +489,27 @@ async function runAudit(type = 'standard') {
 
                 const headerBtn = document.createElement('button');
                 headerBtn.className = 'specimen-file-header';
-                headerBtn.innerHTML = 'SPECIMEN FILE // ' + currentSuitId + ' <span class="specimen-file-chevron">▲</span>';
+                headerBtn.innerHTML = 'MARTIS ARCHIVE // ' + currentSuitId + ' // TAP TO VIEW YOUR RECORD <span class="specimen-file-chevron">▼</span>';
 
                 const bodyDiv = document.createElement('div');
-                bodyDiv.className = 'specimen-file-body';
-                bodyDiv.innerHTML = blockText
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/\n/g, '<br>');
-
-                // Start collapsed — body hidden, chevron points up (click to expand)
-                bodyDiv.classList.add('collapsed');
-                headerBtn.innerHTML = 'SPECIMEN FILE // ' + currentSuitId + ' <span class="specimen-file-chevron">▼</span>';
+                bodyDiv.className = 'specimen-file-body collapsed';
+                bodyDiv.innerHTML =
+                    '<div class="sf-section-title">YOUR RECORD IS ACTIVE.</div>' +
+                    '<p class="sf-line"><strong>' + currentSuitId + '</strong> is your permanent identifier in the Martis Archive.<br>' +
+                    'It is anonymous. No personal data is attached to it.<br>' +
+                    'It cannot be traced to you by anyone, including the Architect.</p>' +
+                    '<div class="sf-section-title">WHAT YOUR IDENTIFIER MAKES POSSIBLE:</div>' +
+                    '<p class="sf-line">' +
+                    '&#8212; View your full audit log: <a href="' + dossierUrl + '" target="_blank" class="sf-link">' + dossierUrl + '</a><br>' +
+                    '&#8212; Eligibility for Project Blue (high-signal specimens only)<br>' +
+                    '&#8212; Publication in the Archive under ' + currentSuitId + ' &#8212; not your name</p>' +
+                    '<div class="sf-section-title">WHAT WE ARE DOING WITH YOUR DATA:</div>' +
+                    '<p class="sf-line">We are mining your responses for narrative material.<br>' +
+                    'This is free. You are not being paid.<br>' +
+                    'The Archive is the reward.<br>' +
+                    'If your Account is published, it appears under ' + currentSuitId + ' only.<br>' +
+                    'Your anonymity is the only guarantee we make.</p>' +
+                    '<p class="sf-warning">Record this identifier. It cannot be recovered if lost.</p>';
 
                 idBar.appendChild(headerBtn);
                 idBar.appendChild(bodyDiv);
