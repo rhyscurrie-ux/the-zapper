@@ -455,8 +455,10 @@ async function runAudit(type = 'standard') {
         const auditText = data.audit || '[SYSTEM_SILENCE]';
 
         // Strip PROPAGATION_CLIP and IDENTIFIER_ISSUED — rendered separately
+        // PROPAGATION_CLIP now comes before CENTRIFUGE_STATUS in output order.
+        // Strip only the clip section — stop before [CENTRIFUGE_STATUS] or [SYSTEM_REQUIREMENT]
         const auditForDisplay = auditText
-            .replace(/\[PROPAGATION_CLIP\]:[\s\S]*$/i, '')
+            .replace(/\[PROPAGATION_CLIP\]:[\s\S]*?(?=\[CENTRIFUGE_STATUS\]|\[END_IDENTIFIER_ISSUED\]|$)/i, '')
             .replace(/\[IDENTIFIER_ISSUED\]:[\s\S]*?\[END_IDENTIFIER_ISSUED\]/i, '')
             .trim();
 
