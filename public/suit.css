@@ -294,3 +294,60 @@ section {
     white-space: pre-line;
     font-style: normal;
 }
+
+/* ── ARCHITECT STATEMENT — PHASE 04 ────────────────────────────────────────── */
+.architect-statement {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+    border: 1px solid rgba(0, 255, 65, 0.1);
+    background: rgba(0, 255, 65, 0.02);
+    margin-bottom: 16px;
+}
+
+.statement-line {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: rgba(0, 255, 65, 0.85);
+    text-transform: none;
+    font-style: normal;
+}
+
+.statement-mining {
+    font-size: 0.75rem;
+    color: rgba(0, 255, 65, 0.55);
+    padding-top: 8px;
+    border-top: 1px solid rgba(0, 255, 65, 0.08);
+}
+
+.statement-id-highlight {
+    color: #00ff41;
+    font-weight: 900;
+}
+
+.submission-address {
+    color: #ffaa00;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* ── DRAFT ACCOUNT OUTPUT ───────────────────────────────────────────────────── */
+.draft-account-text {
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: rgba(0, 255, 65, 0.9);
+    text-transform: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    padding: 16px;
+    border: 1px solid rgba(0, 255, 65, 0.15);
+    background: rgba(0, 255, 65, 0.02);
+    margin-top: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+    font-style: italic;
+}
+
+.draft-account-text::-webkit-scrollbar { width: 3px; }
+.draft-account-text::-webkit-scrollbar-thumb { background: #003300; }
