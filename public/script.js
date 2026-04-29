@@ -561,19 +561,50 @@ async function runAudit(type = 'standard') {
         const isProbeFailure = /\[PROBE_FAILURE\]/i.test(auditText);
 
         // ── GATE LOGIC + NAVIGATOR ────────────────────────────────────────────
+        // Gate priority: Gate 2 always fires before Gate 4.
+        // If WP jumps past 100 without Gate 2 firing, Gate 2 runs first.
+        // Gate 4 fires on the NEXT turn after Gate 2 completes.
 
-        if (currentWP >= 100) {
+        if (currentWP >= 100 && !propagationClipIssued && auditCount > 1) {
+            // GATE 2 PRIORITY — WP >= 100 but Gate 2 hasn't fired yet.
+            // Fire Gate 2 now. Gate 4 defers to next turn after Gate 2 completes.
+            const clipText = parsePropagationClip(auditText);
+            if (clipText) {
+                propagationClipIssued = true;
+                renderPropagationClip(clipText, currentSuitId);
+            } else {
+                // Clip missing — fire Gate 4 immediately as fallback
+                inputSection.classList.add('hidden');
+                // Unlock all four directives (Gate 2 was skipped)
+                rewardContainer.classList.remove('hidden');
+                document.getElementById('reward-fb').classList.remove('hidden');
+                document.getElementById('reward-amazon').classList.remove('hidden');
+                document.getElementById('reward-signal').classList.remove('hidden');
+                propagationClipIssued = true;
+                gate2Complete = true;
+                updateNavigator('centrifuge');
+                renderDecisionBox(currentSuitId, currentPathStatus);
+            }
+
+        } else if (currentWP >= 100 && (propagationClipIssued || auditCount <= 1)) {
             // GATE 4 — Centrifuge
+            // Only fires when Gate 2 is already complete OR was legitimately skipped
+            // (Turn 1 only, where Gate 2 is intentionally deferred).
             inputSection.classList.add('hidden');
+            // If Gate 2 was skipped (Turn 1 jump), unlock all four directives
+            if (!gate2Complete) {
+                rewardContainer.classList.remove('hidden');
+                document.getElementById('reward-fb').classList.remove('hidden');
+                document.getElementById('reward-amazon').classList.remove('hidden');
+            }
             document.getElementById('reward-signal').classList.remove('hidden');
             rewardContainer.classList.remove('hidden');
             updateNavigator('centrifuge');
             renderDecisionBox(currentSuitId, currentPathStatus);
 
         } else if (currentWP >= 50 && !propagationClipIssued && auditCount > 1) {
-            // GATE 2 — Injection Phase
+            // GATE 2 — Injection Phase (standard path, WP 50-99)
             // auditCount > 1 guard: defers Gate 2 to Turn 2 if WP 50 hit on Turn 1.
-            // Ensures clip references the Specimen's actual story, not first-touch summary.
             const clipText = parsePropagationClip(auditText);
             if (clipText) {
                 propagationClipIssued = true;
