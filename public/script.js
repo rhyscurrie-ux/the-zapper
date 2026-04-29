@@ -492,7 +492,7 @@ async function runAudit(type = 'standard') {
 
                 const headerBtn = document.createElement('button');
                 headerBtn.className = 'specimen-file-header';
-                headerBtn.innerHTML = \`SPECIMEN FILE // \${currentSuitId} <span class="specimen-file-chevron">▲</span>\`;
+                headerBtn.innerHTML = 'SPECIMEN FILE // ' + currentSuitId + ' <span class="specimen-file-chevron">▲</span>';
 
                 const bodyDiv = document.createElement('div');
                 bodyDiv.className = 'specimen-file-body';
