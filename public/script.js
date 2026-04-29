@@ -191,8 +191,13 @@ function tickerAmberFlash(message, duration = 3000) {
 
 // ── GATE 2 COUNTDOWN ──────────────────────────────────────────────────────────
 function runGate2Countdown(onComplete) {
+    // Aggressively clear the carousel — clear current interval and
+    // set tickerInterval to a fresh no-op to prevent stale callbacks firing
     clearInterval(tickerInterval);
+    tickerInterval = setInterval(() => {}, 999999); // dummy — immediately replaced
+
     tickerLabel.style.display = 'none';
+    tickerText.classList.remove('fade-out');
     tickerText.style.color = '#ffaa00';
     tickerText.style.fontWeight = '900';
     tickerText.style.fontStyle = 'normal';
@@ -200,12 +205,12 @@ function runGate2Countdown(onComplete) {
     updateNavigator('gate2_countdown');
 
     let count = 5;
-    tickerText.innerText = `[SIGNAL_INJECTED... CALIBRATING_SUBSTRATE... ${count}s]`;
+    tickerText.innerText = '[SIGNAL_INJECTED... CALIBRATING_SUBSTRATE... ' + count + 's]';
 
     const countdown = setInterval(() => {
         count--;
         if (count > 0) {
-            tickerText.innerText = `[SIGNAL_INJECTED... CALIBRATING_SUBSTRATE... ${count}s]`;
+            tickerText.innerText = '[SIGNAL_INJECTED... CALIBRATING_SUBSTRATE... ' + count + 's]';
         } else {
             clearInterval(countdown);
             tickerText.style.color = '#00ff41';
