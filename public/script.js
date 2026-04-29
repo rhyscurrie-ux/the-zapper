@@ -11,6 +11,7 @@ let isDisabled = false;
 let currentWP = 0;
 let currentPathStatus = 'PENDING';
 let propagationClipIssued = false;
+let identifierBlockIssued = false;  // Identifier disclosure block — once per session only
 let gate2Complete = false;
 let identifierStamped = false;  // Tracks whether footer has been updated from [AWAITING_IDENTIFIER]
 
@@ -477,7 +478,7 @@ async function runAudit(type = 'standard') {
         // ── RENDER IDENTIFIER BLOCK (Turn 1 only) ────────────────────────────
         // Parsed from AI response, SS-ID substituted, rendered as amber block
         // below audit output. Appears once per session only.
-        if (auditCount === 1 && !document.getElementById('identifier-block')) {
+        if (!identifierBlockIssued) {
             const idBlockMatch = auditText.match(/\[IDENTIFIER_ISSUED\]:([\s\S]*?)\[END_IDENTIFIER_ISSUED\]/i);
             if (idBlockMatch) {
                 const blockText = idBlockMatch[1].trim()
@@ -493,6 +494,7 @@ async function runAudit(type = 'standard') {
                     .replace(/>/g, '&gt;')
                     .replace(/\n/g, '<br>');
                 output.insertAdjacentElement('afterend', idBlock);
+                identifierBlockIssued = true;
             }
         }
 
