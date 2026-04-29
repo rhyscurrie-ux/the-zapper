@@ -485,3 +485,31 @@ mjx-container {
     text-transform: uppercase;
     letter-spacing: 0.06em;
 }
+
+/* ── PROPAGATION LINK — POST-COUNTDOWN FB LINK ──────────────────────────────── */
+.propagation-link {
+    display: block;
+    width: 100%;
+    background: transparent;
+    border: 1px solid #00ff41;
+    color: #00ff41;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 14px 20px;
+    text-align: center;
+    text-decoration: none;
+    margin-top: 8px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.propagation-link:hover {
+    background: #00ff41;
+    color: #000;
+}
+
+.propagation-link.hidden {
+    display: none;
+}
