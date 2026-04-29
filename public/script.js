@@ -341,6 +341,9 @@ function renderPropagationClip(clipText, suitId) {
             // Brief delay lets Specimen see CALIBRATION_COMPLETE before decision box
             if (currentWP >= 100) {
                 setTimeout(() => {
+                    // Remove propagation zone — no longer needed
+                    const pZone = document.getElementById('propagation-zone');
+                    if (pZone) pZone.remove();
                     inputSection.classList.add('hidden');
                     document.getElementById('reward-signal').classList.remove('hidden');
                     updateNavigator('centrifuge');
