@@ -588,20 +588,28 @@ async function runAudit(type = 'standard') {
 
         // ── GATE LOGIC + NAVIGATOR ────────────────────────────────────────────
         // Gate priority: Gate 2 always fires before Gate 4.
-        // If WP jumps past 100 without Gate 2 firing, Gate 2 runs first.
-        // Gate 4 fires on the NEXT turn after Gate 2 completes.
+        // Neither Gate 2 nor Gate 4 fires on Turn 1 (auditCount === 1).
+        // On Turn 1, always re-enable input so Specimen responds to probe.
 
-        if (currentWP >= 100 && !propagationClipIssued && auditCount > 1) {
+        if (auditCount <= 1 && currentWP >= 50) {
+            // TURN 1 HIGH WP — re-enable input regardless of WP score.
+            // Gate 2 and Gate 4 both deferred. Specimen must respond to probe first.
+            inputSection.classList.remove('hidden');
+            input.value = '';
+            input.placeholder = '[TYPE_HERE]';
+            input.style.height = '120px';
+            updateNavigator('beta');
+
+        } else if (currentWP >= 100 && !propagationClipIssued) {
             // GATE 2 PRIORITY — WP >= 100 but Gate 2 hasn't fired yet.
-            // Fire Gate 2 now. Gate 4 defers to next turn after Gate 2 completes.
+            // Fire Gate 2 now. Gate 4 defers until after Gate 2 countdown.
             const clipText = parsePropagationClip(auditText);
             if (clipText) {
                 propagationClipIssued = true;
                 renderPropagationClip(clipText, currentSuitId);
             } else {
-                // Clip missing — fire Gate 4 immediately as fallback
+                // Clip missing — unlock all directives and fire Gate 4 as fallback
                 inputSection.classList.add('hidden');
-                // Unlock all four directives (Gate 2 was skipped)
                 rewardContainer.classList.remove('hidden');
                 document.getElementById('reward-fb').classList.remove('hidden');
                 document.getElementById('reward-amazon').classList.remove('hidden');
@@ -612,12 +620,9 @@ async function runAudit(type = 'standard') {
                 renderDecisionBox(currentSuitId, currentPathStatus);
             }
 
-        } else if (currentWP >= 100 && (propagationClipIssued || auditCount <= 1)) {
-            // GATE 4 — Centrifuge
-            // Only fires when Gate 2 is already complete OR was legitimately skipped
-            // (Turn 1 only, where Gate 2 is intentionally deferred).
+        } else if (currentWP >= 100 && propagationClipIssued) {
+            // GATE 4 — Centrifuge. Only fires after Gate 2 is complete.
             inputSection.classList.add('hidden');
-            // If Gate 2 was skipped (Turn 1 jump), unlock all four directives
             if (!gate2Complete) {
                 rewardContainer.classList.remove('hidden');
                 document.getElementById('reward-fb').classList.remove('hidden');
