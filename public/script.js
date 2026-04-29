@@ -236,7 +236,8 @@ input.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = this.scrollHeight + 'px';
 
-    if (!identifierStamped && skinDisplay.innerText === '[AWAITING_IDENTIFIER]') {
+    // Only update footer when Specimen is actually typing — not on page load
+    if (this.value.trim() && !identifierStamped && skinDisplay.innerText === '[AWAITING_IDENTIFIER]') {
         skinDisplay.innerText = '[PROCESSING...]';
     }
 });
