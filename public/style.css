@@ -446,3 +446,42 @@ mjx-container {
     padding-bottom: 0;
     overflow: hidden;
 }
+
+/* ── SPECIMEN FILE BAR — INNER ELEMENTS ─────────────────────────────────────── */
+.sf-section-title {
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+    margin-top: 12px;
+    margin-bottom: 4px;
+}
+
+.sf-line {
+    font-size: 0.72rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0 0 4px 0;
+    text-transform: none;
+}
+
+.sf-link {
+    color: #00ff41;
+    text-decoration: none;
+    font-weight: 700;
+    word-break: break-all;
+}
+
+.sf-link:hover {
+    text-decoration: underline;
+}
+
+.sf-warning {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
