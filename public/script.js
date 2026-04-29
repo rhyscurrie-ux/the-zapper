@@ -312,16 +312,19 @@ function renderPropagationClip(clipText, suitId) {
     updateNavigator('gate2_active');
 
     document.getElementById('propagation-btn').addEventListener('click', () => {
+        // Step 1: Copy payload to clipboard immediately
         navigator.clipboard.writeText(payload).catch(() => {
             tickerAmberFlash('[CLIPBOARD_ERROR — COPY MANUALLY]');
         });
 
-        window.open(REEL_URL, '_blank');
-
+        // Step 2: Disable button — countdown runs first, FB opens at completion
         document.getElementById('propagation-btn').disabled = true;
         document.getElementById('propagation-btn').innerText = '[ SIGNAL_INJECTED — CALIBRATING... ]';
 
+        // Step 3: Run visible countdown — open Facebook AFTER countdown completes
         runGate2Countdown(() => {
+            // Open Facebook at countdown completion — Specimen has seen the full sequence
+            window.open(REEL_URL, '_blank');
             gate2Complete = true;
 
             // Always unlock Directives 00 + 01 after Gate 2
