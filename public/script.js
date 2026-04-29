@@ -449,7 +449,12 @@ async function runAudit(type = 'standard') {
 
         // ── RENDER AUDIT OUTPUT ───────────────────────────────────────────────
         const auditText = data.audit || '[SYSTEM_SILENCE]';
-        const auditForDisplay = auditText.replace(/\[PROPAGATION_CLIP\]:[\s\S]*$/i, '').trim();
+
+        // Strip PROPAGATION_CLIP and IDENTIFIER_ISSUED — rendered separately
+        const auditForDisplay = auditText
+            .replace(/\[PROPAGATION_CLIP\]:[\s\S]*$/i, '')
+            .replace(/\[IDENTIFIER_ISSUED\]:[\s\S]*?\[END_IDENTIFIER_ISSUED\]/i, '')
+            .trim();
 
         output.innerHTML = auditForDisplay
             .replace(/&/g, '&amp;')
@@ -468,6 +473,44 @@ async function runAudit(type = 'standard') {
             skinDisplay.innerText = currentSuitId;
             identifierStamped = true;
         }
+
+        // ── RENDER IDENTIFIER BLOCK (Turn 1 only) ────────────────────────────
+        // Parsed from AI response, SS-ID substituted, rendered as amber block
+        // below audit output. Appears once per session only.
+        if (auditCount === 1 && !document.getElementById('identifier-block')) {
+            const idBlockMatch = auditText.match(/\[IDENTIFIER_ISSUED\]:([\s\S]*?)\[END_IDENTIFIER_ISSUED\]/i);
+            if (idBlockMatch) {
+                const blockText = idBlockMatch[1].trim()
+                    .replace(/\[SS-ID\]/g, currentSuitId)
+                    .replace(/APEreaction\.com\/suit\/\[SS-ID\]/g,
+                        window.location.origin + '/suit/' + currentSuitId);
+                const idBlock = document.createElement('div');
+                idBlock.id = 'identifier-block';
+                idBlock.className = 'identifier-disclosure';
+                idBlock.innerHTML = blockText
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/\n/g, '<br>');
+                output.insertAdjacentElement('afterend', idBlock);
+            }
+        }
+
+        // ── TICKER RESTART ────────────────────────────────────────────────────
+        // Restart carousel after every audit response (was only restarting after Gate 2)
+        clearInterval(tickerInterval);
+        tickerLabel.style.display = '';
+        tickerText.style.color = '';
+        tickerText.style.fontWeight = '';
+        tickerText.style.fontStyle = '';
+        tickerInterval = setInterval(() => {
+            tickerText.classList.add('fade-out');
+            setTimeout(() => {
+                sampleIndex = (sampleIndex + 1) % samples.length;
+                tickerText.innerText = samples[sampleIndex];
+                tickerText.classList.remove('fade-out');
+            }, 600);
+        }, 4000);
 
         // MathJax
         if (window.MathJax) {
