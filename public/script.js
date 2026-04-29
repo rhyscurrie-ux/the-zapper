@@ -329,13 +329,16 @@ function renderPropagationClip(clipText, suitId) {
             document.getElementById('reward-fb').classList.remove('hidden');
             document.getElementById('reward-amazon').classList.remove('hidden');
 
-            // Check if WP already at 100+ — if so fire Gate 4 immediately
-            // rather than re-enabling input (Centrifuge already fired in same response)
+            // Check if WP already at 100+ — if so fire Gate 4
+            // Brief delay lets Specimen see CALIBRATION_COMPLETE before decision box
             if (currentWP >= 100) {
-                inputSection.classList.add('hidden');
-                document.getElementById('reward-signal').classList.remove('hidden');
-                updateNavigator('centrifuge');
-                renderDecisionBox(currentSuitId, currentPathStatus);
+                setTimeout(() => {
+                    inputSection.classList.add('hidden');
+                    document.getElementById('reward-signal').classList.remove('hidden');
+                    updateNavigator('centrifuge');
+                    renderDecisionBox(currentSuitId, currentPathStatus);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 1500);
             } else {
                 // Gate 3 — re-enable input normally
                 input.value = '';
