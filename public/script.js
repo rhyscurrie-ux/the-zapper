@@ -324,19 +324,26 @@ function renderPropagationClip(clipText, suitId) {
         runGate2Countdown(() => {
             gate2Complete = true;
 
-            // Re-enable input — Gate 3
-            input.value = '';
-            input.placeholder = '[TYPE_HERE]';
-            input.style.height = '120px';
-            inputSection.classList.remove('hidden');
-
-            // Option A: Directives 00 + 01 appear after Gate 2
+            // Always unlock Directives 00 + 01 after Gate 2
             rewardContainer.classList.remove('hidden');
             document.getElementById('reward-fb').classList.remove('hidden');
             document.getElementById('reward-amazon').classList.remove('hidden');
 
-            // Navigator: Gate 3 early state
-            updateNavigator('gate3_early');
+            // Check if WP already at 100+ — if so fire Gate 4 immediately
+            // rather than re-enabling input (Centrifuge already fired in same response)
+            if (currentWP >= 100) {
+                inputSection.classList.add('hidden');
+                document.getElementById('reward-signal').classList.remove('hidden');
+                updateNavigator('centrifuge');
+                renderDecisionBox(currentSuitId, currentPathStatus);
+            } else {
+                // Gate 3 — re-enable input normally
+                input.value = '';
+                input.placeholder = '[TYPE_HERE]';
+                input.style.height = '120px';
+                inputSection.classList.remove('hidden');
+                updateNavigator('gate3_early');
+            }
         });
     });
 }
