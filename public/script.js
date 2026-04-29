@@ -502,21 +502,25 @@ async function runAudit(type = 'standard') {
                     .replace(/>/g, '&gt;')
                     .replace(/\n/g, '<br>');
 
+                // Start collapsed — body hidden, chevron points up (click to expand)
+                bodyDiv.classList.add('collapsed');
+                headerBtn.innerHTML = 'SPECIMEN FILE // ' + currentSuitId + ' <span class="specimen-file-chevron">▼</span>';
+
                 idBar.appendChild(headerBtn);
                 idBar.appendChild(bodyDiv);
 
-                // Insert as fixed bar — append to body so it sits above footer
+                // Fixed strip — append to body
                 document.body.appendChild(idBar);
 
-                // Collapse/expand toggle
+                // Toggle expand/collapse
                 headerBtn.addEventListener('click', () => {
-                    const isOpen = !bodyDiv.classList.contains('collapsed');
-                    if (isOpen) {
-                        bodyDiv.classList.add('collapsed');
-                        headerBtn.querySelector('.specimen-file-chevron').innerText = '▼';
-                    } else {
+                    const isCollapsed = bodyDiv.classList.contains('collapsed');
+                    if (isCollapsed) {
                         bodyDiv.classList.remove('collapsed');
                         headerBtn.querySelector('.specimen-file-chevron').innerText = '▲';
+                    } else {
+                        bodyDiv.classList.add('collapsed');
+                        headerBtn.querySelector('.specimen-file-chevron').innerText = '▼';
                     }
                 });
 
