@@ -333,6 +333,11 @@ mjx-container {
     color: #000;
 }
 
+/* ── TERMINAL BOTTOM PADDING — for fixed specimen file bar ─────────────────── */
+#terminal {
+    padding-bottom: 80px;
+}
+
 /* ── CONTEXTUAL NAVIGATOR — TERMINAL ─────────────────────────────────────── */
 /* Amber direction block above input. One instruction at a time. */
 #navigator-block {
@@ -376,4 +381,68 @@ mjx-container {
     font-style: normal;
     white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+/* ── SPECIMEN FILE BAR — FIXED BOTTOM ───────────────────────────────────────── */
+/* White text. Fixed position above footer. Full on first render, collapsible.  */
+.specimen-file-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: #000;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+.specimen-file-header {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.specimen-file-header:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.specimen-file-chevron {
+    font-size: 0.6rem;
+    opacity: 0.6;
+}
+
+.specimen-file-body {
+    font-size: 0.72rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 14px 16px;
+    text-transform: none;
+    font-style: normal;
+    max-height: 260px;
+    overflow-y: auto;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.specimen-file-body::-webkit-scrollbar { width: 2px; }
+.specimen-file-body::-webkit-scrollbar-thumb { background: #333; }
+
+.specimen-file-body.collapsed {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
 }
