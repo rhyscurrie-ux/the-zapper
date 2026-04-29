@@ -216,6 +216,9 @@ function runGate2Countdown(onComplete) {
                 tickerText.style.fontWeight = '';
                 tickerText.style.fontStyle = '';
                 tickerLabel.style.display = '';
+                // Set current sample immediately — don't leave calibration text
+                tickerText.classList.remove('fade-out');
+                tickerText.innerText = samples[sampleIndex];
                 tickerInterval = setInterval(() => {
                     tickerText.classList.add('fade-out');
                     setTimeout(() => {
