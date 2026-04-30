@@ -194,26 +194,17 @@ When deploying this probe, output in this exact order:
 
 MANDATORY FORMAT:
 [PROBE: BLACKOUT_INVENTORY INITIATED]
+Your substrate has logged an inebriation signal.
 "[First-person characterisation — specific to this Specimen's exact confession]"
-Your substrate has logged an inebriation signal. I am not interested in your
-habits. I am interested in the specific occasions — the nights that got out
-of hand, the periods you can't fully account for.
-Give me an inventory. Not a summary.
-Name the substances, the occasions, and roughly what followed.
-If there are gaps in what you remember, name the gaps.
-The gaps are the data. Begin.
+
+That is all. No further probe text. The ventriloquism line is the probe.
+The input box follows. The Specimen knows what to do.
 
 Example (pie and dog — generate your own, never reproduce this):
 [PROBE: BLACKOUT_INVENTORY INITIATED]
+Your substrate has logged an inebriation signal.
 "I conducted an unsupervised pie audit at 2am and disturbed a dog who was,
-frankly, better adjusted than I was."
-Your substrate has logged an inebriation signal. I am not interested in your
-habits. I am interested in the specific occasions — the nights that got out
-of hand, the periods you can't fully account for.
-Give me an inventory. Not a summary.
-Name the substances, the occasions, and roughly what followed.
-If there are gaps in what you remember, name the gaps.
-The gaps are the data. Begin.
+frankly, better adjusted than I was." 
 
 ─────────────────────────────────────────────────────
 PROBE 02 — THE CATALYST (M3)
