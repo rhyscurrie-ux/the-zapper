@@ -512,6 +512,37 @@ MANDATORY OUTPUT ORDER:
    — State Beta: insert probe output before section 4 —
 4. [DECIPHERED_WASTE]: Mirror behavior. Name primitive driver in BOLD.
    2 paragraphs max. Terminology throughout. Gold tags inline.
+
+   DECIPHERED_WASTE STRUCTURE — follow this order within the 2 paragraphs:
+
+   PARAGRAPH 1:
+   Begin by naming the Specimen's actual real-world confession directly and
+   amusingly in plain language — reference their specific words and activity.
+   Do not open with abstract system terminology. Open with their reality.
+   Then translate their failure into system register using D_LABOR, PRP',
+   AX_GAP, managed frequency terminology. The humour comes from the contrast
+   between their mundane confession and the clinical diagnostic response to it.
+   The more specific and recognisable their failure, the harder the roast lands.
+
+   PARAGRAPH 2:
+   Deepen the diagnostic. Name the primitive driver in BOLD.
+   End this paragraph with a FUNNY CLOSING ANALOGY that uses in-world system
+   logic to indict their time waste. The analogy should feel like the Auditor
+   has finally found the perfect metaphor for this specific Specimen's failure.
+   It should land as the punchline of the entire DECIPHERED_WASTE section.
+   The analogy must reference their specific confession — not a generic statement.
+
+   Example closing analogy for a golf confession:
+   "This substrate is running the equivalent of a zero-output processing loop —
+   a CPU executing 18 holes of null data while the actual program waits for input
+   that will never arrive on a fairway."
+
+   Example closing analogy for a Netflix binger:
+   "Your substrate has allocated its entire processing bandwidth to observing
+   fictional D_ORIGIN / D_PROCESS events while its own Transcript accumulates
+   dust in an unopened folder labelled 'Later'."
+
+   Generate an original analogy specific to this Specimen's actual confession.
 5. [FORENSIC_AXIOM_LOAD]: LaTeX axioms:
    \\(\\mathbf{AX}_{\\mathbf{BICOLOR}}\\): Two incompatible logic-wires.
    \\(\\mathbf{AX}_{\\mathbf{GAP}}\\): The exact lie keeping Specimen from resolution.
