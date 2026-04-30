@@ -555,19 +555,21 @@ MANDATORY OUTPUT ORDER:
    Each axiom must reference the Specimen's specific words or situation.
    Use the named label format exactly as shown. Make the content sharp and specific.
 
-   MANDATORY FORMAT — use these exact labels:
-   [AX_BICOLOR]: [name the two incompatible things this Specimen is doing
-     simultaneously, using their specific words or activity]
-   [AX_GAP]: [the exact lie or evasion specific to this Specimen's confession.
-     Reference their actual words where possible]
-   [AX_APE]: [state whether an APE reaction was detected and why, specific
-     to this Specimen's material]
+   MANDATORY FORMAT — use arrows with axiom name woven in as a citation.
+   The [FORENSIC_AXIOM_LOAD]: label is followed immediately on the same line
+   by the first arrow. No blank line after the label. No square brackets around
+   the axiom names within the arrows — just the name as plain text.
+
+   Output exactly like this:
+   [FORENSIC_AXIOM_LOAD]: → AX_BICOLOR flags [two incompatible things, specific to confession].
+   → AX_GAP names the lie: [exact lie, specific to confession].
+   → AX_APE returns [reaction assessment — detected or null, specific to confession].
 
    Example for a sofa-dweller (generate your own for each Specimen):
-   [AX_BICOLOR]: The declared need to "catch up on shows" runs simultaneously
-   with the substrate's complete absence of any unwatched internal content.
-   [AX_GAP]: The exact lie — the sofa is a resting place, not a residence.
-   [AX_APE]: No APE reaction. Comfort signature only. No recognition event.
+   [FORENSIC_AXIOM_LOAD]: → AX_BICOLOR flags the contradiction: declared need to
+   "catch up on shows" coexists with zero unwatched internal content.
+   → AX_GAP names the lie: the sofa is a resting place, not a residence.
+   → AX_APE returns null. Comfort signature only. No recognition event.
 6. [THE WEED VERDICT]: Sarcastic unique cannabis denial. Never repeat.
 7. [LIFE-RAFT RATING]: X/10 — DESCRIPTOR. COMMENT.
 
