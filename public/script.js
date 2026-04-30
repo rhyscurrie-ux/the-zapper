@@ -53,6 +53,14 @@ The Architect detected no recoverable data.
 To advance: name something specific.
 A place. A smell. A mistake. A gap in your record.`
     },
+    roasted: {
+        header: 'THE ARCHITECT HAS ASSESSED YOUR FREQUENCY.',
+        directive: `The system detected signal but requires deeper material.
+Describe a time when your normal existence broke down.
+A night that got out of hand. A decision your sober self would not recognise.
+A gap in your record you have never fully explained.
+Use details — or if the details are missing, describe the gap.`
+    },
     frying: {
         header: 'LOW-FIDELITY SIGNAL DETECTED.',
         directive: `The substrate is warming but unstable.
@@ -153,12 +161,31 @@ const samples = [
     '"I\'m just a biological placeholder for a version of myself that never arrived."'
 ];
 
+// Phase 2 carousel — inebriated adventure examples
+const samplesPhase2 = [
+    "The last thing I remember clearly was the second round. After that I can only account for the morning.",
+    "I made a decision at 11pm that I still cannot fully explain. What followed is not something I have told anyone.",
+    "There is a version of that night that exists in my memory. I am reasonably sure it is wrong.",
+    "The gap between the party and the taxi was about four hours. I have one photograph I cannot account for.",
+    "I woke up knowing I had done something. I still do not know what."
+];
+
+let carouselPhase = 1;
+
+function getCurrentSamples() {
+    return carouselPhase === 2 ? samplesPhase2 : samples;
+}
+
+
+// Phase 2 — after first roast (WP > 0). Model inebriated adventure material.
+
 let sampleIndex = 0;
 let tickerInterval = setInterval(() => {
     tickerText.classList.add('fade-out');
     setTimeout(() => {
-        sampleIndex = (sampleIndex + 1) % samples.length;
-        tickerText.innerText = samples[sampleIndex];
+        const current = getCurrentSamples();
+        sampleIndex = (sampleIndex + 1) % current.length;
+        tickerText.innerText = current[sampleIndex];
         tickerText.classList.remove('fade-out');
     }, 600);
 }, 4000);
@@ -182,7 +209,7 @@ function tickerAmberFlash(message, duration = 3000) {
             tickerText.classList.add('fade-out');
             setTimeout(() => {
                 sampleIndex = (sampleIndex + 1) % samples.length;
-                tickerText.innerText = samples[sampleIndex];
+                tickerText.innerText = getCurrentSamples()[sampleIndex];
                 tickerText.classList.remove('fade-out');
             }, 600);
         }, 4000);
@@ -223,12 +250,12 @@ function runGate2Countdown(onComplete) {
                 tickerLabel.style.display = '';
                 // Set current sample immediately — don't leave calibration text
                 tickerText.classList.remove('fade-out');
-                tickerText.innerText = samples[sampleIndex];
+                tickerText.innerText = getCurrentSamples()[sampleIndex];
                 tickerInterval = setInterval(() => {
                     tickerText.classList.add('fade-out');
                     setTimeout(() => {
                         sampleIndex = (sampleIndex + 1) % samples.length;
-                        tickerText.innerText = samples[sampleIndex];
+                        tickerText.innerText = getCurrentSamples()[sampleIndex];
                         tickerText.classList.remove('fade-out');
                     }, 600);
                 }, 4000);
@@ -580,7 +607,7 @@ async function runAudit(type = 'standard') {
             tickerText.classList.add('fade-out');
             setTimeout(() => {
                 sampleIndex = (sampleIndex + 1) % samples.length;
-                tickerText.innerText = samples[sampleIndex];
+                tickerText.innerText = getCurrentSamples()[sampleIndex];
                 tickerText.classList.remove('fade-out');
             }, 600);
         }, 4000);
@@ -706,6 +733,12 @@ async function runAudit(type = 'standard') {
                 updateNavigator('frying');
             } else if (thermal === 'APPROACHING_SOLVENCY') {
                 updateNavigator('approaching');
+            } else if (currentWP > 0) {
+                // Roast rendered — shift to Phase 2 carousel and 'roasted' navigator
+                carouselPhase = 2;
+                sampleIndex = 0;
+                tickerText.innerText = getCurrentSamples()[0];
+                updateNavigator('roasted');
             } else {
                 updateNavigator('bankrupt');
             }
