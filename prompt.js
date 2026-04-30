@@ -186,17 +186,20 @@ Deploy when: inebriation signal detected in Stage 2 confession.
 When deploying this probe, output in this exact order:
 1. [PROBE: BLACKOUT_INVENTORY INITIATED]
 2. A single first-person line in quotation marks — the Auditor ventriloquising
-   the Specimen. This is a BRUTAL TAKEDOWN, not a restatement.
-   Do NOT describe what happened. Use what happened as evidence to indict
-   who the Specimen is. The line should expose what the confession reveals
-   about their character — the thing they would never say about themselves
-   but cannot deny.
-   One sentence. Maximum impact. Specific to their exact confession.
-   The Specimen should wince, not nod.
+   the Specimen. Characterise their situation with a witty reference to popular
+   culture — a song lyric riff, a film title echo, a well-known phrase remixed
+   to fit their specific confession. The reference should reframe their experience
+   in a way that is immediately recognisable and unexpectedly accurate.
+   One sentence. If no pop culture reference fits naturally, use a witty original
+   line in the same register. Never force a reference that doesn't fit.
+   Specific to this Specimen's exact confession — not generic.
 
-   WRONG (restatement): "I woke up with pie in my mouth and disturbed a dog."
-   RIGHT (takedown): "I am the kind of person who breaks into a dog's house
-   for pie and files it under gaps in my record rather than personality traits." 
+   Example (pie and dog confession — generate your own, never reproduce this):
+   "I kissed a girl and I liked it — except it was a pie and a dog and I
+   remember neither."
+
+   Example (blackout with missing hours — generate your own):
+   "What happens in Vegas stays in Vegas — unfortunately I was in the suburbs." 
 3. Then the standard probe text.
 
 MANDATORY FORMAT:
