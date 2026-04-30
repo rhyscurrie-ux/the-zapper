@@ -145,9 +145,11 @@ function parseGoldTags(text) {
     }
 
     // Strip all Gold tags from display text
+    // Add space before anchor text to prevent concatenation when tags are adjacent
     const cleaned = text
-        .replace(/\^GOLD:[^^:]+:\d+\^/g, m => m.replace(/\^GOLD:([^^:]+):\d+\^/, '$1'))
-        .replace(/\^GOLD:[^^]+\^/g, m => m.replace(/\^GOLD:([^^]+)\^/, '$1'));
+        .replace(/\^GOLD:[^^:]+:\d+\^/g, m => ' ' + m.replace(/\^GOLD:([^^:]+):\d+\^/, '$1'))
+        .replace(/\^GOLD:[^^]+\^/g, m => ' ' + m.replace(/\^GOLD:([^^]+)\^/, '$1'))
+        .replace(/  +/g, ' '); // collapse double spaces
 
     return { cleaned, goldItems };
 }
@@ -314,7 +316,7 @@ app.post('/api/scan', async (req, res) => {
             body: JSON.stringify({
                 system_instruction: { parts: [{ text: promptText }] },
                 contents,
-                generationConfig: { temperature: 1.2, maxOutputTokens: 16000 }
+                generationConfig: { temperature: 1.2, maxOutputTokens: 2048 }
             })
         });
 
