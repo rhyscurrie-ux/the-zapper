@@ -160,12 +160,13 @@ const samples = [
 ];
 
 // Phase 2 carousel — inebriated adventure examples
+// Trailing '...' signals the visitor can continue the sentence with their own version
 const samplesPhase2 = [
-    "The last thing I remember clearly was the second round. After that I can only account for the morning.",
-    "I made a decision at 11pm that I still cannot fully explain. What followed is not something I have told anyone.",
-    "There is a version of that night that exists in my memory. I am reasonably sure it is wrong.",
-    "The gap between the party and the taxi was about four hours. I have one photograph I cannot account for.",
-    "I woke up knowing I had done something. I still do not know what."
+    "The last thing I remember clearly was the second round. After that I can only account for the morning. What happened between those two points was...",
+    "I made a decision at 11pm that I still cannot fully explain. What followed is not something I have told anyone, but here is what I remember...",
+    "There is a version of that night that exists in my memory. I am reasonably sure it is wrong. The version I am less sure about goes like this...",
+    "The gap between the party and the taxi was about four hours. I have one photograph I cannot account for. In it I am...",
+    "I woke up knowing I had done something. I still do not know what. The evidence I found when I came around was..."
 ];
 
 let carouselPhase = 1;
@@ -737,11 +738,24 @@ async function runAudit(type = 'standard') {
                 updateNavigator('approaching');
             } else if (currentWP > 0) {
                 // Roast rendered — shift to Phase 2 carousel and 'roasted' navigator
-                // Set sampleIndex to -1 so first ticker increment lands at index 0
+                // Kill the current interval entirely and restart with clean state
+                clearInterval(tickerInterval);
                 carouselPhase = 2;
-                sampleIndex = -1;
+                sampleIndex = 0;
+                tickerLabel.style.display = '';
                 tickerText.classList.remove('fade-out');
+                tickerText.style.color = '';
+                tickerText.style.fontWeight = '';
+                tickerText.style.fontStyle = '';
                 tickerText.innerText = samplesPhase2[0];
+                tickerInterval = setInterval(() => {
+                    tickerText.classList.add('fade-out');
+                    setTimeout(() => {
+                        sampleIndex = (sampleIndex + 1) % samplesPhase2.length;
+                        tickerText.innerText = samplesPhase2[sampleIndex];
+                        tickerText.classList.remove('fade-out');
+                    }, 600);
+                }, 4000);
                 updateNavigator('roasted');
             } else {
                 updateNavigator('bankrupt');
