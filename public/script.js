@@ -176,6 +176,10 @@ function getCurrentSamples() {
     return carouselPhase === 2 ? samplesPhase2 : samples;
 }
 
+function getSafeIndex(arr, idx) {
+    return idx % arr.length;
+}
+
 
 // Phase 2 — after first roast (WP > 0). Model inebriated adventure material.
 
@@ -735,9 +739,11 @@ async function runAudit(type = 'standard') {
                 updateNavigator('approaching');
             } else if (currentWP > 0) {
                 // Roast rendered — shift to Phase 2 carousel and 'roasted' navigator
+                // Reset sampleIndex to 0 to prevent out-of-bounds on smaller array
                 carouselPhase = 2;
                 sampleIndex = 0;
-                tickerText.innerText = getCurrentSamples()[0];
+                tickerText.classList.remove('fade-out');
+                tickerText.innerText = samplesPhase2[0];
                 updateNavigator('roasted');
             } else {
                 updateNavigator('bankrupt');
