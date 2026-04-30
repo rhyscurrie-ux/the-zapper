@@ -73,10 +73,12 @@ Complete the propagation directive below.
 The input field will reactivate after calibration.`
     },
     gate2_active: {
-        header: 'AUDIT SUSPENDED.',
-        directive: `Copy your diagnostic payload and report to the source.
-The audit resumes when calibration is confirmed.
-Do not navigate away from this terminal.`
+        header: 'SIGNAL THRESHOLD REACHED.',
+        directive: `Your submission crossed the extraction threshold and has been logged.
+A diagnostic payload has been generated from your session.
+Copy it using the button below and post it at the source that brought you here.
+The audit resumes automatically once calibration is confirmed.
+Do not navigate away from this page.`
     },
     gate2_countdown: {
         header: 'CALIBRATING SUBSTRATE.',
