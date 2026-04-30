@@ -732,7 +732,9 @@ async function runAudit(type = 'standard') {
             const thermalMatch = auditText.match(/\[THERMAL_STATUS:\s*([\w_]+)\]/i);
             const thermal = thermalMatch ? thermalMatch[1].toUpperCase() : 'BANKRUPT';
 
-            if (thermal === 'FRYING') {
+            if (thermal === 'EXTRACTION_CONFIRMED') {
+                updateNavigator('centrifuge');
+            } else if (thermal === 'FRYING') {
                 updateNavigator('frying');
             } else if (thermal === 'APPROACHING_SOLVENCY') {
                 updateNavigator('approaching');
