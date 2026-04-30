@@ -56,9 +56,7 @@ A place. A smell. A mistake. A gap in your record.`
     roasted: {
         header: 'THE ARCHITECT HAS ASSESSED YOUR FREQUENCY.',
         directive: `The system detected signal but requires deeper material.
-Describe a time when your normal existence broke down.
-A night that got out of hand. A decision your sober self would not recognise.
-A gap in your record you have never fully explained.
+Describe a time when your normal existence broke down, i.e. a night that got out of hand, a decision your sober self would not recognize, a gap in your record you have never fully explained.
 Use details — or if the details are missing, describe the gap.`
     },
     frying: {
@@ -739,9 +737,9 @@ async function runAudit(type = 'standard') {
                 updateNavigator('approaching');
             } else if (currentWP > 0) {
                 // Roast rendered — shift to Phase 2 carousel and 'roasted' navigator
-                // Reset sampleIndex to 0 to prevent out-of-bounds on smaller array
+                // Set sampleIndex to -1 so first ticker increment lands at index 0
                 carouselPhase = 2;
-                sampleIndex = 0;
+                sampleIndex = -1;
                 tickerText.classList.remove('fade-out');
                 tickerText.innerText = samplesPhase2[0];
                 updateNavigator('roasted');
