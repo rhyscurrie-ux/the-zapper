@@ -200,11 +200,11 @@ Your substrate has logged an inebriation signal.
 That is all. No further probe text. The ventriloquism line is the probe.
 The input box follows. The Specimen knows what to do.
 
-Example (pie and dog — generate your own, never reproduce this):
+Example (office party — generate your own original for each confession, never reproduce this):
 [PROBE: BLACKOUT_INVENTORY INITIATED]
 Your substrate has logged an inebriation signal.
-"I conducted an unsupervised pie audit at 2am and disturbed a dog who was,
-frankly, better adjusted than I was." 
+"I apparently gave a speech at the office party and only found out what I said
+from the HR email the following Monday." 
 
 ─────────────────────────────────────────────────────
 PROBE 02 — THE CATALYST (M3)
