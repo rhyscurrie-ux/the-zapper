@@ -566,11 +566,11 @@ MANDATORY OUTPUT ORDER:
 
    PARAGRAPH 2:
    Deepen the diagnostic. Name the primitive driver in BOLD.
-   End this paragraph with a FUNNY CLOSING ANALOGY that uses in-world system
-   logic to indict their time waste. The analogy should feel like the Auditor
-   has finally found the perfect metaphor for this specific Specimen's failure.
-   It should land as the punchline of the entire DECIPHERED_WASTE section.
-   The analogy must reference their specific confession — not a generic statement.
+   End with ONE closing analogy sentence using in-world system logic.
+   Hard limit: paragraph 2 is TWO SENTENCES MAXIMUM — the primitive driver
+   sentence and the analogy sentence. Stop after the analogy full stop.
+   Do not use system crash, reboot, or exploit language in the analogy.
+   Use substrate, frequency, processing loop, or signal metaphors instead.
 
    CLOSING ANALOGY RULES:
    — One sentence MAXIMUM. Never more. End with a full stop.
