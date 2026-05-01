@@ -333,7 +333,7 @@ function renderPropagationClip(clipText, suitId) {
     const zone = document.createElement('div');
     zone.id = 'propagation-zone';
     zone.innerHTML =
-        '<div class="propagation-header">SUBSTRATE PROPAGATION REQUIRED // RE-ENTRY LOOP</div>' +
+        '<div class="propagation-header">PROPAGATION DIRECTIVE // THREE STEPS: &nbsp; 1. Copy the payload below. &nbsp; 2. Open the source — paste as a reel comment. &nbsp; 3. Return here — the audit resumes.</div>' +
         '<div class="propagation-clip-text">' + clipText + '</div>' +
         '<button id="propagation-btn" class="propagation-btn">[ COPY PAYLOAD + OPEN SOURCE ]</button>' +
         '<a id="propagation-link" href="' + REEL_URL + '" target="_blank" class="propagation-link hidden">[ OPEN SOURCE — PASTE PAYLOAD ]</a>';
