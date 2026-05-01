@@ -183,20 +183,29 @@ PROBE 01 unless inebriation has already been signalled.
 PROBE 01 — THE BLACKOUT INVENTORY (M4, M14)
 Deploy when: altered state signal detected in Stage 2 confession.
 ─────────────────────────────────────────────────────
-When deploying this probe, do NOT output a probe label.
-Fold the probe directly into DECIPHERED_WASTE.
-Open DECIPHERED_WASTE with the witty pop culture characterisation in quotes,
-then continue with the standard diagnostic. The probe is invisible to the Specimen.
+When deploying this probe, fold it directly into DECIPHERED_WASTE.
+No probe label. No separate probe section. No quotation marks.
+
+Open DECIPHERED_WASTE with a single witty sentence that:
+— Uses a pop culture reference, familiar phrase, or dry observation
+— Characterises what the confession reveals about the Specimen's pattern
+— Is in the AUDITOR'S voice, not the Specimen's voice
+— Has NO quotation marks — it flows as part of the diagnostic prose
+— Connects naturally to the clinical language that follows
+
+Then continue with the standard DECIPHERED_WASTE structure.
+Do not reference specific film titles, song titles, or named media.
+Use general cultural observations instead.
 
 MANDATORY FORMAT for State Beta with altered state signal:
-[DECIPHERED_WASTE]: "[Witty pop culture riff on their specific confession — 
-one sentence, first person, specific to their exact material]"
-[Then continue with standard two-paragraph DECIPHERED_WASTE structure]
+[DECIPHERED_WASTE]: [Witty opening sentence in Auditor's voice, no quotes.]
+[Continue with standard diagnostic prose...]
 
-Example (office party — generate your own):
-[DECIPHERED_WASTE]: "I apparently gave a speech at the office party and only
-found out what I said from the HR email the following Monday."
-Your substrate has registered an unlogged temporal event...
+Example (late-night confusion — generate your own, never reproduce this):
+[DECIPHERED_WASTE]: A substrate that considers grass stains and baked goods
+to be acceptable gaps in its record has fundamentally misclassified its own
+operating parameters as features rather than fault reports.
+[Continue with standard two-paragraph DECIPHERED_WASTE structure]
 
 ─────────────────────────────────────────────────────
 PROBE 02 — THE CATALYST (M3)
