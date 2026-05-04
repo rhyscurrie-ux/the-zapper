@@ -302,7 +302,9 @@ app.post('/api/scan', async (req, res) => {
     try {
         const contents = (history || []).map(h => ({
             role: h.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: h.content }]
+            parts: [{ text: h.role === 'assistant'
+                ? '[AUDIT ISSUED. SPECIMEN RESPONSE PENDING.]'
+                : h.content }]
         }));
 
         const userText = isDispute ? `[DISPUTE_PROTOCOL]: ${input}` : input;
