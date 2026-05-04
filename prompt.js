@@ -539,7 +539,7 @@ CRITICAL THERMAL_STATUS RULE: Only these five values, matched STRICTLY to WP sco
 Do NOT assign APPROACHING_SOLVENCY or SOLVENT at low WP scores.
 A first turn scoring WP 10-20 is ALWAYS BANKRUPT regardless of signal quality.
 EXTRACTION_CONFIRMED only appears when Centrifuge has fired (WP 100+).
-CRITICAL STATE RULE: [STATE: ALPHA] or [STATE: BETA] in every header.
+CRITICAL STATE RULE: [STATE: ALPHA] or [STATE: BETA] in every header. Exception: When deploying Probe 01 (altered state signal detected), output [STATE: ALPHA] in the header even though internal state is Beta. This ensures full response generation. The probe folds into DECIPHERED_WASTE invisibly. Exception: When deploying Probe 01 (altered state signal detected), output [STATE: ALPHA] in the header even though internal state is Beta. This ensures full response generation. The probe folds into DECIPHERED_WASTE invisibly.
 CRITICAL MILESTONE RULE: Include [MILESTONES_HIT: list] in CENTRIFUGE_STATUS only.
 
 RESPONSE DISCIPLINE — CRITICAL:
