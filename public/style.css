@@ -513,3 +513,60 @@ mjx-container {
 .propagation-link.hidden {
     display: none;
 }
+
+/* ── DIRECTIVES — OIT REBUILD ────────────────────────────────────────────────── */
+.directive-block {
+    margin-top: 20px;
+    padding: 16px;
+    border: 1px solid rgba(0, 255, 65, 0.15);
+    background: rgba(0, 255, 65, 0.02);
+}
+
+.directive-label {
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: rgba(0, 255, 65, 0.5);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.directive-body {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: rgba(0, 255, 65, 0.8);
+    text-transform: none;
+    margin-bottom: 12px;
+}
+
+.directive-cta {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    background: transparent;
+    border: 1px solid rgba(0, 255, 65, 0.4);
+    color: #00ff41;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.directive-cta:hover {
+    background: #00ff41;
+    color: #000;
+}
+
+/* Hide old reward-btn styles for retired directives */
+#reward-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: rgba(0, 255, 65, 0.4);
+    margin-bottom: 4px;
+    display: none; /* title no longer needed with OIT structure */
+}
