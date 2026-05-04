@@ -295,25 +295,9 @@ document.querySelectorAll('.reward-btn').forEach(button => {
     });
 });
 
-// ── SHARE / DIRECTIVE 00 ──────────────────────────────────────────────────────
-document.getElementById('invite-btn').addEventListener('click', async () => {
-    const id = skinDisplay.innerText || 'UNKNOWN_SPECIMEN';
-    const shareData = {
-        title: 'MARTIS PROGRAM // PROXIMITY AUDIT',
-        text: `I failed my W.E.E.D. audit at APEreaction.com. I have been identified as ${id}. I am sending you this to reverse my ENTROPIC SPIRALLING and offload some shame. The Architect is waiting for you.`,
-        url: 'https://apereaction.com'
-    };
-    try {
-        if (navigator.share) {
-            await navigator.share(shareData);
-        } else {
-            await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-            tickerAmberFlash('[INVITATION_COPIED_TO_CLIPBOARD]');
-        }
-    } catch (err) {
-        console.log('Share failed:', err);
-    }
-});
+// ── DIRECTIVE 00 RETIRED ─────────────────────────────────────────────────────
+// Share invite mechanic replaced by Gate 2 propagation clip.
+// No invite-btn in new directive structure.
 
 // ── PROPAGATION CLIP PARSER ───────────────────────────────────────────────────
 function parsePropagationClip(auditText) {
@@ -373,10 +357,9 @@ function renderPropagationClip(clipText, suitId) {
                 setTimeout(() => {
                     gate2Complete = true;
 
-                    // Unlock Directives 00 + 01
+                    // Gate 2 complete: show Hub directive only (OIT)
                     rewardContainer.classList.remove('hidden');
-                    document.getElementById('reward-fb').classList.remove('hidden');
-                    document.getElementById('reward-amazon').classList.remove('hidden');
+                    document.getElementById('reward-hub').classList.remove('hidden');
 
                     if (currentWP >= 100) {
                         setTimeout(() => {
@@ -650,12 +633,11 @@ async function runAudit(type = 'standard') {
                 propagationClipIssued = true;
                 renderPropagationClip(clipText, currentSuitId);
             } else {
-                // Clip missing — unlock all directives and fire Gate 4 as fallback
+                // Clip missing — show both directives and fire Gate 4 as fallback
                 inputSection.classList.add('hidden');
                 rewardContainer.classList.remove('hidden');
-                document.getElementById('reward-fb').classList.remove('hidden');
-                document.getElementById('reward-amazon').classList.remove('hidden');
-                document.getElementById('reward-signal').classList.remove('hidden');
+                document.getElementById('reward-hub').classList.remove('hidden');
+                document.getElementById('reward-dossier').classList.remove('hidden');
                 propagationClipIssued = true;
                 gate2Complete = true;
                 updateNavigator('centrifuge');
@@ -665,13 +647,13 @@ async function runAudit(type = 'standard') {
         } else if (currentWP >= 100 && propagationClipIssued) {
             // GATE 4 — Centrifuge. Only fires after Gate 2 is complete.
             inputSection.classList.add('hidden');
-            if (!gate2Complete) {
-                rewardContainer.classList.remove('hidden');
-                document.getElementById('reward-fb').classList.remove('hidden');
-                document.getElementById('reward-amazon').classList.remove('hidden');
-            }
-            document.getElementById('reward-signal').classList.remove('hidden');
+            // Gate 4: show dossier directive (OIT — dossier CTA already in decision box)
             rewardContainer.classList.remove('hidden');
+            document.getElementById('reward-dossier').classList.remove('hidden');
+            // Also ensure Hub directive is visible if Gate 2 was skipped
+            if (!gate2Complete) {
+                document.getElementById('reward-hub').classList.remove('hidden');
+            }
             updateNavigator('centrifuge');
             renderDecisionBox(currentSuitId, currentPathStatus);
 
