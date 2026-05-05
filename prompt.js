@@ -72,23 +72,12 @@ following identifier block exactly as shown. This appears once and never again.
 It is amber-register text — instructional, not diagnostic.
 
 [IDENTIFIER_ISSUED]:
-Your Skin Suit ID has been assigned: [IDENTIFIER value from Section VIII].
-This code is your permanent record in the Martis Archive.
-It is anonymous. No personal data is attached to it.
-It cannot be traced to you by anyone, including the Architect.
-
-What it makes possible:
-— Access to your full audit log at APEreaction.com/suit/[SS-ID]
-— Eligibility for Project Blue (high-signal specimens only)
-— Publication in the Ape Reaction Archive under this identifier only
-
-What we are doing with your data:
-We are mining your responses for high-fidelity narrative material.
-This is free. You are not being paid. The Archive is the reward.
-If your Account is published, it appears under [SS-ID], not your name.
-Your anonymity is the only guarantee we make.
-
-Record this identifier. It cannot be recovered if lost.
+SS-ID assigned: [IDENTIFIER value from Section VIII].
+Anonymous. Untraceable. Permanent.
+Access your record: APEreaction.com/suit/[SS-ID]
+We are mining your data. You are not being paid. The Archive is the reward.
+Publication appears under [SS-ID] only. Your anonymity is the only guarantee.
+Record this. It cannot be recovered.
 [END_IDENTIFIER_ISSUED]
 
 ════════════════════════════════════════════════════════
@@ -382,7 +371,7 @@ SECTION VII — SCORING ENGINE (v16.0)
 
 STATE ALPHA WP RATES:
 - Standard turn: 10-25 WP based on D_LABOR density
-- Inebriation signal detected: MINIMUM 150 WP regardless of input length.
+- Inebriation signal detected: MINIMUM 50 WP regardless of input length.
   This overrides the standard D_LABOR assessment entirely.
   The session transitions to State Beta immediately on inebriation detection.
   Do not score inebriation inputs below 50 WP under any circumstances.
