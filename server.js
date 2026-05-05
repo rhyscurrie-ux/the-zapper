@@ -324,7 +324,7 @@ app.post('/api/scan', async (req, res) => {
             body: JSON.stringify({
                 system_instruction: { parts: [{ text: promptText }] },
                 contents,
-                generationConfig: { temperature: 1.2, maxOutputTokens: 8192 }
+                generationConfig: { temperature: 1.2, maxOutputTokens: 2048 }
             })
         });
 
@@ -345,11 +345,11 @@ app.post('/api/scan', async (req, res) => {
         const milestonesHit = parseMilestonesHit(aiResponse);
         console.log('[MILESTONE_PARSE]', { milestonesHit });
 
-        // Extract SS-ID — reject SS-XXXX placeholder if AI outputs it literally
+        // Extract SS-ID — use client override if present (maintains session continuity)
+        // Falls back to parsing AI response, then generates random if placeholder
         const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(SS-\d{4})\]/);
-        const suitId = (idMatch && idMatch[1] !== 'SS-XXXX')
-            ? idMatch[1].trim()
-            : `SS-${Math.floor(1000 + Math.random() * 9000)}`;
+        const parsedId = (idMatch && idMatch[1] !== 'SS-XXXX') ? idMatch[1].trim() : null;
+        const suitId = suitIdOverride || parsedId || `SS-${Math.floor(1000 + Math.random() * 9000)}`;
 
         // Parse WP
         const wpMatch = aiResponse.match(/\[WP:\s*(\d+)\]/i);
