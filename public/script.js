@@ -624,16 +624,22 @@ async function runAudit(type = 'standard') {
         // 1.5s delay — diagnostic first, then propagation directive appears.
         if (data.auditClip) {
             setTimeout(() => {
-                // Append clip content to audit output
+                // Strip PROPAGATION_CLIP from display — rendered in propagation zone
                 const clipText = data.auditClip;
-                const clipDiv = document.createElement('div');
-                clipDiv.id = 'audit-clip';
-                clipDiv.innerHTML = clipText
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/\n/g, '<br>');
-                output.appendChild(clipDiv);
+                const clipForDisplay = clipText
+                    .replace(/\[PROPAGATION_CLIP\]:[\s\S]*?(?=\[THE WEED VERDICT\]|\[SYSTEM_REQUIREMENT\]|$)/i, '')
+                    .trim();
+
+                if (clipForDisplay) {
+                    const clipDiv = document.createElement('div');
+                    clipDiv.id = 'audit-clip';
+                    clipDiv.innerHTML = clipForDisplay
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/\n/g, '<br>');
+                    output.appendChild(clipDiv);
+                }
 
                 // Now run gate logic with the clip available
                 const combinedAudit = auditText + '\n' + clipText;
