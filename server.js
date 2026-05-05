@@ -324,7 +324,7 @@ app.post('/api/scan', async (req, res) => {
             body: JSON.stringify({
                 system_instruction: { parts: [{ text: promptText }] },
                 contents,
-                generationConfig: { temperature: 1.2, maxOutputTokens: 2048 }
+                generationConfig: { temperature: 1.2, maxOutputTokens: 8192 }
             })
         });
 
