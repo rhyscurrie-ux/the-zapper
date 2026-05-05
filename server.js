@@ -342,10 +342,10 @@ app.post('/api/scan', async (req, res) => {
         // Extract SS-ID — prefer existing suitId passed from client to maintain
         // session continuity. Only generate new one on Turn 1 (no existingSuitId).
         const { existingSuitId } = req.body;
-const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(.*?)\]/);
-const suitId = idMatch
-    ? idMatch[1].trim().replace(/\s+/g, '-')
-    : `SS-${Date.now()}`;
+        const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(.*?)\]/);
+        const suitId = idMatch
+            ? idMatch[1].trim().replace(/\s+/g, '-')
+            : `SS-${Date.now()}`;
         const suitId = existingSuitId || parsedId || `SS-${Date.now()}`;
 
         // Parse WP
