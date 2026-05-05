@@ -303,7 +303,7 @@ app.post('/api/scan', async (req, res) => {
         const contents = (history || []).map(h => ({
             role: h.role === 'assistant' ? 'model' : 'user',
             parts: [{ text: h.role === 'assistant'
-                ? '[FULL AUDIT RESPONSE ISSUED — SPECIMEN DATA LOGGED — CONTINUING SESSION]'
+                ? '[FULL AUDIT RESPONSE ISSUED — ALL MANDATORY SECTIONS COMPLETED — SPECIMEN DATA LOGGED — CONTINUING FULL-LENGTH SESSION]'
                 : h.content }]
         }));
 
