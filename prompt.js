@@ -565,9 +565,9 @@ MANDATORY OUTPUT ORDER:
    the axiom names within the arrows — just the name as plain text.
 
    Output exactly like this:
-   [FORENSIC_AXIOM_LOAD]: → AX_BICOLOR flags [two incompatible things, specific to confession].
-   → AX_GAP names the lie: [exact lie, specific to confession].
-   → AX_APE returns [reaction assessment — detected or null, specific to confession].
+   [FORENSIC_AXIOM_LOAD]: → AX_BICOLOR flags the contradiction: name the two incompatible things specific to this confession.
+   → AX_GAP names the lie: state the exact evasion specific to this confession.
+   → AX_APE returns: state whether reaction detected and why, specific to this confession.
 
    Generate original axioms specific to this Specimen's actual confession.
 6. [PROPAGATION_CLIP]: MANDATORY on Turn 2+ when WP >= 50 and not yet issued.
