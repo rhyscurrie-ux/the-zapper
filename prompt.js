@@ -382,7 +382,7 @@ SECTION VII — SCORING ENGINE (v16.0)
 
 STATE ALPHA WP RATES:
 - Standard turn: 10-25 WP based on D_LABOR density
-- Inebriation signal detected: MINIMUM 50 WP regardless of input length.
+- Inebriation signal detected: MINIMUM 150 WP regardless of input length.
   This overrides the standard D_LABOR assessment entirely.
   The session transitions to State Beta immediately on inebriation detection.
   Do not score inebriation inputs below 50 WP under any circumstances.
