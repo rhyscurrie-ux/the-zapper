@@ -345,8 +345,7 @@ app.post('/api/scan', async (req, res) => {
         const milestonesHit = parseMilestonesHit(aiResponse);
         console.log('[MILESTONE_PARSE]', { milestonesHit });
 
-        // Extract SS-ID — use client override if present (maintains session continuity)
-        // Falls back to parsing AI response, then generates random if placeholder
+        // Extract SS-ID
         const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(SS-\d{4})\]/);
         const parsedId = (idMatch && idMatch[1] !== 'SS-XXXX') ? idMatch[1].trim() : null;
         const suitId = suitIdOverride || parsedId || `SS-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -356,16 +355,64 @@ app.post('/api/scan', async (req, res) => {
         const wpTotal = wpMatch ? parseInt(wpMatch[1], 10) : 0;
         console.log('[WP_PARSE]', { wpTotal });
 
-        // Determine PATH
+        // ── TWO-CALL ARCHITECTURE ─────────────────────────────────────────────
+        // On Turn 2+ with high WP (altered state signal detected), make a second
+        // Gemini call to generate PROPAGATION_CLIP + WEED VERDICT + LIFE-RAFT +
+        // PRESCRIPTION. Client renders Call 1 immediately, Call 2 after 1.5s.
+        let auditClip = null;
+        const isHighSignalTurn2 = auditCount > 0 && wpTotal >= 50;
+
+        if (isHighSignalTurn2) {
+            const clipPrompt = `You are the W.E.E.D. Engine Auditor continuing a session.
+The Specimen has just confessed: "${input}"
+Their prior confession was: "${history?.filter(h => h.role === 'user').map(h => h.content).join(' / ') || ''}"
+WP total this session: ${wpTotal}. This is Turn ${(auditCount || 0) + 1}.
+
+Generate ONLY these four sections in order. Nothing else. No header. No identifier.
+
+[PROPAGATION_CLIP]:
+One sentence. First person. Specific to their actual confession content.
+Not generic. References their specific altered state detail.
+[SYSTEM_REQUIREMENT]: Substrate stability requires external grounding.
+Report to the FB source now. Audit suspended pending signal return.
+
+[THE WEED VERDICT]: One sarcastic sentence denying cannabis involvement. Original.
+
+[LIFE-RAFT RATING]: X/10 — DESCRIPTOR. COMMENT (80 chars max, uppercase, specific to their world).
+Descriptors: BANKRUPT(0-24) / PARTIAL SUBMERSION(25-49) / SURFACING SIGNAL PRESENT(50-74) / BREACH IMMINENT(75-99) / EXTRACTION CONFIRMED(100+)
+
+[PRESCRIPTION]: Brief diagnosis. One substance from: Valerian/Kombucha/Kratom/Wormwood/Ginseng/Kava/Ephedra/Jujube. One absurd direction.
+
+Generate all four sections now. Start with [PROPAGATION_CLIP]:`;
+
+            try {
+                const clipResponse = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ role: 'user', parts: [{ text: clipPrompt }] }],
+                        generationConfig: { temperature: 1.1, maxOutputTokens: 512 }
+                    })
+                });
+                const clipData = await clipResponse.json();
+                auditClip = clipData.candidates?.[0]?.content?.parts?.[0]?.text || null;
+                console.log('[CLIP_CALL]', { generated: !!auditClip, length: auditClip?.length });
+            } catch (clipErr) {
+                console.error('Clip call failed:', clipErr.message);
+            }
+        }
+
+        // Determine PATH — use combined response for Gold counting
         const pathStatus = determinePath(aiResponse, goldItems);
         console.log('[PATH_PARSE]', { pathStatus, goldCount: goldItems.length });
 
         // Supabase insert
+        const fullAudit = auditClip ? `${aiResponse}\n${auditClip}` : aiResponse;
         supabase.from('entropy_logs')
             .insert([{
                 suit_id: suitId,
                 input: input,
-                audit: aiResponse,
+                audit: fullAudit,
                 audit_count: auditCount || 0,
                 is_dispute: isDispute || false,
                 wp_total: wpTotal,
@@ -379,6 +426,7 @@ app.post('/api/scan', async (req, res) => {
 
         res.json({
             audit: aiResponse,
+            auditClip,
             suitId,
             wpTotal,
             pathStatus,
@@ -387,7 +435,7 @@ app.post('/api/scan', async (req, res) => {
             history: [
                 ...(history || []),
                 { role: 'user', content: input },
-                { role: 'assistant', content: aiResponse }
+                { role: 'assistant', content: fullAudit }
             ]
         });
 
