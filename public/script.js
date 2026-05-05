@@ -619,6 +619,42 @@ async function runAudit(type = 'standard') {
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
+        // ── SEQUENTIAL CLIP RENDERING ─────────────────────────────────────────
+        // If server returned auditClip (Turn 2+ high signal), render it after
+        // 1.5s delay — diagnostic first, then propagation directive appears.
+        if (data.auditClip) {
+            setTimeout(() => {
+                // Append clip content to audit output
+                const clipText = data.auditClip;
+                const clipDiv = document.createElement('div');
+                clipDiv.id = 'audit-clip';
+                clipDiv.innerHTML = clipText
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/\n/g, '<br>');
+                output.appendChild(clipDiv);
+
+                // Now run gate logic with the clip available
+                const combinedAudit = auditText + '\n' + clipText;
+
+                if (currentWP >= 100 && !propagationClipIssued) {
+                    const clipContent = parsePropagationClip(combinedAudit);
+                    if (clipContent) {
+                        propagationClipIssued = true;
+                        renderPropagationClip(clipContent, currentSuitId);
+                    }
+                } else if (currentWP >= 50 && !propagationClipIssued && auditCount > 1) {
+                    const clipContent = parsePropagationClip(combinedAudit);
+                    if (clipContent) {
+                        propagationClipIssued = true;
+                        renderPropagationClip(clipContent, currentSuitId);
+                    }
+                }
+            }, 1500);
+            return; // Don't run gate logic immediately — wait for clip
+        }
+
         // ── DETECT STATE BETA ─────────────────────────────────────────────────
         const isStateBeta = /\[STATE:\s*BETA\]/i.test(auditText);
         const isProbeFailure = /\[PROBE_FAILURE\]/i.test(auditText);
