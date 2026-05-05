@@ -303,7 +303,7 @@ app.post('/api/scan', async (req, res) => {
         const contents = (history || []).map(h => ({
             role: h.role === 'assistant' ? 'model' : 'user',
             parts: [{ text: h.role === 'assistant'
-                ? '[AUDIT ISSUED. SPECIMEN RESPONSE PENDING.]'
+                ? '[FULL AUDIT RESPONSE ISSUED — SPECIMEN DATA LOGGED — CONTINUING SESSION]'
                 : h.content }]
         }));
 
@@ -339,11 +339,12 @@ app.post('/api/scan', async (req, res) => {
         const milestonesHit = parseMilestonesHit(aiResponse);
         console.log('[MILESTONE_PARSE]', { milestonesHit });
 
-        // Extract SS-ID
+        // Extract SS-ID — prefer existing suitId passed from client to maintain
+        // session continuity. Only generate new one on Turn 1 (no existingSuitId).
+        const { existingSuitId } = req.body;
         const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(.*?)\]/);
-        const suitId = idMatch
-            ? idMatch[1].trim().replace(/\s+/g, '-')
-            : `SS-${Date.now()}`;
+        const parsedId = idMatch ? idMatch[1].trim().replace(/\s+/g, '-') : null;
+        const suitId = existingSuitId || parsedId || `SS-${Date.now()}`;
 
         // Parse WP
         const wpMatch = aiResponse.match(/\[WP:\s*(\d+)\]/i);
