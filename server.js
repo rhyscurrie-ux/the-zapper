@@ -339,11 +339,11 @@ app.post('/api/scan', async (req, res) => {
         const milestonesHit = parseMilestonesHit(aiResponse);
         console.log('[MILESTONE_PARSE]', { milestonesHit });
 
-        // Extract SS-ID
-        const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(.*?)\]/);
-        const suitId = idMatch
-            ? idMatch[1].trim().replace(/\s+/g, '-')
-            : `SS-${Date.now()}`;
+        // Extract SS-ID — reject SS-XXXX placeholder if AI outputs it literally
+        const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(SS-\d{4})\]/);
+        const suitId = (idMatch && idMatch[1] !== 'SS-XXXX')
+            ? idMatch[1].trim()
+            : `SS-${Math.floor(1000 + Math.random() * 9000)}`;
 
         // Parse WP
         const wpMatch = aiResponse.match(/\[WP:\s*(\d+)\]/i);
