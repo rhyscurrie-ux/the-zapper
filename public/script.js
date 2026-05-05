@@ -79,11 +79,10 @@ The input field will reactivate after calibration.`
     },
     gate2_active: {
         header: 'SIGNAL THRESHOLD REACHED.',
-        directive: `Your submission crossed the extraction threshold and has been logged.
-A diagnostic payload has been generated from your session.
-Copy it using the button below and post it at the source that brought you here.
-The audit resumes automatically once calibration is confirmed.
-Do not navigate away from this page.`
+        directive: `Your result has been logged and a shareable diagnostic has been generated.
+Click the button below — it copies your result and opens the Facebook reel automatically.
+Paste the copied text as a comment on the reel.
+Then return here. The audit resumes automatically.`
     },
     gate2_countdown: {
         header: 'CALIBRATING SUBSTRATE.',
@@ -306,9 +305,13 @@ document.querySelectorAll('.reward-btn').forEach(button => {
 
 // ── PROPAGATION CLIP PARSER ───────────────────────────────────────────────────
 function parsePropagationClip(auditText) {
-    const match = auditText.match(/\[PROPAGATION_CLIP\]:\s*([\s\S]*?)(?=\[SYSTEM_REQUIREMENT\]|\[|$)/i);
-    if (!match) return null;
-    return match[1].trim();
+    // Match everything between [PROPAGATION_CLIP]: and [SYSTEM_REQUIREMENT]
+    const match = auditText.match(/\[PROPAGATION_CLIP\]:\s*([\s\S]*?)\[SYSTEM_REQUIREMENT\]/i);
+    if (match) return match[1].trim();
+    // Fallback: match to end of line after label
+    const fallback = auditText.match(/\[PROPAGATION_CLIP\]:\s*(.+?)(?:\n|$)/i);
+    if (fallback) return fallback[1].trim();
+    return null;
 }
 
 // ── PROPAGATION CLIP UI — GATE 2 ─────────────────────────────────────────────
@@ -322,7 +325,7 @@ function renderPropagationClip(clipText, suitId) {
     const zone = document.createElement('div');
     zone.id = 'propagation-zone';
     zone.innerHTML =
-        '<div class="propagation-header">PROPAGATION DIRECTIVE // THREE STEPS: &nbsp; 1. Copy the payload below. &nbsp; 2. Open the source — paste as a reel comment. &nbsp; 3. Return here — the audit resumes.</div>' +
+        '<div class="propagation-header">PROPAGATION DIRECTIVE</div><div class="propagation-subheader">Your diagnostic has been copied. Click the button — it copies your result and opens the Facebook reel. Paste it as a comment on the reel. Return here when done.</div>' +
         '<div class="propagation-clip-text">' + clipText + '</div>' +
         '<button id="propagation-btn" class="propagation-btn">[ COPY PAYLOAD + OPEN SOURCE ]</button>' +
         '<a id="propagation-link" href="' + REEL_URL + '" target="_blank" class="propagation-link hidden">[ OPEN SOURCE — PASTE PAYLOAD ]</a>';
