@@ -99,12 +99,20 @@ function parseRating(audit) {
     return match ? match[1] : '—';
 }
 
+function stripGoldTags(text) {
+    return text
+        .replace(/\^GOLD:[^^:]+:\d+\^/g, m => m.replace(/\^GOLD:([^^:]+):\d+\^/, '$1'))
+        .replace(/\^GOLD:[^^]+\^/g, m => m.replace(/\^GOLD:([^^]+)\^/, '$1'))
+        .replace(/  +/g, ' ');
+}
+
 function parseAuditExcerpt(audit) {
-    const match = audit.match(/\[DECIPHERED_WASTE\]:\s*([\s\S]*?)(?:\[FORENSIC_AXIOM|\[THE WEED|$)/i);
+    const stripped = stripGoldTags(audit);
+    const match = stripped.match(/\[DECIPHERED_WASTE\]:\s*([\s\S]*?)(?:\[FORENSIC_AXIOM|\[THE WEED|$)/i);
     if (match) {
         return match[1].trim().substring(0, 600) + (match[1].length > 600 ? '...' : '');
     }
-    return audit.substring(0, 600) + (audit.length > 600 ? '...' : '');
+    return stripped.substring(0, 600) + (stripped.length > 600 ? '...' : '');
 }
 
 function formatDate(isoString) {
@@ -154,9 +162,9 @@ function initProjectBlue(suitId, isPathA, hasDraft) {
     const draftDownloadBtn  = document.getElementById('draft-download-btn');
 
     // Show Step 03 only for PATH A
+    // Do NOT call updateDossierNavigator here — elite state set in init() persists
     if (isPathA) {
         pbStep3.classList.remove('hidden');
-        updateDossierNavigator('source_pending');
     }
 
     // If draft already exists, show it immediately
