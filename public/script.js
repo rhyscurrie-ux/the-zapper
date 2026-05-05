@@ -465,8 +465,7 @@ async function runAudit(type = 'standard') {
                 input: userPayload,
                 history: chatHistory,
                 isDispute,
-                auditCount,
-                existingSuitId: currentSuitId || null
+                auditCount
             })
         });
 
@@ -515,16 +514,19 @@ async function runAudit(type = 'standard') {
             .replace(/>/g, '&gt;')
             .replace(/\n/g, '<br>');
 
-        // Stamp SS-ID in footer
+        // Stamp SS-ID in footer — lock after Turn 1, never update from Turn 2+
         const idMatch = auditText.match(/\[IDENTIFIER:\s*([^\]\n]+)/);
-        if (idMatch) {
+        if (idMatch && !identifierStamped) {
+            // Turn 1 only — set and lock the SS-ID
             const resolvedId = idMatch[1].trim();
-            skinDisplay.innerText = resolvedId;
-            currentSuitId = resolvedId;
-            identifierStamped = true;
-        } else if (currentSuitId) {
+            if (resolvedId !== 'SS-XXXX') {
+                skinDisplay.innerText = resolvedId;
+                currentSuitId = resolvedId;
+                identifierStamped = true;
+            }
+        } else if (identifierStamped && currentSuitId) {
+            // Turn 2+ — keep existing ID, never overwrite
             skinDisplay.innerText = currentSuitId;
-            identifierStamped = true;
         }
 
         // ── RENDER IDENTIFIER BLOCK (Turn 1 only) ────────────────────────────
