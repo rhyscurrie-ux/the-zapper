@@ -371,8 +371,8 @@ WP total this session: ${wpTotal}. This is Turn ${(auditCount || 0) + 1}.
 Generate ONLY these four sections in order. Nothing else. No header. No identifier.
 
 [PROPAGATION_CLIP]:
-One sentence. First person. Specific to their actual confession content.
-Not generic. References their specific altered state detail.
+Maximum 15 words. First person. Names their specific blackout detail. Full stop.
+Example: The W.E.E.D. Engine confirmed I blacked out, woke with pie crust in my gums — SS-XXXX.
 [SYSTEM_REQUIREMENT]: Substrate stability requires external grounding.
 Report to the FB source now. Audit suspended pending signal return.
 
