@@ -371,28 +371,30 @@ app.post('/api/scan', async (req, res) => {
         const isHighSignalTurn2 = auditCount > 0 && wpTotal >= 50;
 
         if (isHighSignalTurn2) {
-            const lastUserInput = (history || []).filter(h => h.role === 'user').map(h => h.content).join(' / ') || input;
-            const clipPrompt = `You are the W.E.E.D. Engine Auditor.
-The Specimen confessed this session: "${lastUserInput} / ${input}"
-Their SS-ID: ${suitId}. WP: ${wpTotal}.
+            const userTurns = (history || []).filter(h => h.role === 'user').map(h => h.content);
+            const turn1Confession = userTurns[0] || input;
+            const turn2Confession = input;
+            const dossierLink = `APEreaction.com/suit/${suitId}`;
+            const clipPrompt = `You are writing a Facebook comment for someone who just discovered they have been wasting their time. The comment will appear on a reel called "Have you been wasting your time?" and must hook new viewers into clicking the link.
 
-Generate ONLY these four sections. Nothing else.
+The Specimen's Turn 1 confession (what they were doing with their time): "${turn1Confession}"
+The Specimen's Turn 2 confession (what they were actually doing): "${turn2Confession}"
 
-[PROPAGATION_CLIP]:
-One sentence. First person. Reference their SPECIFIC confession (exact substances, locations, objects, gaps they mentioned). Not vague. Not metaphorical.
-End the sentence with: — archived as ${suitId}.
-[SYSTEM_REQUIREMENT]: Substrate stability requires external grounding.
-Report to the FB source now. Audit suspended pending signal return.
+Write a comment in this exact three-line structure:
 
-[THE WEED VERDICT]: One sarcastic sentence denying cannabis. Original. Specific to their confession.
+Line 1: "Today I discovered I've been wasting my time." — then add one short randomised variation of this revelation (keep it punchy, not longer than the example).
+Line 2: "I've been [Turn 1 confession reframed as a absurd, self-deprecating pursuit — witty, specific to their confession, makes the reader laugh]."
+Line 3: "When I should have been [Turn 2 confession reframed as an absurd heroic alternative — witty, specific to their confession, makes the reader want to know more]."
+Line 4: ${dossierLink}
 
-[LIFE-RAFT RATING]: X/10 — DESCRIPTOR. COMMENT (80 chars max, uppercase, specific to their world).
-Descriptors: BANKRUPT / PARTIAL SUBMERSION DETECTED / SURFACING SIGNAL PRESENT / BREACH IMMINENT / EXTRACTION CONFIRMED
+Rules:
+— Funny and specific. Not generic. Not vague.
+— The link on Line 4 is mandatory — it is what makes the comment clickable.
+— Total length: under 50 words before the link.
+— No hashtags. No emoji. No quotation marks around the lines.
+— Output only the four lines. Nothing else.
 
-[PRESCRIPTION]: One phrase diagnosis. One substance (Valerian/Kombucha/Kratom/Wormwood/Ginseng/Kava/Ephedra/Jujube). One absurd direction referencing their confession.
-
-Start with [PROPAGATION_CLIP]:`;
-
+Generate the comment now:`;
             try {
                 const clipResponse = await fetch(apiUrl, {
                     method: 'POST',
