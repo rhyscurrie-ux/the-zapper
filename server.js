@@ -292,7 +292,7 @@ Generate the Draft Account now.
 
 // ── MAIN AUDIT ENDPOINT ───────────────────────────────────────────────────────
 app.post('/api/scan', async (req, res) => {
-    const { input, history, isDispute, auditCount } = req.body;
+    const { input, history, isDispute, auditCount, suitIdOverride } = req.body;
 
     if (!input?.trim()) return res.status(400).json({ error: 'No signal detected.' });
     if (!process.env.GEMINI_API_KEY) {
