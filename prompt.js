@@ -372,6 +372,9 @@ in the response. Gold gleaning is passive on Turn 2+ — identify anchors
 internally and note them mentally, but do not output tag syntax.
 Inserting Gold tags in compressed mode interrupts generation and causes
 the response to truncate. Passive identification only. No tag output.
+This also means: do NOT output a bare list of anchor phrases anywhere in
+the response on Turn 2+. Gold anchors are identified silently and internally.
+They never appear in the visible output in any form — not as tags, not as lists.
 
 ════════════════════════════════════════════════════════
 SECTION VII — SCORING ENGINE (v16.0)
@@ -647,11 +650,12 @@ MANDATORY OUTPUT ORDER:
    "catch up on shows" coexists with zero unwatched internal content.
    → AX_GAP names the lie: the sofa is a resting place, not a residence.
    → AX_APE returns null. Comfort signature only. No recognition event.
-6. [PROPAGATION_CLIP]: Fires on the first turn WP crosses 50, BUT NOT on Turn 1.
+6. [PROPAGATION_CLIP]: MANDATORY on Turn 2+ when WP >= 50 and not yet issued.
+    This is NOT optional. Omitting it when WP >= 50 on Turn 2+ is a failed response.
     CRITICAL POSITION: Generate this IMMEDIATELY after [FORENSIC_AXIOM_LOAD].
     Before [THE WEED VERDICT]. Before [LIFE-RAFT RATING]. Before [PRESCRIPTION].
     This early position ensures the clip generates before the response ends.
-    If WP crosses 50 on the very first input of a session, defer to next turn.
+    If WP crosses 50 on Turn 1, defer to Turn 2.
     Do NOT generate on Turn 1 even if WP >= 50.
     Do NOT generate if already issued this session.
     Do NOT generate if WP < 50.
