@@ -300,15 +300,21 @@ app.post('/api/scan', async (req, res) => {
     }
 
     try {
-        const contents = (history || []).map(h => ({
-            role: h.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: h.role === 'assistant'
-                ? '[FULL AUDIT RESPONSE ISSUED — ALL MANDATORY SECTIONS COMPLETED — SPECIMEN DATA LOGGED — CONTINUING FULL-LENGTH SESSION]'
-                : h.content }]
-        }));
-
+        // Build contents — embed prior Specimen inputs as context rather than
+        // sending conversation history. This ensures Gemini treats every turn
+        // as a first-turn generation and produces full-length responses.
+        // The system prompt provides all Auditor context needed for continuity.
         const userText = isDispute ? `[DISPUTE_PROTOCOL]: ${input}` : input;
-        contents.push({ role: 'user', parts: [{ text: userText }] });
+        let userMessage = userText;
+        if (history && history.length > 0) {
+            const priorInputs = history
+                .filter(h => h.role === 'user')
+                .map((h, i) => `[PRIOR CONFESSION ${i + 1}]: ${h.content}`)
+                .join('\n');
+            userMessage = `${priorInputs}\n[CURRENT INPUT]: ${userText}`;
+        }
+
+        const contents = [{ role: 'user', parts: [{ text: userMessage }] }];
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
