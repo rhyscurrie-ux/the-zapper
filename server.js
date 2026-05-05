@@ -391,7 +391,7 @@ Generate all four sections now. Start with [PROPAGATION_CLIP]:`;
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{ role: 'user', parts: [{ text: clipPrompt }] }],
-                        generationConfig: { temperature: 1.1, maxOutputTokens: 512 }
+                        generationConfig: { temperature: 1.1, maxOutputTokens: 1024 }
                     })
                 });
                 const clipData = await clipResponse.json();
