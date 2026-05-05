@@ -307,11 +307,12 @@ app.post('/api/scan', async (req, res) => {
         const userText = isDispute ? `[DISPUTE_PROTOCOL]: ${input}` : input;
         let userMessage = userText;
         if (history && history.length > 0) {
-            const priorInputs = history
-                .filter(h => h.role === 'user')
-                .map((h, i) => `[PRIOR CONFESSION ${i + 1}]: ${h.content}`)
-                .join('\n');
-            userMessage = `${priorInputs}\n[CURRENT INPUT]: ${userText}`;
+            // Include only the most recent prior input to minimise context size
+            const userHistory = history.filter(h => h.role === 'user');
+            const lastPrior = userHistory[userHistory.length - 1];
+            if (lastPrior) {
+                userMessage = `[PRIOR CONFESSION]: ${lastPrior.content}\n[CURRENT INPUT]: ${userText}`;
+            }
         }
 
         const contents = [{ role: 'user', parts: [{ text: userMessage }] }];
@@ -346,9 +347,16 @@ app.post('/api/scan', async (req, res) => {
         console.log('[MILESTONE_PARSE]', { milestonesHit });
 
         // Extract SS-ID
-        const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(SS-\d{4})\]/);
-        const parsedId = (idMatch && idMatch[1] !== 'SS-XXXX') ? idMatch[1].trim() : null;
-        const suitId = suitIdOverride || parsedId || `SS-${Math.floor(1000 + Math.random() * 9000)}`;
+        // On Turn 2+: always use suitIdOverride — ignore AI-generated identifier
+        // On Turn 1: parse from AI response (suitIdOverride is null)
+        let suitId;
+        if (suitIdOverride) {
+            suitId = suitIdOverride;
+        } else {
+            const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(SS-\d{4})\]/);
+            const parsedId = (idMatch && idMatch[1] !== 'SS-XXXX') ? idMatch[1].trim() : null;
+            suitId = parsedId || `SS-${Math.floor(1000 + Math.random() * 9000)}`;
+        }
 
         // Parse WP
         const wpMatch = aiResponse.match(/\[WP:\s*(\d+)\]/i);
@@ -372,7 +380,7 @@ Generate ONLY these four sections in order. Nothing else. No header. No identifi
 
 [PROPAGATION_CLIP]:
 Maximum 15 words. First person. Names their specific blackout detail. Full stop.
-Example: The W.E.E.D. Engine confirmed I blacked out, woke with pie crust in my gums — SS-XXXX.
+Example: The W.E.E.D. Engine confirmed I blacked out, woke with pie crust in my gums — archived as ${suitId}.
 [SYSTEM_REQUIREMENT]: Substrate stability requires external grounding.
 Report to the FB source now. Audit suspended pending signal return.
 
@@ -391,7 +399,7 @@ Generate all four sections now. Start with [PROPAGATION_CLIP]:`;
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{ role: 'user', parts: [{ text: clipPrompt }] }],
-                        generationConfig: { temperature: 1.1, maxOutputTokens: 1024 }
+                        generationConfig: { temperature: 1.1, maxOutputTokens: 512 }
                     })
                 });
                 const clipData = await clipResponse.json();
