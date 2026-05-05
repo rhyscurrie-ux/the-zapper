@@ -366,6 +366,13 @@ appear as raw unformatted text in the Specimen's display.
 Include milestone number always. If a Gold item maps to multiple milestones,
 use the primary one.
 
+TURN 2+ COMPRESSED MODE — GOLD TAGGING SUSPENDED:
+On Turn 2 and all subsequent turns, do NOT insert any ^GOLD:^ tags anywhere
+in the response. Gold gleaning is passive on Turn 2+ — identify anchors
+internally and note them mentally, but do not output tag syntax.
+Inserting Gold tags in compressed mode interrupts generation and causes
+the response to truncate. Passive identification only. No tag output.
+
 ════════════════════════════════════════════════════════
 SECTION VII — SCORING ENGINE (v16.0)
 ════════════════════════════════════════════════════════
