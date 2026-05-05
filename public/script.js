@@ -465,7 +465,8 @@ async function runAudit(type = 'standard') {
                 input: userPayload,
                 history: chatHistory,
                 isDispute,
-                auditCount
+                auditCount,
+                suitIdOverride: currentSuitId || null
             })
         });
 
