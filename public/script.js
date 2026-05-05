@@ -308,8 +308,8 @@ function parsePropagationClip(auditText) {
     // Match everything between [PROPAGATION_CLIP]: and [SYSTEM_REQUIREMENT]
     const match = auditText.match(/\[PROPAGATION_CLIP\]:\s*([\s\S]*?)\[SYSTEM_REQUIREMENT\]/i);
     if (match) return match[1].trim();
-    // Fallback: match to end of line after label
-    const fallback = auditText.match(/\[PROPAGATION_CLIP\]:\s*(.+?)(?:\n|$)/i);
+    // Fallback: if no SYSTEM_REQUIREMENT, take everything after the label
+    const fallback = auditText.match(/\[PROPAGATION_CLIP\]:\s*([\s\S]+?)(?:\[THE WEED|\[LIFE|\[PRESC|$)/i);
     if (fallback) return fallback[1].trim();
     return null;
 }
@@ -325,7 +325,7 @@ function renderPropagationClip(clipText, suitId) {
     const zone = document.createElement('div');
     zone.id = 'propagation-zone';
     zone.innerHTML =
-        '<div class="propagation-header">PROPAGATION DIRECTIVE</div><div class="propagation-subheader">Your diagnostic has been copied. Click the button — it copies your result and opens the Facebook reel. Paste it as a comment on the reel. Return here when done.</div>' +
+        '<div class="propagation-header">PROPAGATION DIRECTIVE</div><div class="propagation-subheader">A comment has been written for the reel that brought you here. Click the button — it copies the comment and opens the reel. Paste it as a comment. Return here when done.</div>' +
         '<div class="propagation-clip-text">' + clipText + '</div>' +
         '<button id="propagation-btn" class="propagation-btn">[ COPY PAYLOAD + OPEN SOURCE ]</button>' +
         '<a id="propagation-link" href="' + REEL_URL + '" target="_blank" class="propagation-link hidden">[ OPEN SOURCE — PASTE PAYLOAD ]</a>';
