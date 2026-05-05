@@ -6,14 +6,14 @@
 let chatHistory = [];
 let auditCount = 0;
 let lastInput = "";
-let currentSuitId = "";
+let currentSuitId = sessionStorage.getItem('weed_suit_id') || "";
 let isDisabled = false;
 let currentWP = 0;
 let currentPathStatus = 'PENDING';
 let propagationClipIssued = false;
 let identifierBlockIssued = false;  // Identifier disclosure block — once per session only
 let gate2Complete = false;
-let identifierStamped = false;  // Tracks whether footer has been updated from [AWAITING_IDENTIFIER]
+let identifierStamped = currentSuitId !== "";  // Already stamped if session ID exists
 
 // ── ARCHITECT IDs ─────────────────────────────────────────────────────────────
 const ARCHITECT_IDS = ['SS-0000', 'SS-1111'];
@@ -514,19 +514,22 @@ async function runAudit(type = 'standard') {
             .replace(/>/g, '&gt;')
             .replace(/\n/g, '<br>');
 
-        // Stamp SS-ID in footer — lock after Turn 1, never update from Turn 2+
-        const idMatch = auditText.match(/\[IDENTIFIER:\s*([^\]\n]+)/);
-        if (idMatch && !identifierStamped) {
-            // Turn 1 only — set and lock the SS-ID
+        // Stamp SS-ID in footer — lock in sessionStorage after Turn 1
+        const idMatch = auditText.match(/\[IDENTIFIER:\s*(SS-\d{4})\]/);
+        const sessionId = sessionStorage.getItem('weed_suit_id');
+
+        if (sessionId) {
+            // Use stored ID from Turn 1 — never overwrite
+            currentSuitId = sessionId;
+            skinDisplay.innerText = sessionId;
+            identifierStamped = true;
+        } else if (idMatch && idMatch[1] !== 'SS-XXXX') {
+            // Turn 1 — store and use the new ID
             const resolvedId = idMatch[1].trim();
-            if (resolvedId !== 'SS-XXXX') {
-                skinDisplay.innerText = resolvedId;
-                currentSuitId = resolvedId;
-                identifierStamped = true;
-            }
-        } else if (identifierStamped && currentSuitId) {
-            // Turn 2+ — keep existing ID, never overwrite
-            skinDisplay.innerText = currentSuitId;
+            sessionStorage.setItem('weed_suit_id', resolvedId);
+            currentSuitId = resolvedId;
+            skinDisplay.innerText = resolvedId;
+            identifierStamped = true;
         }
 
         // ── RENDER IDENTIFIER BLOCK (Turn 1 only) ────────────────────────────
