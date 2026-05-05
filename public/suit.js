@@ -348,8 +348,21 @@ async function init() {
         } else {
             updateDossierNavigator('incomplete');
         }
+        // Note: source_pending / schematic_revealed states only triggered
+        // inside initProjectBlue which is gated to PATH_A + WP >= 100
 
-        initProjectBlue(suitId, isPathA, hasDraft);
+        // Gate Phase 04 — only show for PATH_A with WP >= 100
+        const transcriptSection = document.getElementById('transcript-section');
+        if (isPathA && wpTotal >= 100) {
+            initProjectBlue(suitId, isPathA, hasDraft);
+        } else {
+            // Hide Phase 04 entirely for incomplete or PATH_B sessions
+            if (transcriptSection) transcriptSection.classList.add('hidden');
+            // Show appropriate message instead
+            const incompleteMsg = document.getElementById('incomplete-message');
+            if (incompleteMsg) incompleteMsg.classList.remove('hidden');
+        }
+
         initNode02(suitId, wpTotal, pathStatus);
         dossierContent.classList.remove('hidden');
 
