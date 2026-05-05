@@ -6,14 +6,19 @@
 let chatHistory = [];
 let auditCount = 0;
 let lastInput = "";
-let currentSuitId = sessionStorage.getItem('weed_suit_id') || "";
 let isDisabled = false;
 let currentWP = 0;
 let currentPathStatus = 'PENDING';
 let propagationClipIssued = false;
-let identifierBlockIssued = false;  // Identifier disclosure block — once per session only
+let identifierBlockIssued = false;
 let gate2Complete = false;
-let identifierStamped = currentSuitId !== "";  // Already stamped if session ID exists
+
+// Session ID management — clear on fresh page load, restore only if returning visitor
+// A returning visitor would arrive directly at the dossier, not via the terminal
+// Terminal always starts a fresh session
+sessionStorage.removeItem('weed_suit_id');
+let currentSuitId = "";
+let identifierStamped = false;
 
 // ── ARCHITECT IDs ─────────────────────────────────────────────────────────────
 const ARCHITECT_IDS = ['SS-0000', 'SS-1111'];
