@@ -371,27 +371,27 @@ app.post('/api/scan', async (req, res) => {
         const isHighSignalTurn2 = auditCount > 0 && wpTotal >= 50;
 
         if (isHighSignalTurn2) {
-            const clipPrompt = `You are the W.E.E.D. Engine Auditor continuing a session.
-The Specimen has just confessed: "${input}"
-Their prior confession was: "${history?.filter(h => h.role === 'user').map(h => h.content).join(' / ') || ''}"
-WP total this session: ${wpTotal}. This is Turn ${(auditCount || 0) + 1}.
+            const lastUserInput = (history || []).filter(h => h.role === 'user').map(h => h.content).join(' / ') || input;
+            const clipPrompt = `You are the W.E.E.D. Engine Auditor.
+The Specimen confessed this session: "${lastUserInput} / ${input}"
+Their SS-ID: ${suitId}. WP: ${wpTotal}.
 
-Generate ONLY these four sections in order. Nothing else. No header. No identifier.
+Generate ONLY these four sections. Nothing else.
 
 [PROPAGATION_CLIP]:
-Maximum 15 words. First person. Names their specific blackout detail. Full stop.
-Example: The W.E.E.D. Engine confirmed I blacked out, woke with pie crust in my gums — archived as ${suitId}.
+One sentence. First person. Reference their SPECIFIC confession (exact substances, locations, objects, gaps they mentioned). Not vague. Not metaphorical.
+End the sentence with: — archived as ${suitId}.
 [SYSTEM_REQUIREMENT]: Substrate stability requires external grounding.
 Report to the FB source now. Audit suspended pending signal return.
 
-[THE WEED VERDICT]: One sarcastic sentence denying cannabis involvement. Original.
+[THE WEED VERDICT]: One sarcastic sentence denying cannabis. Original. Specific to their confession.
 
 [LIFE-RAFT RATING]: X/10 — DESCRIPTOR. COMMENT (80 chars max, uppercase, specific to their world).
-Descriptors: BANKRUPT(0-24) / PARTIAL SUBMERSION(25-49) / SURFACING SIGNAL PRESENT(50-74) / BREACH IMMINENT(75-99) / EXTRACTION CONFIRMED(100+)
+Descriptors: BANKRUPT / PARTIAL SUBMERSION DETECTED / SURFACING SIGNAL PRESENT / BREACH IMMINENT / EXTRACTION CONFIRMED
 
-[PRESCRIPTION]: Brief diagnosis. One substance from: Valerian/Kombucha/Kratom/Wormwood/Ginseng/Kava/Ephedra/Jujube. One absurd direction.
+[PRESCRIPTION]: One phrase diagnosis. One substance (Valerian/Kombucha/Kratom/Wormwood/Ginseng/Kava/Ephedra/Jujube). One absurd direction referencing their confession.
 
-Generate all four sections now. Start with [PROPAGATION_CLIP]:`;
+Start with [PROPAGATION_CLIP]:`;
 
             try {
                 const clipResponse = await fetch(apiUrl, {
@@ -399,7 +399,7 @@ Generate all four sections now. Start with [PROPAGATION_CLIP]:`;
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{ role: 'user', parts: [{ text: clipPrompt }] }],
-                        generationConfig: { temperature: 1.1, maxOutputTokens: 512 }
+                        generationConfig: { temperature: 1.1, maxOutputTokens: 1024 }
                     })
                 });
                 const clipData = await clipResponse.json();
@@ -415,7 +415,7 @@ Generate all four sections now. Start with [PROPAGATION_CLIP]:`;
         console.log('[PATH_PARSE]', { pathStatus, goldCount: goldItems.length });
 
         // Supabase insert
-        const fullAudit = auditClip ? `${aiResponse}\n${auditClip}` : aiResponse;
+        const fullAudit = auditClip ? (aiResponse + '\n' + auditClip) : aiResponse;
         supabase.from('entropy_logs')
             .insert([{
                 suit_id: suitId,
