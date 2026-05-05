@@ -339,14 +339,11 @@ app.post('/api/scan', async (req, res) => {
         const milestonesHit = parseMilestonesHit(aiResponse);
         console.log('[MILESTONE_PARSE]', { milestonesHit });
 
-        // Extract SS-ID — prefer existing suitId passed from client to maintain
-        // session continuity. Only generate new one on Turn 1 (no existingSuitId).
-        const { existingSuitId } = req.body;
+        // Extract SS-ID
         const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(.*?)\]/);
         const suitId = idMatch
             ? idMatch[1].trim().replace(/\s+/g, '-')
             : `SS-${Date.now()}`;
-        const suitId = existingSuitId || parsedId || `SS-${Date.now()}`;
 
         // Parse WP
         const wpMatch = aiResponse.match(/\[WP:\s*(\d+)\]/i);
