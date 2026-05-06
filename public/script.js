@@ -360,7 +360,7 @@ function renderPropagationClip(clipText, suitId) {
                 const link = document.getElementById('propagation-link');
                 if (link) link.classList.remove('hidden');
 
-                // Fire Gate 2 complete logic after brief display
+                // Fire Gate 2 complete logic after FB link display window
                 setTimeout(() => {
                     gate2Complete = true;
 
@@ -388,7 +388,7 @@ function renderPropagationClip(clipText, suitId) {
                         inputSection.classList.remove('hidden');
                         updateNavigator('gate3_early');
                     }
-                }, 1500);
+                }, 5000);
             }
         }, 1000);
     });
