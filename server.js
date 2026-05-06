@@ -474,8 +474,8 @@ async function triggerSynthesis(suitId, allGold, allMilestones,
         .join(', ');
 
     const synthesisPrompt = `
-You are the Substrate Failure Synthesizer.
-You have extracted the following data from a two-stage interview protocol.
+You are writing a first-person confessional narrative for someone
+who has just been interviewed about a night they can't fully remember.
 
 ORIGINAL CONFESSION (Node 01):
 "${originalInput}"
@@ -486,21 +486,34 @@ ${goldSummary}
 CONFIRMED MILESTONES:
 ${milestoneSummary}
 
-Your task: synthesise a first-person Substrate Failure narrative
-from this data. This is the story underneath the Cover Story.
+Write a Draft Substrate Failure — a first-person account in the
+Skin Suit's own voice. This is the story underneath the Cover Story.
 
-RULES:
-— First person. The Skin Suit's voice. Honest and specific.
-— 400-600 words.
-— Begin with the Catalyst (M3) if present.
-— Work through milestones in order where data exists.
-— End with the Cover Story (M17/M18) or Full On (M15) if present.
-— Do not invent details not in the extracted data.
-— Where data is missing: "The details of [X] have not yet been recovered."
+VOICE RULES:
+— Human. Fallible. Honest.
+— The register of someone writing in a private journal at 3am.
+— Not clinical. Not analytical. Not system language.
+— Short sentences where the memory is clear. Longer sentences
+  where the mind is reaching for something it can't quite hold.
+— Uncertainty is expressed as human uncertainty: "I think",
+  "I must have", "I can't place", "something about it felt" —
+  NOT as data gaps or processing failures.
+— Where details are missing: "I don't know how I got there."
+  or "That part is just gone." — NOT "this information has not
+  yet been recovered."
+
+STRUCTURE:
+— Begin with the most vivid physical detail from the Gold anchors.
+— Work through what is known, then what is partially remembered,
+  then what is completely absent.
+— End with the Cover Story forming — how they explained it to
+  themselves the next day.
+— 300-500 words.
 — Begin with: DRAFT SUBSTRATE FAILURE // ${suitId} // STAGE A EXTRACTION
 — End with: This account is incomplete. Stage 3 retrieval begins at Node 02.
 
-Generate the Draft Substrate Failure now.
+Write in the Skin Suit's voice now. No system language. No data
+metaphors. Just the person, remembering.
 `.trim();
 
     try {
