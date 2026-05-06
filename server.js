@@ -292,6 +292,265 @@ Generate the Draft Account now.
     }
 });
 
+// ── BARFLY SESSION OPEN ───────────────────────────────────────────────────────
+// Fetches Node 01 gold_glean for a given suitId to initialise the Barfly.
+app.get('/api/barfly/init/:suitId', async (req, res) => {
+    const { suitId } = req.params;
+    try {
+        const { data, error } = await supabase
+            .from('entropy_logs')
+            .select('gold_glean, wp_total, input')
+            .eq('suit_id', suitId)
+            .order('created_at', { ascending: false });
+
+        if (error || !data || data.length === 0) {
+            return res.status(404).json({ error: 'No Node 01 session found.' });
+        }
+
+        // Aggregate all gold from all Node 01 turns
+        const allGold = [];
+        let basWP = 0;
+        let originalInput = '';
+        data.forEach(row => {
+            if (row.wp_total > basWP) basWP = row.wp_total;
+            if (row.input && !originalInput) originalInput = row.input;
+            if (row.gold_glean && Array.isArray(row.gold_glean)) {
+                row.gold_glean.forEach(g => allGold.push(g));
+            }
+        });
+
+        res.json({ gold: allGold, baseWP: basWP, originalInput });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ── BARFLY MAIN ENDPOINT ──────────────────────────────────────────────────────
+app.post('/api/barfly', async (req, res) => {
+    const { suitId, input, history, turnCount, wpCumulative,
+            baseWP, gold, originalInput } = req.body;
+
+    if (!suitId || !process.env.GEMINI_API_KEY) {
+        return res.status(400).json({ error: 'Missing suitId or API key.' });
+    }
+
+    try {
+        const { barflyPromptText } = require('./barfly_prompt.js');
+
+        // Build system prompt — inject Node 01 gold anchors on Turn 0
+        let systemPrompt = barflyPromptText;
+        if (turnCount === 0 && gold && gold.length > 0) {
+            const goldSummary = gold.map(g =>
+                `M${g.milestone} (${g.label}): "${g.anchor}"`
+            ).join('\n');
+            systemPrompt += `\n\nNODE 01 GOLD ANCHORS FOR THIS SPECIMEN:\n${goldSummary}\n\nOriginal confession: "${originalInput}"\n\nOpen mid-thought referencing one of these specific anchors now.`;
+        }
+
+        // Build conversation contents
+        const userMessage = turnCount === 0
+            ? `[SESSION OPEN] Suit ID: ${suitId}. Begin Stage A extraction.`
+            : input;
+
+        const contents = [];
+        if (history && history.length > 0) {
+            history.forEach(h => {
+                contents.push({
+                    role: h.role === 'assistant' ? 'model' : 'user',
+                    parts: [{ text: h.role === 'assistant'
+                        ? '[BARFLY RESPONSE ISSUED]'
+                        : h.content }]
+                });
+            });
+        }
+        contents.push({ role: 'user', parts: [{ text: userMessage }] });
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                system_instruction: { parts: [{ text: systemPrompt }] },
+                contents,
+                generationConfig: { temperature: 0.9, maxOutputTokens: 8192 }
+            })
+        });
+
+        const data = await response.json();
+        if (data.error) {
+            return res.status(500).json({ error: data.error.message });
+        }
+
+        const rawResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || '[SILENCE]';
+
+        // Parse WP, milestones, Gold from response
+        const { cleaned: barflyResponse, goldItems } = parseGoldTags(rawResponse);
+        const wpMatch = barflyResponse.match(/\[WP:\s*(\d+)\]/i);
+        const wpThisTurn = wpMatch ? parseInt(wpMatch[1], 10) : 15;
+        const milestonesHit = parseMilestonesHit(barflyResponse);
+        const newWpCumulative = (wpCumulative || baseWP || 0) + wpThisTurn;
+
+        // Bubbly Wine Standard check
+        const allGoldCombined = [...(gold || []), ...goldItems];
+        const allMilestones = new Set([
+            ...milestonesHit,
+            ...(gold || []).map(g => g.milestone)
+        ]);
+        const bubblyWineStandard =
+            allMilestones.has(3) &&
+            (allMilestones.has(4) || allMilestones.has(14)) &&
+            (allMilestones.has(17) || allMilestones.has(18)) &&
+            allGoldCombined.length >= 4;
+
+        const thresholdMet = newWpCumulative >= 200 && bubblyWineStandard;
+
+        // Insert turn to substrate_logs
+        supabase.from('substrate_logs').insert([{
+            suit_id: suitId,
+            turn: turnCount || 0,
+            input: input || '',
+            barfly_response: barflyResponse,
+            milestones_hit: milestonesHit,
+            wp_node02: wpThisTurn,
+            wp_cumulative: newWpCumulative,
+            gold_glean: goldItems,
+            stage: 'A'
+        }]).then(({ error }) => {
+            if (error) console.error('substrate_logs insert error:', error.message);
+        });
+
+        // If threshold met — trigger async synthesis
+        if (thresholdMet) {
+            triggerSynthesis(suitId, allGoldCombined, Array.from(allMilestones),
+                            originalInput, history, barflyResponse);
+        }
+
+        res.json({
+            audit: barflyResponse,
+            wpCumulative: newWpCumulative,
+            wpThisTurn,
+            milestonesHit,
+            thresholdMet,
+            goldCount: allGoldCombined.length,
+            history: [
+                ...(history || []),
+                { role: 'user', content: input || '' },
+                { role: 'assistant', content: barflyResponse }
+            ]
+        });
+
+    } catch (err) {
+        console.error('Barfly crash:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ── ASYNC SYNTHESIS TRIGGER ───────────────────────────────────────────────────
+async function triggerSynthesis(suitId, allGold, allMilestones,
+                                 originalInput, history, lastBarflyResponse) {
+    console.log('[SYNTHESIS_TRIGGER]', { suitId, goldCount: allGold.length });
+
+    const goldSummary = allGold.map(g =>
+        `M${g.milestone} (${g.label || 'Unknown'}): "${g.anchor}"`
+    ).join('\n');
+
+    const milestoneSummary = allMilestones
+        .map(m => `M${m}: ${MILESTONE_LABELS[m] || 'Unknown'}`)
+        .join(', ');
+
+    const synthesisPrompt = `
+You are the Substrate Failure Synthesizer.
+You have extracted the following data from a two-stage interview protocol.
+
+ORIGINAL CONFESSION (Node 01):
+"${originalInput}"
+
+EXTRACTED GOLD ANCHORS (Node 01 + Stage A combined):
+${goldSummary}
+
+CONFIRMED MILESTONES:
+${milestoneSummary}
+
+Your task: synthesise a first-person Substrate Failure narrative
+from this data. This is the story underneath the Cover Story.
+
+RULES:
+— First person. The Skin Suit's voice. Honest and specific.
+— 400-600 words.
+— Begin with the Catalyst (M3) if present.
+— Work through milestones in order where data exists.
+— End with the Cover Story (M17/M18) or Full On (M15) if present.
+— Do not invent details not in the extracted data.
+— Where data is missing: "The details of [X] have not yet been recovered."
+— Begin with: DRAFT SUBSTRATE FAILURE // ${suitId} // STAGE A EXTRACTION
+— End with: This account is incomplete. Stage 3 retrieval begins at Node 02.
+
+Generate the Draft Substrate Failure now.
+`.trim();
+
+    try {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ role: 'user', parts: [{ text: synthesisPrompt }] }],
+                generationConfig: { temperature: 0.9, maxOutputTokens: 4096 }
+            })
+        });
+        const data = await response.json();
+        const draft = data.candidates?.[0]?.content?.parts?.[0]?.text || '[SYNTHESIS_FAILED]';
+
+        // Store synthesis draft — select row ID first, then update by ID
+        const { data: latestRow } = await supabase
+            .from('substrate_logs')
+            .select('id')
+            .eq('suit_id', suitId)
+            .eq('stage', 'A')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (latestRow) {
+            await supabase.from('substrate_logs')
+                .update({ synthesis_draft: draft })
+                .eq('id', latestRow.id);
+        }
+
+        console.log('[SYNTHESIS_COMPLETE]', { suitId, length: draft.length });
+    } catch (err) {
+        console.error('[SYNTHESIS_ERROR]', err.message);
+    }
+}
+
+// ── SYNTHESIS POLLING ENDPOINT ────────────────────────────────────────────────
+app.get('/api/barfly/synthesis/:suitId', async (req, res) => {
+    const { suitId } = req.params;
+    try {
+        const { data, error } = await supabase
+            .from('substrate_logs')
+            .select('synthesis_draft, wp_cumulative')
+            .eq('suit_id', suitId)
+            .eq('stage', 'A')
+            .not('synthesis_draft', 'is', null)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (error || !data) {
+            return res.json({ ready: false });
+        }
+
+        res.json({
+            ready: true,
+            draft: data.synthesis_draft,
+            wpCumulative: data.wp_cumulative
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ── MAIN AUDIT ENDPOINT ───────────────────────────────────────────────────────
 app.post('/api/scan', async (req, res) => {
     const { input, history, isDispute, auditCount, suitIdOverride } = req.body;
@@ -469,6 +728,15 @@ Generate the comment now:`;
         console.error('Handler crash:', err.message);
         res.status(500).json({ audit: `[CORE_CRASH]: ${err.message}` });
     }
+});
+
+// ── NODE 02 ROUTES ────────────────────────────────────────────────────────────
+app.get('/node02/:suitId', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'node02.html'));
+});
+
+app.get('/node02', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'node02.html'));
 });
 
 // ── DOSSIER ROUTE ─────────────────────────────────────────────────────────────
