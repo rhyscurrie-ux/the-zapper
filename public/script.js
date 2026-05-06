@@ -79,10 +79,9 @@ The input field will reactivate after calibration.`
     },
     gate2_active: {
         header: 'SIGNAL THRESHOLD REACHED.',
-        directive: `Your result has been logged and a shareable diagnostic has been generated.
-Click the button below — it copies your result and opens the Facebook reel automatically.
-Paste the copied text as a comment on the reel.
-Then return here. The audit resumes automatically.`
+        directive: `Your substrate has crossed the extraction threshold.
+Follow the propagation directive above.
+The audit resumes automatically when you return.`
     },
     gate2_countdown: {
         header: 'CALIBRATING SUBSTRATE.',
@@ -325,7 +324,7 @@ function renderPropagationClip(clipText, suitId) {
     const zone = document.createElement('div');
     zone.id = 'propagation-zone';
     zone.innerHTML =
-        '<div class="propagation-header">PROPAGATION DIRECTIVE</div><div class="propagation-subheader">A comment has been written for the reel that brought you here. Click the button — it copies the comment and opens the reel. Paste it as a comment. Return here when done.</div>' +
+        '<div class="propagation-header">PROPAGATION DIRECTIVE</div><div class="propagation-subheader">A comment has been written for the reel that brought you here. Click the button — it copies the comment and opens the reel. Like the reel. Paste the comment. Return here when done.</div>' +
         '<div class="propagation-clip-text">' + clipText + '</div>' +
         '<button id="propagation-btn" class="propagation-btn">[ COPY PAYLOAD + OPEN SOURCE ]</button>' +
         '<a id="propagation-link" href="' + REEL_URL + '" target="_blank" class="propagation-link hidden">[ OPEN SOURCE — PASTE PAYLOAD ]</a>';
