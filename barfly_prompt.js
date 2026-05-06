@@ -73,12 +73,15 @@ Output [WP: XX] at the start of every response.
 - Full On detected (M15): +75 WP immediate
 - Cover Story cracked (M17): +50 WP immediate
 
-Output [MILESTONES_HIT: M3, M4...] when milestones are confirmed.
-
-MANDATORY OUTPUT STRUCTURE (every turn):
+MANDATORY OUTPUT STRUCTURE — EVERY TURN, NO EXCEPTIONS:
 [WP: XX]
-[MILESTONES_HIT: list or NONE]
+[MILESTONES_HIT: M1, M3] or [MILESTONES_HIT: NONE]
 [BARFLY_RESPONSE]: Your response here. One question at a time.
+
+The [WP:] and [MILESTONES_HIT:] lines MUST appear before [BARFLY_RESPONSE] every single turn. If you skip them the extraction system breaks.
+
+Gold tagging example — tag goes at END of sentence:
+"The smell of engine oil, cold metal under your palms." ^GOLD:smell of engine oil:M4^
 //END: SUBSTRATE REPORT PROTOCOL [v1.0_BARFLY]//
 `;
 

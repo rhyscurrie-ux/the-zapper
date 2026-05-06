@@ -409,7 +409,7 @@ app.post('/api/barfly', async (req, res) => {
             allMilestones.size >= 1 &&
             allGoldCombined.length >= 2;
 
-        const thresholdMet = newWpCumulative >= 200 && bubblyWineStandard;
+        const thresholdMet = newWpCumulative >= 200;
 
         console.log('[BARFLY_THRESHOLD]', {
             wpCumulative: newWpCumulative,
