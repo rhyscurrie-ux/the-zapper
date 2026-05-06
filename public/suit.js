@@ -282,12 +282,12 @@ function initNode02(suitId, wpTotal, pathStatus) {
                 It knows what you revealed. It will begin where your audit ended.
                 Superior extraction. No preparation required beyond the Schematic.
             </p>
-            <a href="/" class="action-btn" style="display:block; text-align:center;">
-                [ RETURN TO TERMINAL — ACCOUNT ARCHITECT MODE ]
+            <a href="/node02/${suitId}" class="action-btn" style="display:block; text-align:center;">
+                [ ENTER NODE 02 — NATIVE PATH ]
             </a>
             <p class="redaction-note" style="margin-top:10px;">
-                On return, your SS-ID will activate Account Architect mode automatically.
-                The Barfly has already seen your Tier 1 log. Arrive prepared.
+                The Barfly has your full audit log. No preparation required.
+                Superior extraction guaranteed.
             </p>
         `;
         node02Section.appendChild(unlockBlock);
