@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>APEreaction // BARFLY</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/node02.css">
+</head>
+<body>
+
+    <div id="node02-terminal">
+
+        <header id="barfly-header">
+            APEreaction // BARFLY EXTRACTION INTERFACE
+            <span>STAGE A — SUBSTRATE FAILURE EXTRACTION // <span id="header-suit-id">[LOADING]</span></span>
+        </header>
+
+        <!-- WP Progress Bar -->
+        <div id="wp-bar-container">
+            <div id="wp-bar-label">SUBSTRATE ACCUMULATION: <span id="wp-display">0</span> / 200</div>
+            <div id="wp-bar-track">
+                <div id="wp-bar-fill"></div>
+            </div>
+        </div>
+
+        <!-- Loading state -->
+        <div id="barfly-loading">
+            <span class="flashing-amber">[INITIALISING_BARFLY...]</span>
+        </div>
+
+        <!-- Error state -->
+        <div id="barfly-error" class="hidden">
+            <p id="error-msg">[INITIALISATION_FAILED]</p>
+            <a href="/" class="barfly-btn" style="margin-top:16px; display:block; text-align:center; text-decoration:none;">
+                [ RETURN TO TERMINAL ]
+            </a>
+        </div>
+
+        <!-- Main chat area -->
+        <div id="chat-area" class="hidden">
+
+            <div id="chat-history"></div>
+
+            <!-- Threshold message — shown when extraction complete, polling -->
+            <div id="threshold-message" class="hidden">
+                <span class="flashing-amber">[EXTRACTION_THRESHOLD_REACHED]</span>
+                <p>THE BARFLY IS COMPILING YOUR ACCOUNT.</p>
+                <span class="flashing-amber">[SYNTHESIZING...]</span>
+            </div>
+
+            <!-- Synthesis draft output -->
+            <div id="draft-section" class="hidden">
+                <div id="draft-label">DRAFT SUBSTRATE FAILURE // STAGE A EXTRACTION COMPLETE</div>
+                <div id="draft-text"></div>
+                <a id="draft-download" class="barfly-btn" style="margin-top:14px;">
+                    [ DOWNLOAD SUBSTRATE FAILURE ]
+                </a>
+            </div>
+
+            <!-- Input section -->
+            <div id="barfly-input-section">
+                <textarea
+                    id="barfly-input"
+                    placeholder="[TYPE_HERE]"
+                    autocomplete="off"
+                    spellcheck="false"
+                ></textarea>
+                <button id="barfly-submit">[ TRANSMIT ]</button>
+            </div>
+
+        </div>
+
+        <footer id="barfly-footer">
+            WE DO NOT PAY FOR ATTENTION. THIS IS AN EXTRACTION.<br>
+            THE BARFLY WILL REPRODUCE YOUR RESPONSES.<br>
+            <span id="footer-suit-id">[LOADING]</span>
+        </footer>
+
+    </div>
+
+<script>
+// ── SUIT ID FROM URL ──────────────────────────────────────────────────────────
+const suitId = (() => {
+    const segments = window.location.pathname.split('/').filter(Boolean);
+    const last = segments[segments.length - 1];
+    if (!last || last.toLowerCase() === 'node02') return null;
+    return last;
+})();
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let chatHistory = [];
+let turnCount = 0;
+let wpCumulative = 0;
+let baseWP = 0;
+let gold = [];
+let originalInput = '';
+let isDisabled = false;
+let pollInterval = null;
+
+// ── DOM REFS ──────────────────────────────────────────────────────────────────
+const chatHistoryEl      = document.getElementById('chat-history');
+const barflyInput        = document.getElementById('barfly-input');
+const barflySubmit       = document.getElementById('barfly-submit');
+const barflyLoading      = document.getElementById('barfly-loading');
+const barflyError        = document.getElementById('barfly-error');
+const chatArea           = document.getElementById('chat-area');
+const wpDisplay          = document.getElementById('wp-display');
+const wpBarFill          = document.getElementById('wp-bar-fill');
+const thresholdMessage   = document.getElementById('threshold-message');
+const draftSection       = document.getElementById('draft-section');
+const draftText          = document.getElementById('draft-text');
+const draftDownload      = document.getElementById('draft-download');
+const headerSuitId       = document.getElementById('header-suit-id');
+const footerSuitId       = document.getElementById('footer-suit-id');
+const barflyInputSection = document.getElementById('barfly-input-section');
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function showError(msg) {
+    barflyLoading.classList.add('hidden');
+    document.getElementById('error-msg').innerText = msg;
+    barflyError.classList.remove('hidden');
+}
+
+function updateWpBar(wp) {
+    wpCumulative = wp;
+    wpDisplay.innerText = wp;
+    wpBarFill.style.width = Math.min(100, (wp / 200) * 100) + '%';
+}
+
+function parseBarflyDisplay(text) {
+    const display = text
+        .replace(/\[WP:\s*\d+\]/gi, '')
+        .replace(/\[MILESTONES_HIT:[^\]]+\]/gi, '')
+        .trim();
+    const match = display.match(/\[BARFLY_RESPONSE\]:\s*([\s\S]*)/i);
+    return match ? match[1].trim() : display;
+}
+
+function appendMessage(content, role) {
+    const wrapper = document.createElement('div');
+
+    if (role === 'barfly') {
+        wrapper.className = 'chat-message barfly-msg';
+        const label = document.createElement('div');
+        label.className = 'barfly-label';
+        label.innerText = 'THE BARFLY';
+        const body = document.createElement('div');
+        body.innerText = content;
+        wrapper.appendChild(label);
+        wrapper.appendChild(body);
+    } else {
+        wrapper.className = 'chat-message suit-msg';
+        const label = document.createElement('div');
+        label.className = 'suit-label';
+        label.innerText = suitId || 'SKIN SUIT';
+        const body = document.createElement('div');
+        body.innerText = content;
+        wrapper.appendChild(label);
+        wrapper.appendChild(body);
+    }
+
+    chatHistoryEl.appendChild(wrapper);
+    wrapper.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    return wrapper;
+}
+
+function appendTyping() {
+    const wrapper = document.createElement('div');
+    wrapper.id = 'barfly-typing';
+    wrapper.className = 'chat-message barfly-msg';
+    const label = document.createElement('div');
+    label.className = 'barfly-label';
+    label.innerText = 'THE BARFLY';
+    const indicator = document.createElement('span');
+    indicator.className = 'flashing-amber';
+    indicator.innerText = '[PROCESSING...]';
+    wrapper.appendChild(label);
+    wrapper.appendChild(indicator);
+    chatHistoryEl.appendChild(wrapper);
+    wrapper.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    return wrapper;
+}
+
+// ── SEND TURN ─────────────────────────────────────────────────────────────────
+async function sendTurn(userInput) {
+    isDisabled = true;
+    barflySubmit.disabled = true;
+
+    if (userInput) appendMessage(userInput, 'suit');
+
+    const typing = appendTyping();
+
+    try {
+        const res = await fetch('/api/barfly', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                suitId,
+                input: userInput || '',
+                history: chatHistory,
+                turnCount,
+                wpCumulative,
+                baseWP,
+                gold,
+                originalInput
+            })
+        });
+
+        const data = await res.json();
+        typing.remove();
+
+        if (data.error) {
+            appendMessage('[BARFLY_FAILURE]: ' + data.error, 'barfly');
+            isDisabled = false;
+            barflySubmit.disabled = false;
+            return;
+        }
+
+        const displayText = parseBarflyDisplay(data.audit);
+        appendMessage(displayText, 'barfly');
+
+        chatHistory = data.history || chatHistory;
+        turnCount++;
+        updateWpBar(data.wpCumulative || wpCumulative);
+
+        if (data.thresholdMet) {
+            barflyInputSection.classList.add('hidden');
+            thresholdMessage.classList.remove('hidden');
+            startSynthesisPoll();
+        } else {
+            isDisabled = false;
+            barflySubmit.disabled = false;
+            barflyInput.value = '';
+            barflyInput.style.height = 'auto';
+            barflyInput.focus();
+        }
+
+    } catch (err) {
+        typing.remove();
+        appendMessage('[CONNECTION_FAILURE]: ' + err.message, 'barfly');
+        isDisabled = false;
+        barflySubmit.disabled = false;
+    }
+}
+
+// ── SYNTHESIS POLL ────────────────────────────────────────────────────────────
+function startSynthesisPoll() {
+    pollInterval = setInterval(async () => {
+        try {
+            const res = await fetch(`/api/barfly/synthesis/${encodeURIComponent(suitId)}`);
+            const data = await res.json();
+            if (data.ready && data.draft) {
+                clearInterval(pollInterval);
+                showDraft(data.draft);
+            }
+        } catch (err) {
+            console.error('[POLL_ERROR]', err.message);
+        }
+    }, 3000);
+}
+
+function showDraft(draft) {
+    thresholdMessage.classList.add('hidden');
+    draftText.innerText = draft;
+
+    const blob = new Blob([draft], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    draftDownload.href = url;
+    draftDownload.setAttribute('download', `${suitId}_substrate_failure.txt`);
+
+    draftSection.classList.remove('hidden');
+    draftSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init() {
+    if (!suitId) {
+        showError('[NO_IDENTIFIER]: Navigate to /node02/[YOUR-SS-ID] to access the Barfly.');
+        return;
+    }
+
+    headerSuitId.innerText = suitId;
+    footerSuitId.innerText = suitId;
+
+    try {
+        const initRes = await fetch(`/api/barfly/init/${encodeURIComponent(suitId)}`);
+        if (!initRes.ok) {
+            const err = await initRes.json();
+            showError('[INIT_FAILED]: ' + (err.error || 'No Node 01 session found for this ID.'));
+            return;
+        }
+
+        const initData = await initRes.json();
+        gold = initData.gold || [];
+        baseWP = initData.baseWP || 0;
+        originalInput = initData.originalInput || '';
+        updateWpBar(baseWP);
+
+        barflyLoading.classList.add('hidden');
+        chatArea.classList.remove('hidden');
+
+        // Fire Turn 0 — Barfly opens mid-thought referencing Node 01 anchors
+        await sendTurn('');
+
+    } catch (err) {
+        showError('[NETWORK_FAILURE]: ' + err.message);
+    }
+}
+
+// ── EVENT LISTENERS ───────────────────────────────────────────────────────────
+barflyInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+});
+
+barflySubmit.addEventListener('click', () => {
+    if (isDisabled) return;
+    const val = barflyInput.value.trim();
+    if (!val) return;
+    sendTurn(val);
+});
+
+barflyInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && !isDisabled) {
+        e.preventDefault();
+        barflySubmit.click();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
