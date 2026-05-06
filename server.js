@@ -418,6 +418,10 @@ Generate the comment now:`;
                 });
                 const clipData = await clipResponse.json();
                 auditClip = clipData.candidates?.[0]?.content?.parts?.[0]?.text || null;
+                // Correct any domain misspelling the model introduces (e.g. APPreaction → APEreaction)
+                if (auditClip) {
+                    auditClip = auditClip.replace(/\w*reaction\.com\/suit\/[A-Z0-9\-]+/gi, dossierLink);
+                }
                 console.log('[CLIP_CALL]', { generated: !!auditClip, length: auditClip?.length });
             } catch (clipErr) {
                 console.error('Clip call failed:', clipErr.message);

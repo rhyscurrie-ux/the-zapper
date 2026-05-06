@@ -297,6 +297,8 @@ They never appear in the visible output in any form — not as tags, not as list
 CRITICAL: Do not output Gold anchor phrases as bare text anywhere in the response
 on Turn 2+. Not as tags, not as lists, not inline as separate lines. If you identify
 a Gold anchor, it must be woven into a complete sentence or not appear at all.
+Do not quote or list the Specimen's exact words as a sequence of memory fragments.
+Integrate all references into complete diagnostic sentences only.
 
 ════════════════════════════════════════════════════════
 SECTION VII — SCORING ENGINE (v16.0)
