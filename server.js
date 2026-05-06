@@ -390,8 +390,7 @@ app.post('/api/barfly', async (req, res) => {
         // Server-side strip of Gold tag remnants before parsing
         const strippedForDisplay = rawResponse
             .replace(/\^GOLD:[^^]+\^/gi, '')
-            .replace(/:[a-zA-Z]*node[0-9]+/gi, '')
-            .replace(/:[Mm]\d{1,2}\b/g, '');
+            .replace(/\^GOLD:[^\^]*\^/gi, '');
 
         // Parse WP, milestones, Gold from response
         const { cleaned: barflyResponse, goldItems } = parseGoldTags(strippedForDisplay);
@@ -407,10 +406,8 @@ app.post('/api/barfly', async (req, res) => {
             ...(gold || []).map(g => g.milestone)
         ]);
         const bubblyWineStandard =
-            allMilestones.has(3) &&
-            (allMilestones.has(4) || allMilestones.has(14)) &&
-            (allMilestones.has(17) || allMilestones.has(18)) &&
-            allGoldCombined.length >= 4;
+            allMilestones.size >= 1 &&
+            allGoldCombined.length >= 2;
 
         const thresholdMet = newWpCumulative >= 200 && bubblyWineStandard;
 
