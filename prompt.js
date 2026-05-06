@@ -294,6 +294,9 @@ the response to truncate. Passive identification only. No tag output.
 This also means: do NOT output a bare list of anchor phrases anywhere in
 the response on Turn 2+. Gold anchors are identified silently and internally.
 They never appear in the visible output in any form — not as tags, not as lists.
+CRITICAL: Do not output Gold anchor phrases as bare text anywhere in the response
+on Turn 2+. Not as tags, not as lists, not inline as separate lines. If you identify
+a Gold anchor, it must be woven into a complete sentence or not appear at all.
 
 ════════════════════════════════════════════════════════
 SECTION VII — SCORING ENGINE (v16.0)
