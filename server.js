@@ -145,8 +145,10 @@ function parseGoldTags(text) {
     }
 
     // Strip all Gold tags from display text
-    // Add space before anchor text to prevent concatenation when tags are adjacent
+    // Pre-pass: when bold phrase immediately precedes its own tag (**phrase** ^GOLD:phrase:N^),
+    // remove the tag (keeping the bold), preventing doubled output like "**phrase** phrase".
     const cleaned = text
+        .replace(/\*\*([^*]+)\*\*\s*\^GOLD:\1:[0-9]+\^/g, '**$1**')
         .replace(/\^GOLD:[^^:]+:\d+\^/g, m => ' ' + m.replace(/\^GOLD:([^^:]+):\d+\^/, '$1'))
         .replace(/\^GOLD:[^^]+\^/g, m => ' ' + m.replace(/\^GOLD:([^^]+)\^/, '$1'))
         .replace(/  +/g, ' '); // collapse double spaces
