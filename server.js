@@ -222,37 +222,37 @@ app.post('/api/synthesize', async (req, res) => {
             .join(', ');
 
         const synthesisPrompt = `
-You are the Martis Account Synthesizer.
-You have the following extracted data from a W.E.E.D. audit session.
-Each item maps to a milestone in the 18-milestone Fully Fried experiment framework.
+You are writing a first-person confessional narrative for someone
+who has just been audited about a night they can't fully remember.
 
-SPECIMEN'S ORIGINAL CONFESSION:
+ORIGINAL CONFESSION:
 "${originalInput}"
 
-EXTRACTED GOLD ANCHORS (milestone-mapped):
+EXTRACTED GOLD ANCHORS:
 ${goldSummary}
 
-MILESTONES CONFIRMED IN SESSION:
+CONFIRMED MILESTONES:
 ${milestoneSummary}
 
-Your task: reconstruct a first-person narrative Draft Account from this data.
+Write a Draft Substrate Failure — a first-person account in the
+Skin Suit's own voice.
 
-RULES:
-— Tone: honest, specific, confessional. Not clinical. The Specimen's voice.
-— Length: 400-600 words.
-— Structure: follow the milestone sequence where data exists.
-  Begin with the Catalyst (M3) if present.
-  Move through the Ordeal milestones in order.
-  End with the Cover Story (M18) or the Full On (M15) if present.
-— Do not invent details not present in the extracted data.
-— Where data is thin, acknowledge the gap:
-  "The details of [X] have not yet been recovered."
-— This is a first draft. It is incomplete by design.
-  Its incompleteness is the invitation to return for Stage 3.
-— Begin with: "DRAFT ACCOUNT // [SS-ID] // STAGE 2 EXTRACTION"
-— End with: "This account is incomplete. Stage 3 retrieval begins at Node 02."
+VOICE RULES:
+— Human. Fallible. Honest.
+— The register of someone writing in a private journal at 3am.
+— Not clinical. Not analytical. No system language.
+— Short sentences where the memory is clear. Longer sentences
+  where the mind is reaching.
+— Uncertainty: 'I think', 'I must have', 'That part is just gone.'
+— NOT: 'data gaps', 'processing failures', 'not yet recovered.'
 
-Generate the Draft Account now.
+STRUCTURE:
+— Begin with the most vivid physical detail.
+— Work through what is known, then partially remembered, then absent.
+— End with the Cover Story forming.
+— 300-500 words.
+— Begin with: DRAFT ACCOUNT // ${suitId} // STAGE 2 EXTRACTION
+— End with: This account is incomplete. Stage 3 fills the gaps.
 `.trim();
 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
@@ -262,7 +262,7 @@ Generate the Draft Account now.
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ role: 'user', parts: [{ text: synthesisPrompt }] }],
-                generationConfig: { temperature: 0.9, maxOutputTokens: 1024 }
+                generationConfig: { temperature: 0.9, maxOutputTokens: 4096 }
             })
         });
 
@@ -273,16 +273,21 @@ Generate the Draft Account now.
 
         const draftAccount = data.candidates?.[0]?.content?.parts?.[0]?.text || '[SYNTHESIS_FAILED]';
 
-        // Store draft account against the most recent PATH_A row
-        supabase.from('entropy_logs')
-            .update({ draft_account: draftAccount })
+        // Store draft account — select row ID first, then update by ID
+        const { data: latestRow } = await supabase
+            .from('entropy_logs')
+            .select('id')
             .eq('suit_id', suitId)
             .eq('path_status', 'PATH_A')
             .order('created_at', { ascending: false })
             .limit(1)
-            .then(({ error }) => {
-                if (error) console.error('Draft account save error:', error.message);
-            });
+            .single();
+
+        if (latestRow) {
+            await supabase.from('entropy_logs')
+                .update({ draft_account: draftAccount })
+                .eq('id', latestRow.id);
+        }
 
         res.json({ draftAccount, suitId });
 
