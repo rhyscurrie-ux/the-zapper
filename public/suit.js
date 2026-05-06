@@ -20,10 +20,8 @@ const DOSSIER_NAV_STATES = {
         directive: ''
     },
     incomplete: {
-        header: 'ARCHIVE RECORD LOCATED.',
-        directive: `Your audit is incomplete.
-Return to the terminal and continue generating signal.
-This record will update as your frequency develops.`
+        header: 'AUDIT INCOMPLETE.',
+        directive: ''
     },
     conscript: {
         header: 'CONSCRIPT STATUS CONFIRMED.',
@@ -371,7 +369,14 @@ async function init() {
             if (incompleteMsg) incompleteMsg.classList.remove('hidden');
         }
 
-        initNode02(suitId, wpTotal, pathStatus);
+        // Gate Phase 05 — only show for PATH_A with WP >= 100
+        const node02Section = document.getElementById('node02-section');
+        if (isPathA && wpTotal >= 100) {
+            initNode02(suitId, wpTotal, pathStatus);
+        } else {
+            if (node02Section) node02Section.classList.add('hidden');
+        }
+
         dossierContent.classList.remove('hidden');
 
     } catch (err) {
