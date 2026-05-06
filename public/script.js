@@ -512,8 +512,9 @@ async function runAudit(type = 'standard') {
         // PROPAGATION_CLIP now comes before CENTRIFUGE_STATUS in output order.
         // Strip only the clip section — stop before [CENTRIFUGE_STATUS] or [SYSTEM_REQUIREMENT]
         const auditForDisplay = auditText
-            .replace(/\[PROPAGATION_CLIP\]:[\s\S]*?(?=\[CENTRIFUGE_STATUS\]|\[END_IDENTIFIER_ISSUED\]|$)/i, '')
+            .replace(/\[PROPAGATION_CLIP\]:[\s\S]*?(?=\[CENTRIFUGE_STATUS\]|\[THE WEED\]|\[LIFE-RAFT\]|\[SYSTEM_REQUIREMENT\]|$)/i, '')
             .replace(/\[IDENTIFIER_ISSUED\]:[\s\S]*?\[END_IDENTIFIER_ISSUED\]/i, '')
+            .replace(/\[END_IDENTIFIER_ISSUED\]/gi, '')
             .trim();
 
         output.innerHTML = auditForDisplay
@@ -638,16 +639,8 @@ async function runAudit(type = 'standard') {
                     .replace(/\[SYSTEM_REQUIREMENT\][\s\S]*/i, '')
                     .trim();
 
-                if (clipForDisplay) {
-                    const clipDiv = document.createElement('div');
-                    clipDiv.id = 'audit-clip';
-                    clipDiv.innerHTML = clipForDisplay
-                        .replace(/&/g, '&amp;')
-                        .replace(/</g, '&lt;')
-                        .replace(/>/g, '&gt;')
-                        .replace(/\n/g, '<br>');
-                    output.appendChild(clipDiv);
-                }
+                // WEED VERDICT + LIFE-RAFT + PRESCRIPTION rendered inside propagation zone
+                // Don't append separately to audit div — avoids duplication
 
                 // Render propagation zone with clip content
                 if (!propagationClipIssued && (currentWP >= 50 || currentWP >= 100)) {
