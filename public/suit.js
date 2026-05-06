@@ -149,7 +149,7 @@ function populateDossier(data, suitId, milestonesHit) {
     });
 }
 
-// ── PHASE 04 — PROJECT BLUE FLOW ─────────────────────────────────────────────
+// ── PHASE 04 — STAGE 3 FLOW ──────────────────────────────────────────────────
 function initProjectBlue(suitId, isPathA, hasDraft) {
     const sourceConfirmBtn  = document.getElementById('source-confirm-btn');
     const pbStep2           = document.getElementById('pb-step-2');
