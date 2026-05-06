@@ -391,6 +391,8 @@ Rules:
 — Funny and specific. Not generic. Not vague.
 — The link on Line 4 is mandatory — it is what makes the comment clickable.
 — Total length: under 50 words before the link.
+— ALL FOUR LINES ARE MANDATORY. A response missing Line 3 or Line 4 is a failed response.
+— Line 4 MUST be the dossier link: ${dossierLink}
 — No hashtags. No emoji. No quotation marks around the lines.
 — Output only the four lines. Nothing else.
 
@@ -409,7 +411,7 @@ Generate the comment now:`;
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{ role: 'user', parts: [{ text: clipPrompt }] }],
-                        generationConfig: { temperature: 1.1, maxOutputTokens: 1024 }
+                        generationConfig: { temperature: 1.1, maxOutputTokens: 2048 }
                     })
                 });
                 const clipData = await clipResponse.json();
