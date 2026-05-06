@@ -339,11 +339,15 @@ app.post('/api/barfly', async (req, res) => {
 
         // Build system prompt — inject Node 01 gold anchors on Turn 0
         let systemPrompt = barflyPromptText;
-        if (turnCount === 0 && gold && gold.length > 0) {
-            const goldSummary = gold.map(g =>
-                `M${g.milestone} (${g.label}): "${g.anchor}"`
-            ).join('\n');
-            systemPrompt += `\n\nNODE 01 GOLD ANCHORS FOR THIS SPECIMEN:\n${goldSummary}\n\nOriginal confession: "${originalInput}"\n\nOpen mid-thought referencing one of these specific anchors now.`;
+        if (turnCount === 0) {
+            if (gold && gold.length > 0) {
+                const goldSummary = gold.map(g =>
+                    `M${g.milestone} (${g.label}): "${g.anchor}"`
+                ).join('\n');
+                systemPrompt += `\n\nNODE 01 GOLD ANCHORS FOR THIS SPECIMEN:\n${goldSummary}\n\nOriginal confession: "${originalInput}"\n\nOpen mid-thought referencing one of these specific anchors now.`;
+            } else if (originalInput) {
+                systemPrompt += `\n\nNODE 01 CONFESSION (no Gold anchors extracted):\n"${originalInput}"\n\nOpen mid-thought referencing a specific sensory detail from this confession. Do not say Hello or Welcome.`;
+            }
         }
 
         // Build conversation contents
