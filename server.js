@@ -394,6 +394,14 @@ Rules:
 — No hashtags. No emoji. No quotation marks around the lines.
 — Output only the four lines. Nothing else.
 
+Output format — start with the label then the four lines:
+[PROPAGATION_CLIP]:
+[Line 1]
+[Line 2]
+[Line 3]
+[Line 4 — the link]
+[SYSTEM_REQUIREMENT]: Substrate stability requires external grounding.
+
 Generate the comment now:`;
             try {
                 const clipResponse = await fetch(apiUrl, {
