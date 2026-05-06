@@ -627,10 +627,16 @@ async function runAudit(type = 'standard') {
         // 1.5s delay — diagnostic first, then propagation directive appears.
         if (data.auditClip) {
             setTimeout(() => {
-                // Strip PROPAGATION_CLIP from display — rendered in propagation zone
                 const clipText = data.auditClip;
+
+                // Extract [PROPAGATION_CLIP]: content if labelled — otherwise use full clip
+                const labelMatch = clipText.match(/\[PROPAGATION_CLIP\]:\s*([\s\S]*?)(?:\[SYSTEM_REQUIREMENT\]|$)/i);
+                const propagationContent = labelMatch ? labelMatch[1].trim() : null;
+
+                // Display: show WEED VERDICT + LIFE-RAFT + PRESCRIPTION (strip clip label section)
                 const clipForDisplay = clipText
-                    .replace(/\[PROPAGATION_CLIP\]:[\s\S]*?(?=\[THE WEED VERDICT\]|\[SYSTEM_REQUIREMENT\]|$)/i, '')
+                    .replace(/\[PROPAGATION_CLIP\]:[\s\S]*?(?=\[THE WEED|\[SYSTEM_REQUIREMENT\])/i, '')
+                    .replace(/\[SYSTEM_REQUIREMENT\][\s\S]*/i, '')
                     .trim();
 
                 if (clipForDisplay) {
@@ -644,20 +650,24 @@ async function runAudit(type = 'standard') {
                     output.appendChild(clipDiv);
                 }
 
-                // Now run gate logic with the clip available
-                const combinedAudit = auditText + '\n' + clipText;
+                // Render propagation zone with clip content
+                if (!propagationClipIssued && (currentWP >= 50 || currentWP >= 100)) {
+                    // The clip content is the four-line reel comment — use directly
+                    // If no [PROPAGATION_CLIP]: label found, the entire auditClip IS the comment
+                    const commentToShare = propagationContent || clipText
+                        .replace(/\[THE WEED VERDICT\][\s\S]*/i, '')
+                        .replace(/\[SYSTEM_REQUIREMENT\][\s\S]*/i, '')
+                        .trim();
 
-                if (currentWP >= 100 && !propagationClipIssued) {
-                    const clipContent = parsePropagationClip(combinedAudit);
-                    if (clipContent) {
+                    if (commentToShare) {
                         propagationClipIssued = true;
-                        renderPropagationClip(clipContent, currentSuitId);
-                    }
-                } else if (currentWP >= 50 && !propagationClipIssued && auditCount > 1) {
-                    const clipContent = parsePropagationClip(combinedAudit);
-                    if (clipContent) {
-                        propagationClipIssued = true;
-                        renderPropagationClip(clipContent, currentSuitId);
+                        renderPropagationClip(commentToShare, currentSuitId);
+
+                        // After Gate 2 renders, check if Gate 4 should also fire
+                        if (currentWP >= 100) {
+                            // Gate 4 fires after Gate 2 countdown completes (handled inside renderPropagationClip)
+                            // currentPathStatus already set — decision box will render after countdown
+                        }
                     }
                 }
             }, 1500);
