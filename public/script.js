@@ -373,7 +373,9 @@ function renderPropagationClip(clipText, suitId) {
                             const pZone = document.getElementById('propagation-zone');
                             if (pZone) pZone.remove();
                             inputSection.classList.add('hidden');
-                            document.getElementById('reward-signal').classList.remove('hidden');
+                            rewardContainer.classList.remove('hidden');
+                            document.getElementById('reward-hub').classList.remove('hidden');
+                            document.getElementById('reward-dossier').classList.remove('hidden');
                             updateNavigator('centrifuge');
                             renderDecisionBox(currentSuitId, currentPathStatus);
                             window.scrollTo({ top: 0, behavior: 'smooth' });
