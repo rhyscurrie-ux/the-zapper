@@ -387,8 +387,14 @@ app.post('/api/barfly', async (req, res) => {
 
         const rawResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || '[SILENCE]';
 
+        // Server-side strip of Gold tag remnants before parsing
+        const strippedForDisplay = rawResponse
+            .replace(/\^GOLD:[^^]+\^/gi, '')
+            .replace(/:[a-zA-Z]*node[0-9]+/gi, '')
+            .replace(/:[Mm]\d{1,2}\b/g, '');
+
         // Parse WP, milestones, Gold from response
-        const { cleaned: barflyResponse, goldItems } = parseGoldTags(rawResponse);
+        const { cleaned: barflyResponse, goldItems } = parseGoldTags(strippedForDisplay);
         const wpMatch = barflyResponse.match(/\[WP:\s*(\d+)\]/i);
         const wpThisTurn = wpMatch ? parseInt(wpMatch[1], 10) : 15;
         const milestonesHit = parseMilestonesHit(barflyResponse);

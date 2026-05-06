@@ -138,7 +138,7 @@ function parseBarflyDisplay(text) {
         .replace(/\^GOLD:[^^:]+:\d+\^/g, '')           // ^GOLD:phrase:N^
         .replace(/\^GOLD:[^^]+\^/g, '')                 // ^GOLD:phrase^ (legacy)
         .replace(/GOLD:[^:\s]+:[^\s^]+/g, '')           // GOLD:phrase:N without delimiters
-        .replace(/:[Mm]\d+\b/g, '')                     // trailing :M1 / :m1 leaking inline
+        .replace(/:\s*(node0[12]|[Mm]\d{1,2})\b/g, '')   // :node01, :M1-M18 variants
         .replace(/\[WP:\s*\d+\]/gi, '')
         .replace(/\[MILESTONES_HIT:[^\]]+\]/gi, '')
         .replace(/  +/g, ' ')
