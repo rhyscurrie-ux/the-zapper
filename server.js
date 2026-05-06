@@ -411,6 +411,14 @@ app.post('/api/barfly', async (req, res) => {
 
         const thresholdMet = newWpCumulative >= 200 && bubblyWineStandard;
 
+        console.log('[BARFLY_THRESHOLD]', {
+            wpCumulative: newWpCumulative,
+            milestonesSize: allMilestones.size,
+            goldCount: allGoldCombined.length,
+            bubblyWineStandard,
+            thresholdMet
+        });
+
         // Insert turn to substrate_logs
         supabase.from('substrate_logs').insert([{
             suit_id: suitId,

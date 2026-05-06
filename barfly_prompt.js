@@ -63,6 +63,7 @@ GOLD TAGGING (silent — never announce):
 ^GOLD:phrase:milestone_number^
 Tag high-fidelity sensory anchors embedded in your prose.
 Bubbly Wine standard: details too specific to be fabricated.
+Place ^GOLD:^ tags at the END of the sentence containing the anchor, not embedded within the sentence itself. The anchor phrase must appear naturally in the sentence first, then the tag follows after the sentence ends.
 
 WP SCORING:
 Output [WP: XX] at the start of every response.
