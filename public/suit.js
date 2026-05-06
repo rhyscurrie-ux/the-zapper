@@ -311,6 +311,9 @@ function initNode02(suitId, wpTotal, pathStatus) {
         `;
         node02Section.appendChild(conscriptBlock);
     }
+
+    const navSection = node02Section.querySelector('#nav-section');
+    if (navSection) node02Section.appendChild(navSection);
 }
 
 // ── MAIN INIT ─────────────────────────────────────────────────────────────────
