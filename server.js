@@ -151,6 +151,7 @@ function parseGoldTags(text) {
         .replace(/\*\*([^*]+)\*\*\s*\^GOLD:\1:[0-9]+\^/g, '**$1**')
         .replace(/\^GOLD:[^^:]+:\d+\^/g, m => ' ' + m.replace(/\^GOLD:([^^:]+):\d+\^/, '$1'))
         .replace(/\^GOLD:[^^]+\^/g, m => ' ' + m.replace(/\^GOLD:([^^]+)\^/, '$1'))
+        .replace(/(\w):\d+(,\d+)*/g, '$1')
         .replace(/  +/g, ' '); // collapse double spaces
 
     return { cleaned, goldItems };
