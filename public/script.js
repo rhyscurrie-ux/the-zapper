@@ -370,7 +370,6 @@ function renderPropagationClip(clipText, suitId, wpAtGate2) {
                             document.getElementById('reward-hub').classList.remove('hidden');
                             document.getElementById('reward-dossier').classList.remove('hidden');
                             updateNavigator('centrifuge');
-                            console.log('[GATE4_FIRING]', { currentWP, currentSuitId, currentPathStatus });
                             renderDecisionBox(currentSuitId, currentPathStatus);
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                         }, 1500);
@@ -392,7 +391,6 @@ function renderPropagationClip(clipText, suitId, wpAtGate2) {
 
 // ── DECISION BOX — PATH A / PATH B ───────────────────────────────────────────
 function renderDecisionBox(suitId, pathStatus) {
-    console.log('[RENDER_DECISION_BOX_CALLED]', { suitId, pathStatus });
     const isPathA = pathStatus === 'PATH_A';
 
     decisionBox.innerHTML = `
@@ -637,13 +635,20 @@ async function runAudit(type = 'standard') {
                     if (commentToShare) {
                         propagationClipIssued = true;
                         renderPropagationClip(commentToShare, currentSuitId, currentWP);
-
-                        // After Gate 2 renders, check if Gate 4 should also fire
-                        if (currentWP >= 100) {
-                            // Gate 4 fires after Gate 2 countdown completes (handled inside renderPropagationClip)
-                            // currentPathStatus already set — decision box will render after countdown
-                        }
                     }
+                }
+
+                // Gate 4 — fire decision box if Gate 2 already complete and WP >= 100
+                if (propagationClipIssued && currentWP >= 100 && gate2Complete) {
+                    setTimeout(() => {
+                        inputSection.classList.add('hidden');
+                        rewardContainer.classList.remove('hidden');
+                        document.getElementById('reward-hub').classList.remove('hidden');
+                        document.getElementById('reward-dossier').classList.remove('hidden');
+                        updateNavigator('centrifuge');
+                        renderDecisionBox(currentSuitId, currentPathStatus);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 1500);
                 }
             }, 1500);
             return; // Don't run gate logic immediately — wait for clip
