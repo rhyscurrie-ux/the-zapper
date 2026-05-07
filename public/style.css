@@ -343,6 +343,11 @@ mjx-container {
     display: none;
 }
 
+#propagation-zone.zone-complete .propagation-link {
+    pointer-events: auto;
+    opacity: 1;
+}
+
 /* ── TERMINAL BOTTOM PADDING — for fixed specimen file bar ─────────────────── */
 #terminal {
     padding-bottom: 80px;
