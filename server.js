@@ -757,9 +757,10 @@ Generate the comment now:`;
         const pathStatus = determinePath(aiResponse, goldItems);
         console.log('[PATH_PARSE]', { pathStatus, goldCount: goldItems.length });
 
-        // Supabase insert
+        // Supabase insert — awaited so failures are logged before response is sent
         const fullAudit = auditClip ? (aiResponse + '\n' + auditClip) : aiResponse;
-        supabase.from('entropy_logs')
+        const { error: insertError } = await supabase
+            .from('entropy_logs')
             .insert([{
                 suit_id: suitId,
                 input: input,
@@ -769,11 +770,12 @@ Generate the comment now:`;
                 wp_total: cumulativeWP,
                 gold_glean: goldItems,
                 milestones_hit: milestonesHit,
-                path_status: pathStatus
-            }])
-            .then(({ error }) => {
-                if (error) console.error('Supabase insert error:', error.message);
-            });
+                path_status: pathStatus || 'PENDING'
+            }]);
+
+        if (insertError) {
+            console.error('[INSERT_ERROR]', insertError.message);
+        }
 
         res.json({
             audit: aiResponse,
@@ -785,8 +787,8 @@ Generate the comment now:`;
             milestonesHit,
             history: [
                 ...(history || []),
-                { role: 'user', content: input },
-                { role: 'assistant', content: fullAudit }
+                { role: 'user', content: userText },
+                { role: 'assistant', content: aiResponse }
             ]
         });
 
