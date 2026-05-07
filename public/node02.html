@@ -57,9 +57,17 @@
             <div id="draft-section" class="hidden">
                 <div id="draft-label">DRAFT SUBSTRATE FAILURE // STAGE A EXTRACTION COMPLETE</div>
                 <div id="draft-text"></div>
-                <a id="draft-download" class="barfly-btn" style="margin-top:14px;">
-                    [ DOWNLOAD SUBSTRATE FAILURE ]
-                </a>
+                <div id="draft-download-wrapper" style="margin-top:14px;">
+                    <a id="draft-download" style="display:none;"></a>
+                    <button id="draft-download-btn" class="barfly-btn" style="width:100%;">[ DOWNLOAD SUBSTRATE FAILURE ]</button>
+                    <div id="draft-download-confirm" style="display:none; margin-top:10px;">
+                        <p style="font-size:0.7rem; color:rgba(0,255,65,0.7); margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">YOU ARE ABOUT TO DOWNLOAD <span id="draft-download-filename"></span>. THIS DOCUMENT IS YOURS.</p>
+                        <div style="display:flex; gap:8px;">
+                            <button id="draft-confirm-yes" class="barfly-btn" style="flex:1;">[ CONFIRM DOWNLOAD ]</button>
+                            <button id="draft-confirm-no" class="barfly-btn" style="flex:1; border-color:rgba(0,255,65,0.4); color:rgba(0,255,65,0.5);">[ CANCEL ]</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Input section -->
@@ -274,10 +282,32 @@ function showDraft(draft) {
     thresholdMessage.classList.add('hidden');
     draftText.innerText = draft;
 
+    const filename = `${suitId}_substrate_failure.txt`;
     const blob = new Blob([draft], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     draftDownload.href = url;
-    draftDownload.setAttribute('download', `${suitId}_substrate_failure.txt`);
+    draftDownload.setAttribute('download', filename);
+
+    document.getElementById('draft-download-filename').innerText = filename;
+
+    const btn = document.getElementById('draft-download-btn');
+    const confirmDiv = document.getElementById('draft-download-confirm');
+    const yes = document.getElementById('draft-confirm-yes');
+    const no = document.getElementById('draft-confirm-no');
+
+    btn.onclick = () => {
+        btn.style.display = 'none';
+        confirmDiv.style.display = 'block';
+    };
+    yes.onclick = () => {
+        draftDownload.click();
+        confirmDiv.style.display = 'none';
+        btn.style.display = 'block';
+    };
+    no.onclick = () => {
+        confirmDiv.style.display = 'none';
+        btn.style.display = 'block';
+    };
 
     draftSection.classList.remove('hidden');
     draftSection.scrollIntoView({ behavior: 'smooth', block: 'start' });

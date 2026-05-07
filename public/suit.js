@@ -173,6 +173,28 @@ function initProjectBlue(suitId, isPathA, hasDraft) {
         updateDossierNavigator('draft_complete');
     }
 
+    // Schematic PDF — confirm flow
+    const schematicBtn = document.getElementById('schematic-download-btn');
+    const schematicConfirm = document.getElementById('schematic-download-confirm');
+    if (schematicBtn) {
+        schematicBtn.onclick = () => {
+            schematicBtn.style.display = 'none';
+            schematicConfirm.style.display = 'block';
+        };
+        document.getElementById('schematic-confirm-yes').onclick = () => {
+            const a = document.createElement('a');
+            a.href = '/Occurrences_v1_5.pdf';
+            a.download = 'Occurrences_v1_5.pdf';
+            a.click();
+            schematicConfirm.style.display = 'none';
+            schematicBtn.style.display = 'block';
+        };
+        document.getElementById('schematic-confirm-no').onclick = () => {
+            schematicConfirm.style.display = 'none';
+            schematicBtn.style.display = 'block';
+        };
+    }
+
     // Step 1 → Step 2 confirmation
     sourceConfirmBtn.addEventListener('click', () => {
         sourceConfirmBtn.classList.add('hidden');
@@ -238,11 +260,29 @@ function initProjectBlue(suitId, isPathA, hasDraft) {
             });
         });
 
-        // Download TXT
+        // Download TXT — confirm flow
+        const filename = `${ssId}_draft_account.txt`;
         const blob = new Blob([text], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
-        draftDownloadBtn.href = url;
-        draftDownloadBtn.download = `draft-account-${ssId}.txt`;
+        const anchor = document.getElementById('draft-download-anchor');
+        anchor.href = url;
+        anchor.download = filename;
+        document.getElementById('draft-txt-filename').innerText = filename;
+
+        const confirmDiv = document.getElementById('draft-txt-confirm');
+        draftDownloadBtn.onclick = () => {
+            draftDownloadBtn.style.display = 'none';
+            confirmDiv.style.display = 'block';
+        };
+        document.getElementById('draft-txt-confirm-yes').onclick = () => {
+            anchor.click();
+            confirmDiv.style.display = 'none';
+            draftDownloadBtn.style.display = 'block';
+        };
+        document.getElementById('draft-txt-confirm-no').onclick = () => {
+            confirmDiv.style.display = 'none';
+            draftDownloadBtn.style.display = 'block';
+        };
     }
 }
 
@@ -272,9 +312,16 @@ function initNode02(suitId, wpTotal, pathStatus) {
                 The AI will initialise as your Account Architect.
                 Results will vary — the AI has no knowledge of your specific session.
             </p>
-            <a href="/Account_Architect_AI_Initializer.pdf" target="_blank" class="action-btn secondary-btn" style="display:block; text-align:center; margin-bottom:18px;">
-                [ DOWNLOAD AA INITIALIZER — FOR EXTERNAL AI USE ]
-            </a>
+            <div style="margin-bottom:18px;">
+                <button id="aa-download-btn" class="action-btn secondary-btn" style="display:block; width:100%; text-align:center;">[ DOWNLOAD AA INITIALIZER — FOR EXTERNAL AI USE ]</button>
+                <div id="aa-download-confirm" style="display:none; margin-top:10px;">
+                    <p style="font-size:0.65rem; color:rgba(0,255,65,0.7); margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">YOU ARE ABOUT TO DOWNLOAD Account_Architect_AI_Initializer.pdf. THIS DOCUMENT IS YOURS.</p>
+                    <div style="display:flex; gap:8px;">
+                        <button id="aa-confirm-yes" class="action-btn" style="flex:1; font-size:0.7rem; padding:10px;">[ CONFIRM DOWNLOAD ]</button>
+                        <button id="aa-confirm-no" class="action-btn secondary-btn" style="flex:1; font-size:0.7rem; padding:10px;">[ CANCEL ]</button>
+                    </div>
+                </div>
+            </div>
 
             <div class="field-label" style="margin-bottom:8px;">OPTION B — NATIVE PATH (RECOMMENDED)</div>
             <p class="section-desc" style="margin-bottom:10px;">
@@ -291,6 +338,26 @@ function initNode02(suitId, wpTotal, pathStatus) {
             </p>
         `;
         node02Section.appendChild(unlockBlock);
+
+        // AA Initializer PDF — confirm flow
+        const aaBtn = document.getElementById('aa-download-btn');
+        const aaConfirm = document.getElementById('aa-download-confirm');
+        aaBtn.onclick = () => {
+            aaBtn.style.display = 'none';
+            aaConfirm.style.display = 'block';
+        };
+        document.getElementById('aa-confirm-yes').onclick = () => {
+            const a = document.createElement('a');
+            a.href = '/Account_Architect_AI_Initializer.pdf';
+            a.download = 'Account_Architect_AI_Initializer.pdf';
+            a.click();
+            aaConfirm.style.display = 'none';
+            aaBtn.style.display = 'block';
+        };
+        document.getElementById('aa-confirm-no').onclick = () => {
+            aaConfirm.style.display = 'none';
+            aaBtn.style.display = 'block';
+        };
 
     } else if (centrifugeReached && !isPathA) {
         if (placeholderBtn) placeholderBtn.style.display = 'none';

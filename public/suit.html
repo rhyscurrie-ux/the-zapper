@@ -157,9 +157,16 @@ Subject line: [<span id="statement-id-3" class="statement-id-highlight">SS-XXXX<
                         Do not skip the initialisation block at the top.
                         Your Account will not pass Archive review without it.
                     </p>
-                    <a href="/Occurrences_v1_5.pdf" target="_blank" class="action-btn reveal-link" style="display:block; text-align:center; margin-bottom:12px;">
-                        [ DOWNLOAD THE SCHEMATIC — TRANSCRIPT GUIDE v1.5 ]
-                    </a>
+                    <div style="margin-bottom:12px;">
+                        <button id="schematic-download-btn" class="action-btn reveal-link" style="display:block; width:100%; text-align:center;">[ DOWNLOAD THE SCHEMATIC — TRANSCRIPT GUIDE v1.5 ]</button>
+                        <div id="schematic-download-confirm" style="display:none; margin-top:10px;">
+                            <p style="font-size:0.65rem; color:rgba(0,255,65,0.7); margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">YOU ARE ABOUT TO DOWNLOAD Occurrences_v1_5.pdf. THIS DOCUMENT IS YOURS.</p>
+                            <div style="display:flex; gap:8px;">
+                                <button id="schematic-confirm-yes" class="action-btn" style="flex:1; font-size:0.7rem; padding:10px;">[ CONFIRM DOWNLOAD ]</button>
+                                <button id="schematic-confirm-no" class="action-btn secondary-btn" style="flex:1; font-size:0.7rem; padding:10px;">[ CANCEL ]</button>
+                            </div>
+                        </div>
+                    </div>
                     <p class="redaction-note">
                         No payment is made. The permanent record is the reward.
                         The Certificate of Extraction is issued upon Archive acceptance.
@@ -186,9 +193,17 @@ Subject line: [<span id="statement-id-3" class="statement-id-highlight">SS-XXXX<
                                 <button id="draft-copy-btn" class="action-btn secondary-btn" style="flex:1;">
                                     [ COPY TO CLIPBOARD ]
                                 </button>
-                                <a id="draft-download-btn" class="action-btn secondary-btn" style="flex:1; text-align:center; text-decoration:none;" download="draft-account.txt">
-                                    [ DOWNLOAD TXT ]
-                                </a>
+                                <div style="flex:1;">
+                                    <a id="draft-download-anchor" style="display:none;"></a>
+                                    <button id="draft-download-btn" class="action-btn secondary-btn" style="width:100%;">[ DOWNLOAD TXT ]</button>
+                                    <div id="draft-txt-confirm" style="display:none; margin-top:10px;">
+                                        <p style="font-size:0.65rem; color:rgba(0,255,65,0.7); margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">YOU ARE ABOUT TO DOWNLOAD <span id="draft-txt-filename"></span>. THIS DOCUMENT IS YOURS.</p>
+                                        <div style="display:flex; gap:8px;">
+                                            <button id="draft-txt-confirm-yes" class="action-btn" style="flex:1; font-size:0.7rem; padding:10px;">[ CONFIRM DOWNLOAD ]</button>
+                                            <button id="draft-txt-confirm-no" class="action-btn secondary-btn" style="flex:1; font-size:0.7rem; padding:10px;">[ CANCEL ]</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
