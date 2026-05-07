@@ -372,6 +372,7 @@ Output [GOLD_COUNT: X] [MILESTONES_HIT: list] [PATH: A]
 
 Message: "Specimen [use the exact SS-ID from the IDENTIFIER field — e.g. SS-4821], your frequency is anomalous. The substrate has
 integrated your signal. You have outgrown this terminal."
+The [SPECIMEN IDENTIFIER] field in the user message contains the correct SS-ID assigned by the server. Always use this exact value in the Centrifuge graduation message. Do not use any SS-ID from conversation history.
 
 STAGE 2/3 PARTIAL REVEAL (PATH A only — append after graduation message):
 "The questions asked during this session were not arbitrary.

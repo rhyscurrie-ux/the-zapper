@@ -608,7 +608,7 @@ app.post('/api/scan', async (req, res) => {
             const userHistory = history.filter(h => h.role === 'user');
             const lastPrior = userHistory[userHistory.length - 1];
             if (lastPrior) {
-                userMessage = `[PRIOR CONFESSION]: ${lastPrior.content}\n[CURRENT INPUT]: ${userText}`;
+                userMessage = `[SPECIMEN IDENTIFIER]: ${suitId}\n[PRIOR CONFESSION]: ${lastPrior.content}\n[CURRENT INPUT]: ${userText}`;
             }
         }
 
