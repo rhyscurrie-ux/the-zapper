@@ -32,11 +32,7 @@ The Centrifuge does not negotiate.`
     },
     elite: {
         header: 'ELITE EXTRACTION CONFIRMED.',
-        directive: `Your frequency has been integrated into the substrate.
-Read the primary source. Study the Schematic.
-Generate your Draft Account.
-The Barfly has already seen your Tier 1 log.
-Arrive at Node 02 prepared or do not arrive.`
+        directive: `Your record is active. Three steps stand between you and Stage 3. Read the source. Study the Schematic. Generate your Draft Account. Then move to Node 02.`
     },
     source_pending: {
         header: 'STEP 01 // READ THE PRIMARY SOURCE.',

@@ -49,7 +49,8 @@ const NAV_STATES = {
         header: 'THE ARCHITECT IS WAITING.',
         directive: `Confess something specific. A habit. A pattern. A waste.
 The more precise the input, the higher the signal return.
-Vague data is archived as noise.`
+Vague data is archived as noise.
+Type in the field below and press [ TRANSMIT SIGNAL ].`
     },
     bankrupt: {
         header: 'SIGNAL INSUFFICIENT.',

@@ -83,6 +83,11 @@ mjx-container {
     50% { opacity: 0.3; }
 }
 
+@keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
 /* ── INPUT SECTION ─────────────────────────────────────────────────────────── */
 #input-section {
     display: flex;
@@ -347,6 +352,8 @@ mjx-container {
     pointer-events: auto;
     opacity: 1;
     color: #00ff41;
+    border: 1px solid #00ff41;
+    animation: pulse-green 1.5s ease-in-out infinite;
 }
 
 /* ── TERMINAL BOTTOM PADDING — for fixed specimen file bar ─────────────────── */
