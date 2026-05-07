@@ -346,6 +346,7 @@ mjx-container {
 #propagation-zone.zone-complete .propagation-link {
     pointer-events: auto;
     opacity: 1;
+    color: #00ff41;
 }
 
 /* ── TERMINAL BOTTOM PADDING — for fixed specimen file bar ─────────────────── */

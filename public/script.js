@@ -307,7 +307,7 @@ function parsePropagationClip(auditText) {
 }
 
 // ── PROPAGATION CLIP UI — GATE 2 ─────────────────────────────────────────────
-function renderPropagationClip(clipText, suitId) {
+function renderPropagationClip(clipText, suitId, wpAtGate2) {
     const existing = document.getElementById('propagation-zone');
     if (existing) existing.remove();
 
@@ -361,7 +361,7 @@ function renderPropagationClip(clipText, suitId) {
                     rewardContainer.classList.remove('hidden');
                     document.getElementById('reward-hub').classList.remove('hidden');
 
-                    if (currentWP >= 100) {
+                    if (wpAtGate2 >= 100) {
                         setTimeout(() => {
                             const pZone = document.getElementById('propagation-zone');
                             if (pZone) pZone.classList.add('zone-complete');
@@ -636,7 +636,7 @@ async function runAudit(type = 'standard') {
 
                     if (commentToShare) {
                         propagationClipIssued = true;
-                        renderPropagationClip(commentToShare, currentSuitId);
+                        renderPropagationClip(commentToShare, currentSuitId, currentWP);
 
                         // After Gate 2 renders, check if Gate 4 should also fire
                         if (currentWP >= 100) {
@@ -673,7 +673,7 @@ async function runAudit(type = 'standard') {
             const clipText = parsePropagationClip(auditText);
             if (clipText) {
                 propagationClipIssued = true;
-                renderPropagationClip(clipText, currentSuitId);
+                renderPropagationClip(clipText, currentSuitId, currentWP);
             } else {
                 // Clip missing — show both directives and fire Gate 4 as fallback
                 inputSection.classList.add('hidden');
@@ -705,7 +705,7 @@ async function runAudit(type = 'standard') {
             const clipText = parsePropagationClip(auditText);
             if (clipText) {
                 propagationClipIssued = true;
-                renderPropagationClip(clipText, currentSuitId);
+                renderPropagationClip(clipText, currentSuitId, currentWP);
                 // Navigator updated inside renderPropagationClip
             } else {
                 // Clip missing — fail gracefully, resume audit
