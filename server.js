@@ -103,8 +103,17 @@ app.get('/api/suit/:id', async (req, res) => {
             });
         }
 
+        // Fetch Turn 1 confession specifically — primary query returns most recent row
+        const { data: turn1Data } = await supabase
+            .from('entropy_logs')
+            .select('input')
+            .eq('suit_id', suitId)
+            .eq('audit_count', 0)
+            .single();
+
         res.json({
             ...data,
+            input: turn1Data?.input || data.input,
             wp_total: peakWP,
             path_status: confirmedPathA ? 'PATH_A' : (data.path_status || 'PENDING'),
             gold_summary: allGold.length,
