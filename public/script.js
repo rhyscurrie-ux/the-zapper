@@ -370,6 +370,7 @@ function renderPropagationClip(clipText, suitId) {
                             document.getElementById('reward-hub').classList.remove('hidden');
                             document.getElementById('reward-dossier').classList.remove('hidden');
                             updateNavigator('centrifuge');
+                            console.log('[GATE4_FIRING]', { currentWP, currentSuitId, currentPathStatus });
                             renderDecisionBox(currentSuitId, currentPathStatus);
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                         }, 1500);
@@ -391,6 +392,7 @@ function renderPropagationClip(clipText, suitId) {
 
 // ── DECISION BOX — PATH A / PATH B ───────────────────────────────────────────
 function renderDecisionBox(suitId, pathStatus) {
+    console.log('[RENDER_DECISION_BOX_CALLED]', { suitId, pathStatus });
     const isPathA = pathStatus === 'PATH_A';
 
     decisionBox.innerHTML = `
