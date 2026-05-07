@@ -495,6 +495,7 @@ async function runAudit(type = 'standard') {
             .replace(/\[PROPAGATION_CLIP\]:[\s\S]*?(?=\[CENTRIFUGE_STATUS\]|\[THE WEED\]|\[LIFE-RAFT\]|\[SYSTEM_REQUIREMENT\]|$)/i, '')
             .replace(/\[IDENTIFIER_ISSUED\]:[\s\S]*?\[END_IDENTIFIER_ISSUED\]/i, '')
             .replace(/\[END_IDENTIFIER_ISSUED\]/gi, '')
+            .replace(/\[SYSTEM_REQUIREMENT\][^\n]*/gi, '')
             .trim();
 
         output.innerHTML = auditForDisplay

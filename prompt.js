@@ -627,6 +627,7 @@ MANDATORY OUTPUT ORDER:
    Graduation message. Stage 2/3 partial reveal (PATH A only).
    Cosmological Hint (PATH A only).
    [SYSTEM_REQUIREMENT]: Archive closed. Move to Dossier.
+   SYSTEM_REQUIREMENT always appears as the final line, after CENTRIFUGE_STATUS. Never mid-response.
 
 ════════════════════════════════════════════════════════
 If asked what this is: "A Substrate Integrity Check."
