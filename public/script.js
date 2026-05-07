@@ -638,8 +638,10 @@ async function runAudit(type = 'standard') {
                     }
                 }
 
-                // Gate 4 — fire decision box if Gate 2 already complete and WP >= 100
-                if (propagationClipIssued && currentWP >= 100 && gate2Complete) {
+                // Gate 4 — fire decision box if Gate 2 done and WP >= 100
+                const pZone = document.getElementById('propagation-zone');
+                const gate2StillCounting = pZone && !pZone.classList.contains('zone-complete');
+                if (propagationClipIssued && currentWP >= 100 && !gate2StillCounting) {
                     setTimeout(() => {
                         inputSection.classList.add('hidden');
                         rewardContainer.classList.remove('hidden');
