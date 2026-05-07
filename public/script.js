@@ -357,11 +357,8 @@ function renderPropagationClip(clipText, suitId, wpAtGate2) {
                 setTimeout(() => {
                     gate2Complete = true;
 
-                    // Gate 2 complete: show Hub directive only (OIT)
-                    rewardContainer.classList.remove('hidden');
-                    document.getElementById('reward-hub').classList.remove('hidden');
-
                     if (wpAtGate2 >= 100) {
+                        // Gate 4 — show Hub + Dossier + decision box together
                         setTimeout(() => {
                             const pZone = document.getElementById('propagation-zone');
                             if (pZone) pZone.classList.add('zone-complete');
@@ -374,9 +371,11 @@ function renderPropagationClip(clipText, suitId, wpAtGate2) {
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                         }, 1500);
                     } else {
-                        // Gate 3 — re-enable input
+                        // Gate 3 — re-enable input, show Hub directive now
                         const pZone = document.getElementById('propagation-zone');
                         if (pZone) pZone.classList.add('zone-complete');
+                        rewardContainer.classList.remove('hidden');
+                        document.getElementById('reward-hub').classList.remove('hidden');
                         input.value = '';
                         input.placeholder = '[TYPE_HERE]';
                         input.style.height = '120px';
@@ -648,7 +647,6 @@ async function runAudit(type = 'standard') {
                     setTimeout(() => {
                         inputSection.classList.add('hidden');
                         rewardContainer.classList.remove('hidden');
-                        document.getElementById('reward-hub').classList.remove('hidden');
                         document.getElementById('reward-dossier').classList.remove('hidden');
                         updateNavigator('centrifuge');
                         renderDecisionBox(currentSuitId, currentPathStatus);
