@@ -90,15 +90,15 @@ Do not close this window.`
     },
     gate3_early: {
         header: 'CALIBRATION ACCEPTED.',
-        directive: `Signal injection confirmed. Audit resumed.
-The Architect has registered your frequency.
-Continue generating substrate data.`
+        directive: `Your signal has been logged and the reel has been fed.
+The Architect requires more material.
+Describe what happened. The more specific the detail, the deeper the extraction.`
     },
     harvest: {
         header: 'HIGH-DENSITY SIGNAL DETECTED.',
-        directive: `The Architect is extracting.
-Do not retreat into summary.
-Maintain specificity. The substrate is close to resolution.`
+        directive: `The Architect is close to extraction.
+Give the specific detail — not the summary.
+Name the thing. Describe the moment. The gap is almost closed.`
     },
     centrifuge: {
         header: 'EXTRACTION COMPLETE.',
