@@ -264,7 +264,17 @@ async function sendTurn(userInput) {
 
 // ── SYNTHESIS POLL ────────────────────────────────────────────────────────────
 function startSynthesisPoll() {
+    let attempts = 0;
+    const MAX_ATTEMPTS = 60;
+
     pollInterval = setInterval(async () => {
+        attempts++;
+        if (attempts >= MAX_ATTEMPTS) {
+            clearInterval(pollInterval);
+            thresholdMessage.classList.add('hidden');
+            appendMessage('SYNTHESIS TIMEOUT. The Barfly is unavailable. Try returning later — your session is saved.', 'barfly');
+            return;
+        }
         try {
             const res = await fetch(`/api/barfly/synthesis/${encodeURIComponent(suitId)}`);
             const data = await res.json();
