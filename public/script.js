@@ -113,13 +113,6 @@ A forensic probe is active.
 Answer the probe directly. Do not summarise.
 This is not a conversation. It is a data extraction.`
     },
-    dispute: {
-        header: 'DISPUTE PROTOCOL ACTIVE.',
-        directive: `State your grounds precisely.
-The Architect will reference your prior failure.
-Resistance is logged as entropic data.
-Generate new signal or the verdict stands.`
-    },
     probe_failure: {
         header: 'PROBE RETURNED NULL.',
         directive: `Your substrate cannot hold the frequency required for extraction.
@@ -413,23 +406,8 @@ function renderDecisionBox(suitId, pathStatus) {
             <a href="/suit/${suitId}" class="reward-btn dossier-link" style="text-decoration:none; text-align:center; display:block;">
                 [ ACCESS SPECIMEN DOSSIER ]
             </a>
-            <button id="btn-dispute" class="reward-btn">
-                [ DISPUTE_FINDINGS ]
-            </button>
         </div>
     `;
-
-    document.getElementById('btn-dispute').addEventListener('click', () => {
-        decisionBox.classList.add('hidden');
-        inputSection.classList.remove('hidden');
-        input.value = '';
-        input.style.height = '120px';
-        input.placeholder = '[TYPE_HERE]';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        input.focus();
-        submitBtn.dataset.mode = 'dispute';
-        updateNavigator('dispute');
-    });
 
     decisionBox.classList.remove('hidden');
 }
