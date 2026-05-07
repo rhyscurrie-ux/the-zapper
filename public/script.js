@@ -371,7 +371,7 @@ function renderPropagationClip(clipText, suitId) {
                     if (currentWP >= 100) {
                         setTimeout(() => {
                             const pZone = document.getElementById('propagation-zone');
-                            if (pZone) pZone.remove();
+                            if (pZone) pZone.classList.add('zone-complete');
                             inputSection.classList.add('hidden');
                             rewardContainer.classList.remove('hidden');
                             document.getElementById('reward-hub').classList.remove('hidden');
@@ -383,7 +383,7 @@ function renderPropagationClip(clipText, suitId) {
                     } else {
                         // Gate 3 — re-enable input
                         const pZone = document.getElementById('propagation-zone');
-                        if (pZone) pZone.remove();
+                        if (pZone) pZone.classList.add('zone-complete');
                         input.value = '';
                         input.placeholder = '[TYPE_HERE]';
                         input.style.height = '120px';

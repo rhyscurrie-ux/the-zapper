@@ -333,6 +333,16 @@ mjx-container {
     color: #000;
 }
 
+#propagation-zone.zone-complete {
+    opacity: 0.4;
+    pointer-events: none;
+    border-color: rgba(0, 255, 65, 0.2);
+}
+
+#propagation-zone.zone-complete .propagation-btn {
+    display: none;
+}
+
 /* ── TERMINAL BOTTOM PADDING — for fixed specimen file bar ─────────────────── */
 #terminal {
     padding-bottom: 80px;
