@@ -660,9 +660,33 @@ app.post('/api/scan', async (req, res) => {
         if (suitIdOverride) {
             suitId = suitIdOverride;
         } else {
-            const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(SS-\d{4})\]/);
+            const idMatch = aiResponse.match(/\[IDENTIFIER:\s*(SS-\d{4,5})\]/);
             const parsedId = (idMatch && idMatch[1] !== 'SS-XXXX') ? idMatch[1].trim() : null;
-            suitId = parsedId || `SS-${Math.floor(1000 + Math.random() * 9000)}`;
+
+            if (parsedId) {
+                suitId = parsedId;
+            } else {
+                // Sequential fallback — find highest existing numeric SS-ID and increment
+                let nextNum = 1000;
+                try {
+                    const { data: recentIds } = await supabase
+                        .from('entropy_logs')
+                        .select('suit_id')
+                        .like('suit_id', 'SS-%')
+                        .order('created_at', { ascending: false })
+                        .limit(10);
+                    if (recentIds && recentIds.length > 0) {
+                        const nums = recentIds
+                            .map(r => parseInt(r.suit_id.replace('SS-', ''), 10))
+                            .filter(n => !isNaN(n));
+                        if (nums.length > 0) nextNum = Math.max(...nums) + 1;
+                    }
+                } catch (e) {
+                    console.error('[ID_GEN_ERROR]', e.message);
+                }
+                const padLength = nextNum > 9999 ? 5 : 4;
+                suitId = `SS-${String(nextNum).padStart(padLength, '0')}`;
+            }
         }
 
         // Parse WP — per-turn score from AI
