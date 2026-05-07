@@ -780,7 +780,7 @@ Generate the comment now:`;
             auditClip,
             suitId,
             wpTotal: cumulativeWP,
-            pathStatus,
+            pathStatus: pathStatus || 'PENDING',
             goldCount: goldItems.length,
             milestonesHit,
             history: [

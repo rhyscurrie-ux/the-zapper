@@ -391,6 +391,9 @@ function renderPropagationClip(clipText, suitId, wpAtGate2) {
 
 // ── DECISION BOX — PATH A / PATH B ───────────────────────────────────────────
 function renderDecisionBox(suitId, pathStatus) {
+    if (!pathStatus || pathStatus === 'PENDING') {
+        pathStatus = 'PATH_A';
+    }
     const isPathA = pathStatus === 'PATH_A';
 
     decisionBox.innerHTML = `
