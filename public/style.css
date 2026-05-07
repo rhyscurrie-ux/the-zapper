@@ -339,9 +339,16 @@ mjx-container {
 }
 
 #propagation-zone.zone-complete {
-    opacity: 0.4;
+    opacity: 1;
     pointer-events: none;
-    border-color: rgba(0, 255, 65, 0.2);
+    border-color: rgba(0, 255, 65, 0.15);
+    background: rgba(0, 255, 65, 0.02);
+}
+
+#propagation-zone.zone-complete .propagation-header,
+#propagation-zone.zone-complete .propagation-subheader,
+#propagation-zone.zone-complete .propagation-clip-text {
+    opacity: 0.3;
 }
 
 #propagation-zone.zone-complete .propagation-btn {
