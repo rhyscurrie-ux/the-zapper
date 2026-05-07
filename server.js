@@ -660,21 +660,26 @@ app.post('/api/scan', async (req, res) => {
         const wpMatch = aiResponse.match(/\[WP:\s*(\d+)\]/i);
         const wpThisTurn = wpMatch ? parseInt(wpMatch[1], 10) : 0;
 
-        // Accumulate WP — fetch prior max for this suitId and add this turn's score
+        // Accumulate WP — fetch prior max for this session's turns only
         let cumulativeWP = wpThisTurn;
-        if (suitId) {
-            const { data: priorRows } = await supabase
-                .from('entropy_logs')
-                .select('wp_total')
-                .eq('suit_id', suitId)
-                .order('wp_total', { ascending: false })
-                .limit(1)
-                .single();
-            if (priorRows && priorRows.wp_total) {
-                cumulativeWP = priorRows.wp_total + wpThisTurn;
+        if (suitId && auditCount > 0) {
+            try {
+                const { data: priorRows } = await supabase
+                    .from('entropy_logs')
+                    .select('wp_total')
+                    .eq('suit_id', suitId)
+                    .lt('audit_count', auditCount)
+                    .order('wp_total', { ascending: false })
+                    .limit(1)
+                    .single();
+                if (priorRows?.wp_total) {
+                    cumulativeWP = priorRows.wp_total + wpThisTurn;
+                }
+            } catch (e) {
+                // No prior rows — use wpThisTurn only
             }
         }
-        console.log('[WP_PARSE]', { wpThisTurn, cumulativeWP });
+        console.log('[WP_PARSE]', { wpThisTurn, cumulativeWP, auditCount });
 
         // ── TWO-CALL ARCHITECTURE ─────────────────────────────────────────────
         // On Turn 2+ with high WP (altered state signal detected), make a second
