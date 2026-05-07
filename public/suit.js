@@ -251,14 +251,14 @@ function initProjectBlue(suitId, isPathA, hasDraft) {
         draftLoading.classList.add('hidden');
 
         // Copy to clipboard
-        draftCopyBtn.addEventListener('click', () => {
+        draftCopyBtn.onclick = () => {
             navigator.clipboard.writeText(text).then(() => {
                 draftCopyBtn.innerText = '[ COPIED ]';
                 setTimeout(() => {
                     draftCopyBtn.innerText = '[ COPY TO CLIPBOARD ]';
                 }, 2000);
             });
-        });
+        };
 
         // Download TXT — confirm flow
         const filename = `${ssId}_draft_account.txt`;
@@ -282,6 +282,43 @@ function initProjectBlue(suitId, isPathA, hasDraft) {
         document.getElementById('draft-txt-confirm-no').onclick = () => {
             confirmDiv.style.display = 'none';
             draftDownloadBtn.style.display = 'block';
+        };
+
+        // Regenerate draft — confirm flow
+        const regenBtn = document.getElementById('regenerate-draft-btn');
+        const regenConfirm = document.getElementById('regenerate-confirm');
+
+        regenBtn.style.display = 'block';
+        regenBtn.disabled = false;
+        regenBtn.innerText = '[ REGENERATE DRAFT ACCOUNT ]';
+
+        regenBtn.onclick = () => {
+            regenBtn.style.display = 'none';
+            regenConfirm.style.display = 'block';
+        };
+        document.getElementById('regenerate-confirm-yes').onclick = async () => {
+            regenConfirm.style.display = 'none';
+            regenBtn.style.display = 'block';
+            regenBtn.innerText = '[ REGENERATING... ]';
+            regenBtn.disabled = true;
+            try {
+                const res = await fetch('/api/synthesize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ suitId: ssId })
+                });
+                const data = await res.json();
+                if (data.draftAccount) {
+                    renderDraftAccount(data.draftAccount, ssId);
+                }
+            } catch (err) {
+                regenBtn.innerText = '[ REGENERATE FAILED — TRY AGAIN ]';
+                regenBtn.disabled = false;
+            }
+        };
+        document.getElementById('regenerate-confirm-no').onclick = () => {
+            regenConfirm.style.display = 'none';
+            regenBtn.style.display = 'block';
         };
     }
 }
