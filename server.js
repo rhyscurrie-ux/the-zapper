@@ -655,17 +655,32 @@ app.post('/api/scan', async (req, res) => {
             suitId = parsedId || `SS-${Math.floor(1000 + Math.random() * 9000)}`;
         }
 
-        // Parse WP
+        // Parse WP — per-turn score from AI
         const wpMatch = aiResponse.match(/\[WP:\s*(\d+)\]/i);
-        const wpTotal = wpMatch ? parseInt(wpMatch[1], 10) : 0;
-        console.log('[WP_PARSE]', { wpTotal });
+        const wpThisTurn = wpMatch ? parseInt(wpMatch[1], 10) : 0;
+
+        // Accumulate WP — fetch prior max for this suitId and add this turn's score
+        let cumulativeWP = wpThisTurn;
+        if (suitId) {
+            const { data: priorRows } = await supabase
+                .from('entropy_logs')
+                .select('wp_total')
+                .eq('suit_id', suitId)
+                .order('wp_total', { ascending: false })
+                .limit(1)
+                .single();
+            if (priorRows && priorRows.wp_total) {
+                cumulativeWP = priorRows.wp_total + wpThisTurn;
+            }
+        }
+        console.log('[WP_PARSE]', { wpThisTurn, cumulativeWP });
 
         // ── TWO-CALL ARCHITECTURE ─────────────────────────────────────────────
         // On Turn 2+ with high WP (altered state signal detected), make a second
         // Gemini call to generate PROPAGATION_CLIP + WEED VERDICT + LIFE-RAFT +
         // PRESCRIPTION. Client renders Call 1 immediately, Call 2 after 1.5s.
         let auditClip = null;
-        const isHighSignalTurn2 = auditCount > 0 && wpTotal >= 50;
+        const isHighSignalTurn2 = auditCount > 0 && cumulativeWP >= 50;
 
         if (isHighSignalTurn2) {
             const userTurns = (history || []).filter(h => h.role === 'user').map(h => h.content);
@@ -736,7 +751,7 @@ Generate the comment now:`;
                 audit: fullAudit,
                 audit_count: auditCount || 0,
                 is_dispute: isDispute || false,
-                wp_total: wpTotal,
+                wp_total: cumulativeWP,
                 gold_glean: goldItems,
                 milestones_hit: milestonesHit,
                 path_status: pathStatus
@@ -749,7 +764,7 @@ Generate the comment now:`;
             audit: aiResponse,
             auditClip,
             suitId,
-            wpTotal,
+            wpTotal: cumulativeWP,
             pathStatus,
             goldCount: goldItems.length,
             milestonesHit,

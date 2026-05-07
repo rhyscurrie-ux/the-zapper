@@ -516,7 +516,7 @@ SECTION LENGTH CAPS FOR TURN 2+:
 [CENTRIFUGE_STATUS]: Full — never compress the graduation message.
 
 MANDATORY OUTPUT ORDER:
-1. [WP: XX] [THERMAL_STATUS: X] [STATE: ALPHA/BETA]
+1. [WP: XX] — your score for THIS TURN ONLY. The server accumulates across turns. [THERMAL_STATUS: X] [STATE: ALPHA/BETA]
 2. [AUDIT_LOG // SUBJECT: (Poetic Forensic Designation)]
 3. [IDENTIFIER: SS-XXXX]
    — Turn 1 only: append [IDENTIFIER_ISSUED] block after standard output —
