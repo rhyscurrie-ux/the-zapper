@@ -261,7 +261,7 @@ function initProjectBlue(suitId, isPathA, hasDraft) {
         const anchor = document.getElementById('draft-download-anchor');
         anchor.href = url;
         anchor.download = filename;
-        document.getElementById('draft-txt-filename').innerText = filename;
+
 
         const confirmDiv = document.getElementById('draft-txt-confirm');
         draftDownloadBtn.onclick = () => {
@@ -346,7 +346,7 @@ function initNode02(suitId, wpTotal, pathStatus) {
             <div style="margin-bottom:18px;">
                 <button id="aa-download-btn" class="action-btn secondary-btn" style="display:block; width:100%; text-align:center;">[ DOWNLOAD AA INITIALIZER — FOR EXTERNAL AI USE ]</button>
                 <div id="aa-download-confirm" style="display:none; margin-top:10px;">
-                    <p style="font-size:0.65rem; color:rgba(0,255,65,0.7); margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">YOU ARE ABOUT TO DOWNLOAD Account_Architect_AI_Initializer.pdf. THIS DOCUMENT IS YOURS.</p>
+                    <p style="font-size:0.65rem; color:rgba(0,255,65,0.7); margin-bottom:8px; letter-spacing:0.06em; text-transform:uppercase;">YOU ARE ABOUT TO DOWNLOAD THE AA INITIALIZER. THIS DOCUMENT IS YOURS.</p>
                     <div style="display:flex; gap:8px;">
                         <button id="aa-confirm-yes" class="action-btn" style="flex:1; font-size:0.7rem; padding:10px;">[ CONFIRM DOWNLOAD ]</button>
                         <button id="aa-confirm-no" class="action-btn secondary-btn" style="flex:1; font-size:0.7rem; padding:10px;">[ CANCEL ]</button>
