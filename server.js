@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const { promptText } = require('./prompt.js');
+const { barflyPromptText } = require('./barfly_prompt.js');
 
 const app = express();
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
@@ -175,7 +176,7 @@ function parseGoldTags(text) {
         .replace(/\*\*([^*]+)\*\*\s*\^GOLD:\1:[0-9]+\^/g, '**$1**')
         .replace(/\^GOLD:[^^:]+:\d+\^/g, m => ' ' + m.replace(/\^GOLD:([^^:]+):\d+\^/, '$1'))
         .replace(/\^GOLD:[^^]+\^/g, m => ' ' + m.replace(/\^GOLD:([^^]+)\^/, '$1'))
-        .replace(/(\w):\d+(,\d+)*/g, '$1')
+        .replace(/(\w):(?:M?\d+)(?:,M?\d+)*/g, '$1')
         .replace(/  +/g, ' '); // collapse double spaces
 
     return { cleaned, goldItems };
@@ -365,8 +366,6 @@ app.post('/api/barfly', async (req, res) => {
     }
 
     try {
-        const { barflyPromptText } = require('./barfly_prompt.js');
-
         // Build system prompt — inject Node 01 gold anchors on Turn 0
         let systemPrompt = barflyPromptText;
         if (turnCount === 0) {

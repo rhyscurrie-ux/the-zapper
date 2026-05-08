@@ -210,7 +210,7 @@ function tickerAmberFlash(message, duration = 3000) {
         tickerInterval = setInterval(() => {
             tickerText.classList.add('fade-out');
             setTimeout(() => {
-                sampleIndex = (sampleIndex + 1) % samples.length;
+                sampleIndex = (sampleIndex + 1) % getCurrentSamples().length;
                 tickerText.innerText = getCurrentSamples()[sampleIndex];
                 tickerText.classList.remove('fade-out');
             }, 600);
