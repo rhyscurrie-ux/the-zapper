@@ -70,6 +70,74 @@
                 </div>
             </div>
 
+            <!-- Certificate — shown after download confirmed -->
+            <div id="certificate-section" class="hidden">
+                <div id="certificate">
+                    <div class="cert-header">
+                        <img src="/assets/ape_reaction_logo.png"
+                             alt="APE REACTION PUBLISHING"
+                             class="cert-logo">
+                    </div>
+                    <div class="cert-title">CERTIFICATE OF EXTRACTION</div>
+                    <div class="cert-sequence">SEQ. 01 OF 02
+                        // INTERNAL CLASSIFICATION: INITIATE</div>
+                    <div class="cert-body">
+                        <p class="cert-line">This certifies that</p>
+                        <p class="cert-specimen" id="cert-suit-id">SS-XXXX</p>
+                        <p class="cert-line">has successfully completed
+                        Stage A (Extraction)<br>under the Martis Program.</p>
+                    </div>
+                    <div class="cert-divider"></div>
+                    <div class="cert-data">
+                        <div class="cert-data-row">
+                            <span class="cert-label">MILESTONES CONFIRMED</span>
+                            <span class="cert-value" id="cert-milestones">—</span>
+                        </div>
+                        <div class="cert-data-row">
+                            <span class="cert-label">WP TOTAL</span>
+                            <span class="cert-value" id="cert-wp">—</span>
+                        </div>
+                        <div class="cert-data-row">
+                            <span class="cert-label">STATUS</span>
+                            <span class="cert-value">DRAFT / STAGE A COMPLETE</span>
+                        </div>
+                        <div class="cert-data-row">
+                            <span class="cert-label">DATE</span>
+                            <span class="cert-value" id="cert-date">—</span>
+                        </div>
+                    </div>
+                    <div class="cert-divider"></div>
+                    <div class="cert-directive">
+                        <p class="cert-directive-title">OPERATIONAL DIRECTIVE</p>
+                        <p class="cert-directive-text">Your Substrate Failure
+                        has been logged in the Martis Archive. This is
+                        Sequence 01. Proceed to Stage B for final
+                        reconciliation. The Transcript Guide and Account
+                        Architect are now active.</p>
+                    </div>
+                    <div class="cert-divider"></div>
+                    <div class="cert-submission">
+                        <p class="cert-label">SUBMISSION CHANNEL</p>
+                        <p class="cert-submission-text">
+                            submissions@apereaction.com<br>
+                            Subject: [<span class="cert-ss-id-inline">SS-XXXX</span>]
+                            — SUBSTRATE FAILURE SUBMISSION
+                        </p>
+                    </div>
+                    <div class="cert-divider"></div>
+                    <div class="cert-footer">
+                        <p class="cert-issued">ISSUED BY</p>
+                        <p class="cert-architect">The Architect</p>
+                        <p class="cert-program">Martis Program Operations</p>
+                        <div class="cert-stamp">APE REACTION PUBLISHING</div>
+                    </div>
+                </div>
+                <button id="cert-download-btn" class="barfly-btn"
+                        style="width:100%; margin-top:16px;">
+                    [ DOWNLOAD CERTIFICATE ]
+                </button>
+            </div>
+
             <!-- Input section -->
             <div id="barfly-input-section">
                 <textarea
@@ -242,6 +310,14 @@ async function sendTurn(userInput) {
         turnCount++;
         updateWpBar(data.wpCumulative || wpCumulative);
 
+        // Store for certificate
+        const milestonesMatch = (data.audit || '').match(/\[MILESTONES_HIT:\s*([^\]]+)\]/i);
+        const milestonesHit = milestonesMatch && milestonesMatch[1].trim().toUpperCase() !== 'NONE'
+            ? milestonesMatch[1].split(',').map(m => m.trim()).filter(Boolean)
+            : [];
+        window.confirmedMilestones = milestonesHit;
+        window.finalWP = data.wpCumulative;
+
         if (data.thresholdMet) {
             barflyInputSection.classList.add('hidden');
             thresholdMessage.classList.remove('hidden');
@@ -313,6 +389,7 @@ function showDraft(draft) {
         draftDownload.click();
         confirmDiv.style.display = 'none';
         btn.style.display = 'block';
+        showCertificate();
     };
     no.onclick = () => {
         confirmDiv.style.display = 'none';
@@ -321,6 +398,46 @@ function showDraft(draft) {
 
     draftSection.classList.remove('hidden');
     draftSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── CERTIFICATE ───────────────────────────────────────────────────────────────
+function showCertificate() {
+    const certSection    = document.getElementById('certificate-section');
+    const certSuitId     = document.getElementById('cert-suit-id');
+    const certSuitInline = document.querySelectorAll('.cert-ss-id-inline');
+    const certMilestones = document.getElementById('cert-milestones');
+    const certWP         = document.getElementById('cert-wp');
+    const certDate       = document.getElementById('cert-date');
+
+    if (certSuitId) certSuitId.innerText = suitId;
+    certSuitInline.forEach(el => el.innerText = suitId);
+    if (certMilestones) certMilestones.innerText =
+        (window.confirmedMilestones || []).length + '/18';
+    if (certWP) certWP.innerText =
+        window.finalWP || wpCumulative || '—';
+    if (certDate) certDate.innerText =
+        new Date().toLocaleDateString('en-AU',
+        { day: 'numeric', month: 'long', year: 'numeric' });
+
+    if (certSection) {
+        certSection.classList.remove('hidden');
+        certSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    const certDownloadBtn = document.getElementById('cert-download-btn');
+    if (certDownloadBtn) {
+        certDownloadBtn.onclick = () => {
+            const cert = document.getElementById('certificate');
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write('<html><head><title>Certificate - ' + suitId + '</title>');
+            printWindow.document.write('<style>body{margin:0;padding:20px;background:#f5f0e8;}</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(cert.outerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        };
+    }
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
