@@ -403,7 +403,7 @@ function showDraft(draft) {
 }
 
 // ── CERTIFICATE ───────────────────────────────────────────────────────────────
-function showCertificate() {
+async function showCertificate() {
     const certSection    = document.getElementById('certificate-section');
     const certSuitId     = document.getElementById('cert-suit-id');
     const certSuitInline = document.querySelectorAll('.cert-ss-id-inline');
@@ -413,8 +413,25 @@ function showCertificate() {
 
     if (certSuitId) certSuitId.innerText = suitId;
     certSuitInline.forEach(el => el.innerText = suitId);
-    if (certMilestones) certMilestones.innerText =
-        (window.confirmedMilestones || []).length + '/18';
+    if (certMilestones) {
+        const milestones = window.confirmedMilestones || [];
+        if (milestones.length > 0) {
+            certMilestones.innerText = milestones.length + '/18';
+        } else {
+            try {
+                const res = await fetch(`/api/barfly/init/${encodeURIComponent(suitId)}`);
+                const data = await res.json();
+                const goldMilestones = [...new Set(
+                    (data.gold || []).map(g => g.milestone).filter(Boolean)
+                )];
+                certMilestones.innerText = goldMilestones.length > 0
+                    ? goldMilestones.length + '/18'
+                    : '—';
+            } catch (e) {
+                certMilestones.innerText = '—';
+            }
+        }
+    }
     if (certWP) certWP.innerText =
         window.finalWP || wpCumulative || '—';
     if (certDate) certDate.innerText =
