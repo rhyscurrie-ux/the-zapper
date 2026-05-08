@@ -339,8 +339,8 @@ function initNode02(suitId, wpTotal, pathStatus) {
 
             <div class="field-label" style="margin-bottom:8px;">OPTION A — DIY PATH</div>
             <p class="section-desc" style="margin-bottom:10px;">
-                The Transcript Guide (downloaded above) can be pasted into any AI.
-                The AI will initialise as your Account Architect.
+                The Structural Schematic (downloaded above) contains the AA Initializer.
+                Paste it into any AI and it will initialise as your Account Architect.
                 Results will vary — the AI has no knowledge of your specific session.
             </p>
             <div style="margin-bottom:18px;">
