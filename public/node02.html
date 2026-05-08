@@ -10,6 +10,7 @@
 
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/node02.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -427,16 +428,25 @@ function showCertificate() {
 
     const certDownloadBtn = document.getElementById('cert-download-btn');
     if (certDownloadBtn) {
-        certDownloadBtn.onclick = () => {
-            const cert = document.getElementById('certificate');
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write('<html><head><title>Certificate - ' + suitId + '</title>');
-            printWindow.document.write('<style>body{margin:0;padding:20px;background:#f5f0e8;}</style>');
-            printWindow.document.write('</head><body>');
-            printWindow.document.write(cert.outerHTML);
-            printWindow.document.write('</body></html>');
-            printWindow.document.close();
-            printWindow.print();
+        certDownloadBtn.onclick = async () => {
+            certDownloadBtn.innerText = '[ GENERATING... ]';
+            certDownloadBtn.disabled = true;
+            try {
+                const cert = document.getElementById('certificate');
+                const canvas = await html2canvas(cert, {
+                    backgroundColor: '#f5f0e8',
+                    scale: 2,
+                    useCORS: true
+                });
+                const link = document.createElement('a');
+                link.download = suitId + '_certificate_extraction.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                certDownloadBtn.innerText = '[ CERTIFICATE DOWNLOADED ]';
+            } catch (err) {
+                certDownloadBtn.innerText = '[ DOWNLOAD FAILED — TRY AGAIN ]';
+                certDownloadBtn.disabled = false;
+            }
         };
     }
 }
