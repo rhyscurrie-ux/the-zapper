@@ -865,6 +865,10 @@ app.get('/', (req, res) => {
 
 // ── FALLBACK ──────────────────────────────────────────────────────────────────
 app.get('*', (req, res) => {
+    const url = req.path;
+    if (url.startsWith('/api/') || url.includes('.')) {
+        return res.status(404).json({ error: 'Not found' });
+    }
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 

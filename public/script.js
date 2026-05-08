@@ -174,11 +174,6 @@ function getCurrentSamples() {
     return carouselPhase === 2 ? samplesPhase2 : samples;
 }
 
-function getSafeIndex(arr, idx) {
-    return idx % arr.length;
-}
-
-
 // Phase 2 — after first roast (WP > 0). Model inebriated adventure material.
 
 let sampleIndex = 0;
@@ -216,56 +211,6 @@ function tickerAmberFlash(message, duration = 3000) {
             }, 600);
         }, 4000);
     }, duration);
-}
-
-// ── GATE 2 COUNTDOWN ──────────────────────────────────────────────────────────
-function runGate2Countdown(onComplete) {
-    // Aggressively clear the carousel — clear current interval and
-    // set tickerInterval to a fresh no-op to prevent stale callbacks firing
-    clearInterval(tickerInterval);
-    tickerInterval = setInterval(() => {}, 999999); // dummy — immediately replaced
-
-    tickerLabel.style.display = 'none';
-    tickerText.classList.remove('fade-out');
-    tickerText.style.color = '#ffaa00';
-    tickerText.style.fontWeight = '900';
-    tickerText.style.fontStyle = 'normal';
-
-    updateNavigator('gate2_countdown');
-
-    let count = 5;
-    tickerText.innerText = '[SIGNAL_INJECTED... CALIBRATING_SUBSTRATE... ' + count + 's]';
-
-    const countdown = setInterval(() => {
-        count--;
-        if (count > 0) {
-            tickerText.innerText = '[SIGNAL_INJECTED... CALIBRATING_SUBSTRATE... ' + count + 's]';
-        } else {
-            clearInterval(countdown);
-            tickerText.style.color = '#00ff41';
-            tickerText.innerText = '[CALIBRATION_COMPLETE. SUBSTRATE_GROUNDED.]';
-
-            setTimeout(() => {
-                tickerText.style.color = '';
-                tickerText.style.fontWeight = '';
-                tickerText.style.fontStyle = '';
-                tickerLabel.style.display = '';
-                // Set current sample immediately — don't leave calibration text
-                tickerText.classList.remove('fade-out');
-                tickerText.innerText = getCurrentSamples()[sampleIndex];
-                tickerInterval = setInterval(() => {
-                    tickerText.classList.add('fade-out');
-                    setTimeout(() => {
-                        sampleIndex = (sampleIndex + 1) % samples.length;
-                        tickerText.innerText = getCurrentSamples()[sampleIndex];
-                        tickerText.classList.remove('fade-out');
-                    }, 600);
-                }, 4000);
-
-                onComplete();
-            }, 1000);
-        }
-    }, 1000);
 }
 
 // ── FOOTER — PROCESSING ON FIRST KEYPRESS ────────────────────────────────────

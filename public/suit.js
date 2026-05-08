@@ -257,8 +257,12 @@ function initProjectBlue(suitId, isPathA, hasDraft) {
         // Download TXT — confirm flow
         const filename = `${ssId}_draft_account.txt`;
         const blob = new Blob([text], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
         const anchor = document.getElementById('draft-download-anchor');
+        if (anchor._blobUrl) {
+            URL.revokeObjectURL(anchor._blobUrl);
+        }
+        const url = URL.createObjectURL(blob);
+        anchor._blobUrl = url;
         anchor.href = url;
         anchor.download = filename;
 
