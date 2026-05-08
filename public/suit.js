@@ -56,10 +56,10 @@ This is a starting point. Its incompleteness is the invitation to Stage 3.`
     },
     draft_complete: {
         header: 'DRAFT ACCOUNT GENERATED.',
-        directive: `Your Draft Account is below.
-Download or copy it.
-Bring it to Node 02 for Stage 3 reconstruction.
-The native path has your full audit log and will begin where your audit ended.`
+        directive: `This is what Stage 2 recovered. Read it.
+It is the version that existed before you edited it —
+or the closest the Architect could get from what you gave.
+The full version is what Node 02 extracts.`
     }
 };
 
@@ -147,19 +147,13 @@ function populateDossier(data, suitId, milestonesHit) {
 function initProjectBlue(suitId, isPathA, hasDraft) {
     const sourceConfirmBtn  = document.getElementById('source-confirm-btn');
     const pbStep2           = document.getElementById('pb-step-2');
-    const pbStep3           = document.getElementById('pb-step-3');
+    const pbStep3           = document.getElementById('pb-step-3-container');
     const generateDraftBtn  = document.getElementById('generate-draft-btn');
     const draftLoading      = document.getElementById('draft-loading');
     const draftOutput       = document.getElementById('draft-output');
     const draftText         = document.getElementById('draft-text');
     const draftCopyBtn      = document.getElementById('draft-copy-btn');
     const draftDownloadBtn  = document.getElementById('draft-download-btn');
-
-    // Show Step 03 only for PATH A
-    // Do NOT call updateDossierNavigator here — elite state set in init() persists
-    if (isPathA) {
-        pbStep3.classList.remove('hidden');
-    }
 
     // If draft already exists, show it immediately
     if (hasDraft) {
@@ -196,6 +190,7 @@ function initProjectBlue(suitId, isPathA, hasDraft) {
         sourceConfirmBtn.classList.add('hidden');
         pbStep2.classList.remove('hidden');
         if (isPathA) {
+            pbStep3.classList.remove('hidden');
             updateDossierNavigator('schematic_revealed');
             // After a moment, advance to draft step
             setTimeout(() => {
@@ -245,6 +240,9 @@ function initProjectBlue(suitId, isPathA, hasDraft) {
         draftOutput.classList.remove('hidden');
         generateDraftBtn.classList.add('hidden');
         draftLoading.classList.add('hidden');
+
+        const submissionBlock = document.getElementById('submission-block');
+        if (submissionBlock) submissionBlock.classList.remove('hidden');
 
         // Copy to clipboard
         draftCopyBtn.onclick = () => {
