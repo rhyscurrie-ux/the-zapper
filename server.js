@@ -725,17 +725,24 @@ app.post('/api/scan', async (req, res) => {
             const userTurns = (history || []).filter(h => h.role === 'user').map(h => h.content);
             const turn1Confession = userTurns[0] || input;
             const turn2Confession = input;
+
+            // Use the more specific confession as Line 2 anchor (longer = more detail)
+            const line2Confession = turn2Confession.length > turn1Confession.length
+                ? turn2Confession : turn1Confession;
+            const line3Confession = turn2Confession.length > turn1Confession.length
+                ? turn1Confession : turn2Confession;
+
             const dossierLink = `APEreaction.com/suit/${suitId}`;
             const clipPrompt = `You are writing a Facebook comment for someone who just discovered they have been wasting their time. The comment will appear on a reel called "Have you been wasting your time?" and must hook new viewers into clicking the link.
 
-The Specimen's Turn 1 confession (what they were doing with their time): "${turn1Confession}"
-The Specimen's Turn 2 confession (what they were actually doing): "${turn2Confession}"
+The Specimen's high-signal confession (primary material): "${line2Confession}"
+The Specimen's secondary confession: "${line3Confession}"
 
 Write a comment in this exact three-line structure:
 
 Line 1: "Today I discovered I've been wasting my time." — then add one short punchy variation (e.g. "Mind. Blown." or "You called it." — keep it under 5 words).
-Line 2: "I've been [Turn 1 confession reframed as absurd self-deprecating pursuit — witty, specific, makes reader laugh]," — ends with a COMMA, no full stop.
-Line 3: "when I should have been [Turn 2 confession reframed as absurd heroic alternative — witty, specific, makes reader want to know more]." — starts LOWERCASE, ends with full stop.
+Line 2: "I've been [high-signal confession reframed as absurd self-deprecating pursuit — witty, specific, makes reader laugh]," — ends with a COMMA, no full stop.
+Line 3: "when I should have been [secondary confession reframed as absurd heroic alternative — witty, specific, makes reader want to know more]." — starts LOWERCASE, ends with full stop.
 Line 4: ${dossierLink}
 
 Rules:
