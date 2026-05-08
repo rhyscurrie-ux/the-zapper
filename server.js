@@ -111,13 +111,28 @@ app.get('/api/suit/:id', async (req, res) => {
             .eq('audit_count', 0)
             .single();
 
+        // Check substrate_logs for Node 02 synthesis draft (different table from entropy_logs draft_account)
+        const { data: substrateDraftRow } = await supabase
+            .from('substrate_logs')
+            .select('synthesis_draft')
+            .eq('suit_id', suitId)
+            .not('synthesis_draft', 'is', null)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
+            .catch(() => ({ data: null }));
+
+        const hasDraft = !!(data.draft_account || substrateDraftRow?.synthesis_draft);
+
         res.json({
             ...data,
             input: turn1Data?.input || data.input,
             wp_total: peakWP,
             path_status: confirmedPathA ? 'PATH_A' : (data.path_status || 'PENDING'),
             gold_summary: allGold.length,
-            milestones_hit: Array.from(allMilestones)
+            milestones_hit: Array.from(allMilestones),
+            hasDraft,
+            draft_account: data.draft_account || substrateDraftRow?.synthesis_draft || null
         });
 
     } catch (e) {
