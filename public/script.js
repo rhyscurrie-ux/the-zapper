@@ -440,7 +440,7 @@ async function runAudit(type = 'standard') {
         output.innerHTML = "<span class='flashing-amber'>[CALIBRATING_PROXIMITY...]</span>";
     }
 
-    const isDispute = (type === 'dispute') || (submitBtn.dataset.mode === 'dispute');
+    const isDispute = (type === 'dispute');
     submitBtn.dataset.mode = 'standard';
 
     const userPayload = isDispute
@@ -485,8 +485,7 @@ async function runAudit(type = 'standard') {
         if (data.suitId) currentSuitId = data.suitId;
         if (data.pathStatus) currentPathStatus = data.pathStatus;
 
-        const wpMatch = data.audit.match(/\[WP:\s*(\d+)\]/i);
-        if (wpMatch) currentWP = parseInt(wpMatch[1], 10);
+        if (data.wpTotal) currentWP = data.wpTotal;
 
         // ── RENDER AUDIT OUTPUT ───────────────────────────────────────────────
         const auditText = data.audit || '[SYSTEM_SILENCE]';
